@@ -1,0 +1,70 @@
+name: bookit_mobile_app
+description: "A new Flutter project."
+
+publish_to: 'none' 
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  go_router: ^13.0.0
+  flutter_svg: ^1.0.0 
+  flutter_localizations:
+    sdk: flutter
+  
+
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.3
+  connectivity_plus: ^6.1.4
+  provider: ^6.1.5
+  flutter_riverpod: ^2.6.1
+  
+
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  mockito: ^5.4.6
+  build_runner: ^2.4.15
+  flutter_lints: ^5.0.0
+  
+flutter:
+  assets:
+    - assets/locale/
+    - assets/images/logo.svg
+    - assets/images/background.jpeg
+    - assets/icons/apple.svg
+    - assets/icons/facebook.svg
+    - assets/icons/google.svg
+
+  fonts:
+    - family: Campton
+      fonts:
+        - asset: assets/fonts/campton/CamptonBlack.otf
+        - asset: assets/fonts/campton/CamptonBlackItalic.otf
+        - asset: assets/fonts/campton/CamptonBold.otf
+        - asset: assets/fonts/campton/CamptonBoldItalic.otf
+        - asset: assets/fonts/campton/CamptonBook.otf
+        - asset: assets/fonts/campton/CamptonBookItalic.otf
+        - asset: assets/fonts/campton/CamptonExtraBold.otf
+        - asset: assets/fonts/campton/CamptonExtraBoldItalic.otf
+        - asset: assets/fonts/campton/CamptonExtraLight.otf
+        - asset: assets/fonts/campton/CamptonLightItalic.otf
+        - asset: assets/fonts/campton/CamptonMedium.otf
+        - asset: assets/fonts/campton/CamptonSemiBold.otf
+        - asset: assets/fonts/campton/CamptonThin.otf
+
+    - family: SaintRegus
+      fonts:
+        - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldCondensed.otf
+        - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldExpanded.otf
+
+uses-material-design: true
