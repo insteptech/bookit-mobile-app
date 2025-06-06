@@ -23,7 +23,7 @@ Bookit is a Flutter-based mobile application designed to allow users to book wel
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-org/bookit_mobile_app.git
+git clone https://github.com/bookitapp-aicha/bookit_mobile_app.git
 cd bookit_mobile_app
 ```
 
@@ -93,4 +93,3 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## 📜 License
 
-[MIT](LICENSE)
