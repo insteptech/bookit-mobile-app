@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/login_form.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_colors.dart';
 
@@ -59,13 +60,18 @@ class LoginScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        localizations.text('sign_up'),
-                        style: const TextStyle(
-                          color: AppColors.surfaceLight,
-                          fontSize: 14,
-                          fontFamily: 'Campton',
-                          fontWeight: FontWeight.w500,
+                      GestureDetector(
+                        onTap: (){
+                          context.push('/signup');
+                        },
+                        child: Text(
+                          localizations.text('sign_up_link'),
+                          style: const TextStyle(
+                            color: AppColors.surfaceLight,
+                            fontFamily: 'Compton',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500
+                          ),
                         ),
                       ),
                     ],

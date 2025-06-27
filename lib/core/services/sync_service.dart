@@ -9,5 +9,13 @@ class SyncService {
 
   }
 
+  Future<void> syncOnboardingSteps() async {
+
+  }
+
+  Future<void> syncBusinessDetails() async {
+    
+  }
+
   sync() {}
 }

@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 
 class RememberMeRow extends StatelessWidget {
@@ -7,11 +8,11 @@ class RememberMeRow extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const RememberMeRow({
-    super.key,
+    super.key, 
     required this.rememberMe,
     required this.onChanged,
   });
-
+ 
   @override
   Widget build(BuildContext context) {
     final localizations = AppTranslationsDelegate.of(context);
@@ -45,7 +46,9 @@ class RememberMeRow extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        Text(
+        GestureDetector(
+          onTap: (){context.push('/forgetpassword');},
+          child: Text(
           localizations.text('forgot_password'),
           style: const TextStyle(
             decoration: TextDecoration.underline,
@@ -55,6 +58,7 @@ class RememberMeRow extends StatelessWidget {
             fontFamily: 'Campton',
           ),
         ),
+        )
       ],
     );
   }

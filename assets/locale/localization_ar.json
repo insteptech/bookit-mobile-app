@@ -4,5 +4,7 @@
   "password": "كلمة المرور",
   "remember_me": "تذكرني",
   "forgot_password": "هل نسيت كلمة المرور؟",
-  "sign_up": "ليس لديك حساب؟ سجل الآن"
+  "sign_up_link": "ليس لديك حساب؟ سجل الآن",
+  "login_button": "",
+  "sign_up":""
 }

@@ -20,4 +20,7 @@ class AppColors {
   static const onError = Colors.white;
 
   static const socialIcon = Color(0xFFCED4DA);
+  
+  static const passwordConditions = Color(0xFFADB5BD);
+  
 }

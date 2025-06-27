@@ -1,60 +1,78 @@
-import 'package:bookit_mobile_app/app/theme/theme_data.dart';
 import 'package:flutter/material.dart';
+import 'package:bookit_mobile_app/app/theme/theme_data.dart';
 
-class InputField extends StatelessWidget {
+class PasswordInputField extends StatefulWidget {
   final String hintText;
-  final bool obscureText;
   final TextEditingController controller;
 
-  const InputField({
+  const PasswordInputField({
     super.key,
     required this.hintText,
     required this.controller,
-    this.obscureText = false,
   });
+
+  @override
+  State<PasswordInputField> createState() => _PasswordInputFieldState();
+}
+
+class _PasswordInputFieldState extends State<PasswordInputField> {
+  bool _obscureText = true;
+
+  void _toggleVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
-      width: double.infinity, 
+      width: double.infinity,
       height: 44, 
       child: TextField(
-        controller: controller,
-        obscureText: obscureText,
+        controller: widget.controller,
+        obscureText: _obscureText,
         decoration: InputDecoration(
           filled: true,
           fillColor: theme.scaffoldBackgroundColor,
-          hintText: hintText,
+          hintText: widget.hintText,
           hintStyle: theme.textTheme.bodyMedium?.copyWith(
-            color: const Color(0xFF6C757D), 
+            color: const Color(0xFF6C757D),
             fontFamily: 'Campton',
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8), 
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(
-              color: Color(0xFFCED4DA), 
+              color: Color(0xFFCED4DA),
               width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8), 
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(
-              color: Color(0xFF007BFF), 
+              color: Color(0xFF007BFF),
               width: 2,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(
-              color: Color(0xFFCED4DA), 
+              color: Color(0xFFCED4DA),
               width: 1,
             ),
           ),
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16, 
-            vertical: 10, 
+            horizontal: 16,
+            vertical: 10,
+          ),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureText ? Icons.visibility_off : Icons.visibility,
+              color: Colors.grey,
+            ),
+            onPressed: _toggleVisibility,
           ),
         ),
       ),

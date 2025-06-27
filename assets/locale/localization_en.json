@@ -1,8 +1,45 @@
 {
     "good_day": "Good Day!",
+    "full_name":"Full name",
     "email": "Email",
     "password": "Password",
+    "confirm_password":"Confirm password",
     "remember_me": "Remember Me",
     "forgot_password": "Forgot password",
-    "sign_up": "Don’t have an account? Sign up now"
-}
+    "sign_up_link": "Don’t have an account? Sign up now",
+    "login_button": "Login",
+    "sign_up":"Sign up",
+    "already_have_an_account_?":"Already have an account?",
+
+    "sign_in":"Sign in",
+    "password_must_contain":"Password must contain:",
+    "8_characters":"8 characters",
+    "1_uppercase_letter":"1 uppercase letter (A,B,C...)",
+    "1_special_character":"1 special character",
+    "1_alphanumeric_character":"1 alphanumeric character",
+    "password_match":"Password match",
+    "complete_sign_up":"Complete sign up",
+
+    "forgot_pass_app_bar_title":"Forgot password",
+    "fogot_pass_title":"Forgot your password?\nWe got you.",
+    "forgot_pass_description1":"Please enter your registered email address to get a verification code.",
+    "forgot_pass_description2":"We've sent your 6-digit code to ",
+    "forgot_pass_description3":"Create a new password.",
+    "forgot_pass_otp_input_field":"Enter OTP",
+    "forgot_pass_next_button":"Next",
+    "forgot_pass_done_button":"Done",
+    "forgot_pass_didnt_get_code_text":"Didn't get a code? Double check your email is correct.",
+    "forgot_pass_resend_code_link":"Resend code",
+
+    "onboard_welcome_title":"Welcome aboard!",
+    "onboard_welcome_description":"Let's get you set up. In just a few easy steps, you'll have your business registered, your services listed, your team introduced, and your schedule ready to go!",
+    "onboard_welcome_next_button_about_you":"Next: about you",
+    "onboard_about_title":"About you",
+    "onboard_about_description":"First things first, tell us a little about your awesome business!",
+    "onboard_about_radio_new_title": "Create a new business",
+    "onboard_about_radio_new_description": "You’re new to the platform",
+    "onboard_about_radio_existing_title": "Join an existing business as a member",
+    "onboard_about_radio_existing_description": "You’re a team member part of a registered business",
+    "onboard_about_radio_coming_soon_label":"Coming soon",
+    "onboard_next_button_address_details":"Next: address details"
+} 

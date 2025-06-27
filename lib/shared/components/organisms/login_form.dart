@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/features/auth/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,12 +36,27 @@ class LoginForm extends ConsumerWidget {
             controller: TextEditingController(),
             obscureText: true,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 3),
           RememberMeRow(
             rememberMe: rememberMe,
             onChanged: (value) {
               ref.read(rememberMeProvider.notifier).state = value;
             },
+          ),
+          const SizedBox(height: 5),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: (){
+                
+                print('Login button pressed');
+              }, 
+              style: ElevatedButton.styleFrom(),
+              child: Text(
+                localizations.text("login_button"),
+                style: AppTypography.button
+              )
+              ),
           ),
           const SizedBox(height: 18),
           Row(
@@ -53,6 +69,7 @@ class LoginForm extends ConsumerWidget {
               _socialIcon('assets/icons/facebook.svg'),
             ],
           ),
+          
         ],
       ),
     );
@@ -69,4 +86,5 @@ class LoginForm extends ConsumerWidget {
       child: SvgPicture.asset(assetPath, height: 20, width: 20),
     );
   }
+  
 }
