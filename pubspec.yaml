@@ -67,4 +67,4 @@ flutter:
         - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldCondensed.otf
         - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldExpanded.otf
 
-uses-material-design: true
+  uses-material-design: true

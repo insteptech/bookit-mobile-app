@@ -67,9 +67,7 @@ class _SignupFormState extends ConsumerState<SignupForm>
         passwordController.text,
       );
 
-      // print(token);
-
-      if (!mounted) return; // ✅ make sure widget still exists
+      if (!mounted) return; 
 
       context.go('/onboarding_welcome');
   

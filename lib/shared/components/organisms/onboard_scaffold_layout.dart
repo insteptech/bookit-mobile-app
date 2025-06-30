@@ -65,14 +65,14 @@ class OnboardScaffoldLayout extends StatelessWidget {
                 text: nextButtonText,
               )
               ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(vertical: 1),
-              //   child: PrimaryButton(
-              //   onPressed: logout,
-              //   isDisabled: false,
-              //   text: "Logout",
-              // )
-              // ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1),
+                child: PrimaryButton(
+                onPressed: logout,
+                isDisabled: false,
+                text: "Logout",
+              )
+              ),
             ],
           ),
         ),

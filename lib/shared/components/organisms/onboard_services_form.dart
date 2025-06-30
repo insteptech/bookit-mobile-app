@@ -220,8 +220,13 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
             });
           },
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.add_circle_outline_rounded),
+               Icon(
+                  Icons.add_circle_outline, 
+                  color: theme.colorScheme.primary,
+                  size: 20,
+                ),
               const SizedBox(width: 4),
               Text(
                 "Add another service",

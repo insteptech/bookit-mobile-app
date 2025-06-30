@@ -58,62 +58,60 @@ class _OnboardLocationsScreenState
   }
 
   void _addAddressForm({
-  String? id,
-  String? location,
-  String? address,
-  String? floor,
-  String? city,
-  String? state,
-  String? country,
-  String? instructions,
-  double? lat,
-  double? lng,
-}) {
-  final locCtrl = TextEditingController(text: location ?? '');
-  final addrCtrl = TextEditingController(text: address ?? '');
-  final cityCtrl = TextEditingController(text: city ?? '');
-  final stateCtrl = TextEditingController(text: state ?? '');
-  final countryCtrl = TextEditingController(text: country ?? '');
+    String? id,
+    String? location,
+    String? address,
+    String? floor,
+    String? city,
+    String? state,
+    String? country,
+    String? instructions,
+    double? lat,
+    double? lng,
+  }) {
+    final locCtrl = TextEditingController(text: location ?? '');
+    final addrCtrl = TextEditingController(text: address ?? '');
+    final cityCtrl = TextEditingController(text: city ?? '');
+    final stateCtrl = TextEditingController(text: state ?? '');
+    final countryCtrl = TextEditingController(text: country ?? '');
 
-  // Listen for changes
-  [locCtrl, addrCtrl, cityCtrl, stateCtrl, countryCtrl].forEach((ctrl) {
-    ctrl.addListener(_validateForms);
-  });
-
-  setState(() {
-    addressControllersList.add({
-      "id": id,
-      "location": locCtrl,
-      "address": addrCtrl,
-      "floor": TextEditingController(text: floor ?? ''),
-      "city": cityCtrl,
-      "state": stateCtrl,
-      "country": countryCtrl,
-      "instructions": TextEditingController(text: instructions ?? ''),
-      "latitude": lat ?? 0.0,
-      "longitude": lng ?? 0.0,
+    // Listen for changes
+    [locCtrl, addrCtrl, cityCtrl, stateCtrl, countryCtrl].forEach((ctrl) {
+      ctrl.addListener(_validateForms);
     });
-    _validateForms();
-  });
-}
 
-
-  void _validateForms() {
-  bool isValid = addressControllersList.every((form) {
-    return form["location"].text.isNotEmpty &&
-        form["address"].text.isNotEmpty &&
-        form["city"].text.isNotEmpty &&
-        form["state"].text.isNotEmpty &&
-        form["country"].text.isNotEmpty;
-  });
-
-  if (isFormValid != isValid) {
     setState(() {
-      isFormValid = isValid;
+      addressControllersList.add({
+        "id": id,
+        "location": locCtrl,
+        "address": addrCtrl,
+        "floor": TextEditingController(text: floor ?? ''),
+        "city": cityCtrl,
+        "state": stateCtrl,
+        "country": countryCtrl,
+        "instructions": TextEditingController(text: instructions ?? ''),
+        "latitude": lat ?? 0.0,
+        "longitude": lng ?? 0.0,
+      });
+      _validateForms();
     });
   }
-}
 
+  void _validateForms() {
+    bool isValid = addressControllersList.every((form) {
+      return form["location"].text.isNotEmpty &&
+          form["address"].text.isNotEmpty &&
+          form["city"].text.isNotEmpty &&
+          form["state"].text.isNotEmpty &&
+          form["country"].text.isNotEmpty;
+    });
+
+    if (isFormValid != isValid) {
+      setState(() {
+        isFormValid = isValid;
+      });
+    }
+  }
 
   Future<void> _submitAddresses() async {
     final businessId = ref.read(businessProvider)?.id;
@@ -139,7 +137,6 @@ class _OnboardLocationsScreenState
           };
         }).toList();
 
-
     try {
       await OnboardingApiService().submitLocationInfo(
         businessId: businessId,
@@ -150,7 +147,7 @@ class _OnboardLocationsScreenState
           businessId: businessId,
         );
         ref.read(businessProvider.notifier).state = businessDetails;
-        
+
         context.go("/offerings");
       } catch (e) {
         print("Error fething business details: $e");
@@ -188,8 +185,12 @@ class _OnboardLocationsScreenState
             onTap: _addAddressForm,
             child: Row(
               children: [
-                Icon(Icons.add, color: theme.colorScheme.primary),
-                SizedBox(width: 8),
+                Icon(
+                  Icons.add_circle_outline,
+                  color: theme.colorScheme.primary,
+                  size: 20,
+                ),
+                SizedBox(width: 5),
                 Text(
                   "Add another address",
                   style: AppTypography.bodyMedium.copyWith(
