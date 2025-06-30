@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-// 🌐 Your imports here
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
-import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';

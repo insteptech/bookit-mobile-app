@@ -59,11 +59,11 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (final l1 in level1) ...[
-            Text(l1.category.name, style: AppTypography.headingLg),
+            Text(l1.category.name, style: AppTypography.headingMd),
             const SizedBox(height: 8),
             if (level1ToLevel2.containsKey(l1.category.id))
               for (final l2 in level1ToLevel2[l1.category.id]!) ...[
-                Text(l2.category.name, style: AppTypography.headingMd),
+                Text(l2.category.name, style: AppTypography.headingSm),
                 const SizedBox(height: 8),
                 Builder(builder: (context) {
                   final key = GlobalKey<OnboardServicesFormState>();

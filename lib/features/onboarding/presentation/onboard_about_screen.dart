@@ -93,7 +93,7 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
 
       // Navigate to next step
       if (!mounted) return;
-      context.push('/locations');
+      context.go('/locations');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(

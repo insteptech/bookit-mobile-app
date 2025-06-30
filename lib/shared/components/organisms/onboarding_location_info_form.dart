@@ -49,7 +49,7 @@ class OnboardingLocationInfoForm extends StatelessWidget {
 
         SizedBox(height: 8),
         Text("State", style: AppTypography.bodyMedium),
-        InputField(hintText: "City", controller: stateController,),
+        InputField(hintText: "State", controller: stateController,),
 
         SizedBox(height: 8),
         Text("Country", style: AppTypography.bodyMedium),

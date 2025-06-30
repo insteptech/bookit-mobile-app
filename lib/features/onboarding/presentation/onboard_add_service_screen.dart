@@ -112,6 +112,7 @@ class _OnboardAddServiceScreenState
                         },
                         bgColor: theme.scaffoldBackgroundColor,
                       ),
+                      SizedBox(height: 8,),
                       if (expandedIds.contains(parent.id))
                         Padding(
                           padding: const EdgeInsets.only(left: 16.0),
