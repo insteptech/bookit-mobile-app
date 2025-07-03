@@ -41,6 +41,8 @@
 //   }
 // }
 import 'package:bookit_mobile_app/app/theme/theme_data.dart';
+import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -62,6 +64,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     _checkAndRedirect();
   }
 
+  void logout()async{
+    await TokenService().clearToken();
+    print("Token cleared");
+    context.go("/login");
+  }
+
   Future<void> _checkAndRedirect() async {
   final prefs = ref.read(sharedPreferencesProvider);
 
@@ -77,23 +85,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   if (token == null) {
     context.go('/login');
   } else {
-    // switch (step) {
-    //   case 'welcome': 
-    //     context.go('/onboarding_welcome');
-    //     break;
-    //   case 'about':
-    //     context.go('/onboarding_about');
-    //     break;
-    //   case 'location':
-    //     context.go('/locations');
-    //     break;
-    //   case 'offerings':
-    //     context.go('/offerings');
-    //     break;
-    //   default:
-    //     context.go('/onboarding_welcome');
-    // }
-    context.go('/onboarding_welcome');
+     final userService = UserService();
+     final user = await userService.fetchUserDetails();
+
+      if(user.businessIds.isNotEmpty){
+        final businessData = await userService.fetchBusinessDetails(businessId: user.businessIds[0]);
+
+        if(businessData.isOnboardingComplete){
+          context.go("/home_screen");
+        } else {
+          context.go('/onboarding_welcome');
+        }
+      }
   }
 }
 

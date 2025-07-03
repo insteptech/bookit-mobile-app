@@ -24,6 +24,7 @@ class _OnboardAddServiceScreenState
   late Future<List<CategoryModel>> futureCategories;
 
   late String categoryId;
+  bool isButtonDisabled = false;
 
   @override
   void initState() {
@@ -37,9 +38,6 @@ class _OnboardAddServiceScreenState
             : '');
 
     futureCategories = OnboardingApiService().getCategories();
-
-    print("business details: $business");
-    print("categoryId: $categoryId");
   }
 
   void toggleSelection(String id, List<CategoryModel> categories) {
@@ -95,7 +93,8 @@ class _OnboardAddServiceScreenState
           subheading: "Choose all services you offer under this category.",
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children:
+            children: 
+                snapshot.connectionState == ConnectionState.waiting?[Center(child: CircularProgressIndicator(),)]:
                 level1.map((parent) {
                   final level2 = categories.where(
                     (e) => e.level == 2 && e.parentId == parent.id,
@@ -112,7 +111,7 @@ class _OnboardAddServiceScreenState
                         },
                         bgColor: theme.scaffoldBackgroundColor,
                       ),
-                      SizedBox(height: 8,),
+                      SizedBox(height: 8),
                       if (expandedIds.contains(parent.id))
                         Padding(
                           padding: const EdgeInsets.only(left: 16.0),
@@ -171,18 +170,28 @@ class _OnboardAddServiceScreenState
                     .toList();
 
             if (servicesPayload.isNotEmpty) {
-              await OnboardingApiService().createServices(
-                services: servicesPayload,
-              );
-              final businessDetails = await UserService().fetchBusinessDetails(
-                businessId: business.id,
-              );
-              ref.read(businessProvider.notifier).state = businessDetails;
-              context.go("/services_details");
+              setState(() {
+                isButtonDisabled = true;
+              });
+              try {
+                await OnboardingApiService().createServices(
+                  services: servicesPayload,
+                );
+                final businessDetails = await UserService()
+                    .fetchBusinessDetails(businessId: business.id);
+                ref.read(businessProvider.notifier).state = businessDetails;
+                context.push("/services_details");
+              } catch (e) {
+                print(e);
+              } finally {
+                setState(() {
+                  isButtonDisabled = false;
+                });
+              }
             }
           },
           nextButtonText: "Next",
-          nextButtonDisabled: selectedIds.isEmpty,
+          nextButtonDisabled: selectedIds.isEmpty || isButtonDisabled,
           currentStep: 3,
         );
       },

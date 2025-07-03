@@ -16,9 +16,7 @@ class SignupForm extends ConsumerStatefulWidget {
   ConsumerState<SignupForm> createState() => _SignupFormState();
 }
 
-
-class _SignupFormState extends ConsumerState<SignupForm>
- {
+class _SignupFormState extends ConsumerState<SignupForm> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -54,28 +52,31 @@ class _SignupFormState extends ConsumerState<SignupForm>
     super.dispose();
   }
 
-  Future<void> handleSignup() async {
+  Future<void> handleSendOtp() async {
     setState(() {
       isLoading = true;
     });
+    isButtonDisabled = true;
     try {
       final authService = AuthService();
 
+      // Todo write function to send OTP
+
       await authService.signup(
-        nameController.text,
-        emailController.text,
-        passwordController.text,
+        name: nameController.text,
+        email: emailController.text,
+        password: passwordController.text,
       );
 
-      if (!mounted) return; 
+      if (!mounted) return;
 
-      context.go('/onboarding_welcome');
-  
+      context.go('/signup_otp', extra: {'email': emailController.text});
     } catch (e) {
       setState(() {
         error = e.toString().replaceAll('Exception:', '').trim();
       });
     } finally {
+      isButtonDisabled = false;
       if (mounted) setState(() => isLoading = false);
     }
   }
@@ -125,7 +126,7 @@ class _SignupFormState extends ConsumerState<SignupForm>
           PrimaryButton(
             isDisabled: isButtonDisabled,
             text: localizations.text("complete_sign_up"),
-            onPressed: handleSignup,
+            onPressed: handleSendOtp,
           ),
         ],
       ),

@@ -1,23 +1,23 @@
 class LoginState {
   final String email;
   final String password;
-  final bool rememberMe;
+  final bool isLoading;
 
   LoginState({
     this.email = '',
     this.password = '',
-    this.rememberMe = false,
+    this.isLoading = false,
   });
 
   LoginState copyWith({
     String? email,
     String? password,
-    bool? rememberMe,
+    bool? isLoading,
   }) {
     return LoginState(
       email: email ?? this.email,
       password: password ?? this.password,
-      rememberMe: rememberMe ?? this.rememberMe,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }

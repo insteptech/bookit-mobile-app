@@ -25,23 +25,31 @@ class ServiceFormData {
   ServiceFormData({required this.serviceId});
 
   Map<String, dynamic>? toJson(String businessId) {
-    final durationList = durationAndCosts.where((item) {
-      return item['duration'].toString().isNotEmpty && item['cost'].toString().isNotEmpty;
-    }).map((item) {
-      final map = {
-        'duration_minutes': int.tryParse(item['duration'] ?? '0') ?? 0,
-        'price': int.tryParse(item['cost'] ?? '0') ?? 0,
-      };
-      if ((item['packageAmount'] ?? '').isNotEmpty) {
-        map['package_amount'] = int.tryParse(item['packageAmount']) ?? 0;
-      }
-      if ((item['packagePerson'] ?? '').isNotEmpty) {
-        map['package_person'] = int.tryParse(item['packagePerson']) ?? 0;
-      }
-      return map;
-    }).toList();
+    final durationList =
+        durationAndCosts
+            .where((item) {
+              return item['duration'].toString().isNotEmpty &&
+                  item['cost'].toString().isNotEmpty;
+            })
+            .map((item) {
+              final map = {
+                'duration_minutes': int.tryParse(item['duration'] ?? '0') ?? 0,
+                'price': int.tryParse(item['cost'] ?? '0') ?? 0,
+              };
+              if ((item['packageAmount'] ?? '').isNotEmpty) {
+                map['package_amount'] =
+                    int.tryParse(item['packageAmount']) ?? 0;
+              }
+              if ((item['packagePerson'] ?? '').isNotEmpty) {
+                map['package_person'] =
+                    int.tryParse(item['packagePerson']) ?? 0;
+              }
+              return map;
+            })
+            .toList();
 
-    if (titleController.text.trim().isEmpty || durationList.isEmpty) return null;
+    if (titleController.text.trim().isEmpty || durationList.isEmpty)
+      return null;
 
     return {
       'business_id': businessId,
@@ -82,7 +90,25 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
       children: [
         for (var formData in forms) ...[
           const SizedBox(height: 12),
-          Text("Name your service", style: AppTypography.headingSm),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Name your service", style: AppTypography.headingSm),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    forms.remove(formData);
+                  });
+                },
+                child: Icon(
+                  Icons.delete_outline,
+                  size: 24,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+
           const SizedBox(height: 8),
           InputField(
             hintText: "Service title",
@@ -114,22 +140,6 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
                         onChanged: (value) {
                           setState(() {
                             item['duration'] = value;
-                            final isLast = i == formData.durationAndCosts.length - 1;
-                            final hasEmpty = formData.durationAndCosts.any(
-                              (e) => e['duration'].toString().isEmpty,
-                            );
-                            if (isLast && value.isNotEmpty && !hasEmpty) {
-                              formData.durationAndCosts.add({
-                                "duration": "",
-                                "cost": "",
-                                "packageAmount": "",
-                                "packagePerson": "",
-                                "durationController": TextEditingController(),
-                                "costController": TextEditingController(),
-                                "packageAmountController": TextEditingController(),
-                                "packagePersonController": TextEditingController(),
-                              });
-                            }
                             if (value.isEmpty) {
                               item['costController']?.clear();
                               item['cost'] = "";
@@ -142,74 +152,134 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
                         },
                       ),
                     ),
+                    SizedBox(width: 8),
+                    if(formData.durationAndCosts.length>1)
+                      GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (formData.durationAndCosts.length > 1) {
+                            formData.durationAndCosts.remove(item);
+                          }
+                        });
+                      },
+                      child: Icon(
+                        Icons.remove_circle_outline,
+                        size: 26,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
                   ],
                 ),
               );
             }),
           ),
+          GestureDetector(
+            child: Text(
+              "Add new duration",
+              style: AppTypography.bodyMedium.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            onTap: () {
+              setState(() {
+                formData.durationAndCosts.add({
+                  "duration": "",
+                  "cost": "",
+                  "packageAmount": "",
+                  "packagePerson": "",
+                  "durationController": TextEditingController(),
+                  "costController": TextEditingController(),
+                  "packageAmountController": TextEditingController(),
+                  "packagePersonController": TextEditingController(),
+                });
+              });
+            },
+          ),
           const SizedBox(height: 16),
           Text("Cost", style: AppTypography.headingSm),
           const SizedBox(height: 8),
           Column(
-            children: formData.durationAndCosts
-                .where((e) => e['duration'].toString().isNotEmpty)
-                .map((item) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("${item['duration']} min", style: AppTypography.bodyMedium),
-                        Row(
+            children:
+                formData.durationAndCosts
+                    .where((e) => e['duration'].toString().isNotEmpty)
+                    .map((item) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("EGP", style: AppTypography.bodyMedium),
-                            const SizedBox(width: 8),
-                            SizedBox(
-                              width: 88,
-                              child: NumericInputBox(
-                                controller: item['costController'],
-                                onChanged: (val) => setState(() => item['cost'] = val),
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "${item['duration']} min",
+                                  style: AppTypography.bodyMedium,
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "EGP",
+                                      style: AppTypography.bodyMedium,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    SizedBox(
+                                      width: 88,
+                                      child: NumericInputBox(
+                                        controller: item['costController'],
+                                        onChanged:
+                                            (val) => setState(
+                                              () => item['cost'] = val,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Package",
+                                  style: AppTypography.bodyMedium,
+                                ),
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 88,
+                                      child: NumericInputBox(
+                                        hintText: "10x",
+                                        controller:
+                                            item['packagePersonController'],
+                                        onChanged:
+                                            (val) => setState(
+                                              () => item['packagePerson'] = val,
+                                            ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    SizedBox(
+                                      width: 88,
+                                      child: NumericInputBox(
+                                        hintText: "3200",
+                                        controller:
+                                            item['packageAmountController'],
+                                        onChanged:
+                                            (val) => setState(
+                                              () => item['packageAmount'] = val,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Package", style: AppTypography.bodyMedium),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 88,
-                              child: NumericInputBox(
-                                hintText: "10x",
-                                controller: item['packagePersonController'],
-                                onChanged: (val) => setState(() => item['packagePerson'] = val),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            SizedBox(
-                              width: 88,
-                              child: NumericInputBox(
-                                hintText: "3200",
-                                controller: item['packageAmountController'],
-                                onChanged: (val) => setState(() => item['packageAmount'] = val),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              );
-            }).toList(),
+                      );
+                    })
+                    .toList(),
           ),
           const SizedBox(height: 24),
         ],
@@ -222,11 +292,11 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               Icon(
-                  Icons.add_circle_outline, 
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
+              Icon(
+                Icons.add_circle_outline,
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
               const SizedBox(width: 4),
               Text(
                 "Add another service",

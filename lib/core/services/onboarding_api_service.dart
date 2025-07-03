@@ -31,8 +31,6 @@ class OnboardingApiService {
       },
     };
 
-    print(payload);
-
     final response = await http.post(
       Uri.parse('$baseUrl'),
       headers: {
@@ -42,12 +40,10 @@ class OnboardingApiService {
       body: jsonEncode(payload),
     );
 
-    print(response.body);
-
     if (response.statusCode == 200 || response.statusCode == 201) {
       final json = jsonDecode(response.body);
       final businessData = json['data'];
-      print(businessData);
+
       return BusinessModel.fromJson(businessData);
     } else {
       final errorJson = jsonDecode(response.body);
@@ -70,12 +66,9 @@ class OnboardingApiService {
       },
     );
 
-    print(response.body);
-
     if (response.statusCode == 200 || response.statusCode == 201) {
       final json = jsonDecode(response.body);
       final businessData = json['data'];
-      print(businessData);
       return BusinessModel.fromJson(businessData);
     } else {
       final errorJson = jsonDecode(response.body);
@@ -127,7 +120,6 @@ class OnboardingApiService {
     );
 
     print("${AppConfig.apiBaseUrl}$postfixUrl");
-    print(response.body);
 
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
@@ -143,6 +135,7 @@ class OnboardingApiService {
 
   //update categories
   Future<void> updateCategory({
+    String? id,
     required String businessId,
     required String categoryId,
   }) async {
@@ -150,7 +143,7 @@ class OnboardingApiService {
 
     final payload = {
       "step": "categories",
-      "data": {"business_id": businessId, "category_id": categoryId},
+      "data": {"id":id,"business_id": businessId, "category_id": categoryId},
     };
 
     final token = await TokenService().getToken();
@@ -170,7 +163,6 @@ class OnboardingApiService {
         print("Category updated successfully");
       } else {
         print("Failed to update category: ${response.statusCode}");
-        print("Response body: ${response.body}");
       }
     } catch (e) {
       print("Error in updateCategory(): $e");
@@ -200,14 +192,11 @@ class OnboardingApiService {
         body: jsonEncode(payload),
       );
 
-      print(response.body);
-      print("payload $payload");
 
       if (response.statusCode == 200) {
         print("Services submitted successfully");
       } else {
         print("Failed to submit services: ${response.statusCode}");
-        print("Response body: ${response.body}");
       }
     } catch (e) {
       print("Error in createServices(): $e");
@@ -226,7 +215,7 @@ class OnboardingApiService {
       "step": "service_details",
       "data": {"details": allDetails},
     };
-    print(payload);
+
     final response = await http.post(
       url,
       headers: {

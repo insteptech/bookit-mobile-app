@@ -2,7 +2,6 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
-import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checklist.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
 import 'package:flutter/material.dart';
@@ -78,8 +77,6 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       );
       ref.read(businessProvider.notifier).state = businessDetails;
 
-      nextStep = businessDetails.activeStep;
-
       int updatedStep = 0;
       switch (businessDetails.activeStep) {
         case "about_you":
@@ -132,8 +129,9 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       nextButtonText: "Next: ${nextStep.split('_').map((word) => word[0].toUpperCase() + word.substring(1)).join(' ')}",
       nextButtonDisabled: isNextDisabled,
       onNext: () {
-        print("Next route: $nextRoute");
-        context.push("/$nextRoute");
+        // print("Next route: $nextRoute");
+        // context.push("/$nextRoute");
+        context.push("/onboarding_about");
       },
       body: Column(
         children:
