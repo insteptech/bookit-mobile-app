@@ -2,7 +2,6 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
-import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checklist.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
 import 'package:flutter/material.dart';
@@ -68,10 +67,8 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
   
 
   void getData() async {
-    final token = await TokenService().getToken();
-    print(token);
+
     final UserModel userData = await UserService().fetchUserDetails();
-    print("use api called in welcome screen");
 
     if (userData.businessIds.isNotEmpty) {
       final String businessId = userData.businessIds[0];
@@ -79,8 +76,6 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
         businessId: businessId,
       );
       ref.read(businessProvider.notifier).state = businessDetails;
-
-      nextStep = businessDetails.activeStep;
 
       int updatedStep = 0;
       switch (businessDetails.activeStep) {
@@ -128,13 +123,15 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       heading: localizaitions.text("onboard_welcome_title"),
       subheading: localizaitions.text("onboard_welcome_description"),
       currentStep: -1,
-      nextButtonText: localizaitions.text(
-        "onboard_welcome_next_button_about_you",
-      ),
+      // nextButtonText: localizaitions.text(
+      //   "onboard_welcome_next_button_about_you",
+      // ),
+      nextButtonText: "Next: ${nextStep.split('_').map((word) => word[0].toUpperCase() + word.substring(1)).join(' ')}",
       nextButtonDisabled: isNextDisabled,
       onNext: () {
-        print("Next route: $nextRoute");
-        context.go("/$nextRoute");
+        // print("Next route: $nextRoute");
+        // context.push("/$nextRoute");
+        context.push("/onboarding_about");
       },
       body: Column(
         children:
@@ -144,7 +141,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
                     padding: const EdgeInsets.only(bottom: 24),
                     child: OnboardingChecklist(
                       heading: step["heading"],
-                      subHeading: nextStep,
+                      subHeading: step["subheading"],
                       isCompleted: step["step"] < currentStep,
                     ),
                   ),

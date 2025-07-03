@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
@@ -19,6 +20,10 @@ Future<void> bootstrap() async {
   );
 
   final prefs = await SharedPreferences.getInstance();
+
+  String ACCESS_TOKEN = "pk.eyJ1IjoiYm9va2l0YXBwIiwiYSI6ImNtY2l4MG9tbDBtYmYycXBkcThydjF2NWQifQ.mDqPDO6pyA6JzDXEh3hOsg".toString();
+  MapboxOptions.setAccessToken(ACCESS_TOKEN);
+
 
   runApp(
     ProviderScope(

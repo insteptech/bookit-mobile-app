@@ -16,10 +16,13 @@ class OnboardAddServicesDetailsScreen extends ConsumerStatefulWidget {
 
 class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServicesDetailsScreen> {
   final Map<String, GlobalKey<OnboardServicesFormState>> formKeys = {};
+  bool isButtonDisabled = false;
 
   Future<void> submitServiceDetails(String businessId) async {
     List<Map<String, dynamic>> allDetails = [];
-
+    setState(() {
+      isButtonDisabled= true;
+    });
     for (var key in formKeys.values) {
       final state = key.currentState;
       if (state != null) {
@@ -31,8 +34,15 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
         }
       }
     }
-
+    try {
     await OnboardingApiService().updateService(allDetails: allDetails);
+    } catch (e) {
+      print(e);
+    } finally {
+      setState(() {
+        isButtonDisabled = false;
+      });
+    }
   }
 
   @override
@@ -90,7 +100,7 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
         }
       },
       nextButtonText: "Finish",
-      nextButtonDisabled: false,
+      nextButtonDisabled: isButtonDisabled,
       currentStep: 4,
     );
   }

@@ -17,12 +17,14 @@ class OnboardOfferingsScreen extends ConsumerStatefulWidget {
       _OnboardOfferingsScreenState();
 }
 
-class _OnboardOfferingsScreenState extends ConsumerState<OnboardOfferingsScreen> {
+class _OnboardOfferingsScreenState
+    extends ConsumerState<OnboardOfferingsScreen> {
   String? selectedCategoryId;
   late Future<List<CategoryModel>> categoriesFuture;
+  bool isButtonDisabled = false;
 
   @override
-  void initState() { 
+  void initState() {
     super.initState();
 
     // Pre-select category if it exists in business data
@@ -36,30 +38,44 @@ class _OnboardOfferingsScreenState extends ConsumerState<OnboardOfferingsScreen>
   }
 
   Future<void> _handleNext() async {
-    final businessId = ref.read(businessProvider)?.id;
+  final business = ref.read(businessProvider);
+  final businessId = business?.id;
 
-    if (businessId == null || selectedCategoryId == null) {
-      print("Missing business ID or selected category");
-      return;
-    }
-
-    try {
-      await OnboardingApiService().updateCategory(
-        businessId: businessId,
-        categoryId: selectedCategoryId!,
-      );
-
-      final updatedBusiness = await UserService().fetchBusinessDetails(
-        businessId: businessId,
-      );
-
-      ref.read(businessProvider.notifier).state = updatedBusiness;
-
-      context.go("/add_services/?category_id=$selectedCategoryId");
-    } catch (e) {
-      print("Error during category update: $e");
-    }
+  if (businessId == null || selectedCategoryId == null) {
+    print("Missing business ID or selected category");
+    return;
   }
+
+  final preSelectedCategoryPrimaryId = 
+    (business!.businessCategories.isNotEmpty) 
+      ? business.businessCategories[0].id 
+      : null;
+
+  setState(() {
+    isButtonDisabled = true;
+  });
+
+  try {
+    await OnboardingApiService().updateCategory(
+      id: preSelectedCategoryPrimaryId,
+      businessId: businessId,
+      categoryId: selectedCategoryId!,
+    );
+
+    final updatedBusiness = await UserService().fetchBusinessDetails(
+      businessId: businessId,
+    );
+
+    ref.read(businessProvider.notifier).state = updatedBusiness;
+
+    context.push("/add_services/?category_id=$selectedCategoryId");
+  } catch (e) {
+    print("Error during category update: $e");
+  } finally {
+    isButtonDisabled = false;
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +84,6 @@ class _OnboardOfferingsScreenState extends ConsumerState<OnboardOfferingsScreen>
     return FutureBuilder<List<CategoryModel>>(
       future: categoriesFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
 
         if (snapshot.hasError) {
           return Center(child: Text("Failed to load categories."));
@@ -83,26 +96,29 @@ class _OnboardOfferingsScreenState extends ConsumerState<OnboardOfferingsScreen>
           subheading:
               "To begin, please select the main service you offer. Don't worry, you can add all other services under 'Service Types' after onboarding.",
           body: Column(
-            children: categories.map((category) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: RadioButton(
-                  heading: category.name,
-                  description: category.description ?? "",
-                  rememberMe: selectedCategoryId == category.id,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategoryId = category.id;
-                    });
-                  },
-                  bgColor: theme.scaffoldBackgroundColor,
-                ),
-              );
-            }).toList(),
+            children:
+                snapshot.connectionState == ConnectionState.waiting
+                    ? [Center(child: CircularProgressIndicator())]
+                    : categories.map((category) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: RadioButton(
+                          heading: category.name,
+                          description: category.description ?? "",
+                          rememberMe: selectedCategoryId == category.id,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCategoryId = category.id;
+                            });
+                          },
+                          bgColor: theme.scaffoldBackgroundColor,
+                        ),
+                      );
+                    }).toList(),
           ),
           onNext: _handleNext,
           nextButtonText: "Next: add services",
-          nextButtonDisabled: selectedCategoryId == null,
+          nextButtonDisabled: (selectedCategoryId == null) || isButtonDisabled,
           currentStep: 2,
         );
       },

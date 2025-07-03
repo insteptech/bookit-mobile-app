@@ -62,7 +62,9 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
 
   Future<void> _handleBusinessInfoSubmission() async {
     if (!isFormOpen) return;
-
+    setState(() {
+      isButtonDisabled = true;
+    });
     try {
       final onboardingApiService = OnboardingApiService();
 
@@ -74,7 +76,7 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
         name: nameController.text.trim(),
         email: emailController.text.trim(),
         phone: mobileController.text.trim(),
-        website: mobileController.text.trim(),
+        website: websiteController.text.trim(),
         businessId: businessId,
       );
 
@@ -93,12 +95,16 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
 
       // Navigate to next step
       if (!mounted) return;
-      context.go('/locations');
+      context.push('/locations');
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      setState(() {
+        isButtonDisabled = false;
+      });
     }
   }
 

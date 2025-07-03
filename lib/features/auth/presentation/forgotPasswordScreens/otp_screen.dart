@@ -17,7 +17,6 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final localizations = AppTranslationsDelegate.of(context);
 
     return AuthFlowScaffold(
@@ -34,6 +33,7 @@ class _OtpScreenState extends State<OtpScreen> {
             child: OtpForm(
               otpController: otpController,
               email: widget.email,
+              nextButton: (){},
             ),
           ),
         ],

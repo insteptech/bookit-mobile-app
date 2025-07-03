@@ -1,5 +1,3 @@
-import 'package:bookit_mobile_app/app/theme/app_colors.dart';
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/otp_input_box.dart';
 import 'package:flutter/material.dart';
 
@@ -51,12 +49,11 @@ class _OtpInputFieldState extends State<OtpInputRow> {
     } else if (value.isEmpty && index > 0) {
       focusNodes[index - 1].requestFocus();
     }
-    _updateParentOtp(); // Manually trigger update when backspacing or changing
+    _updateParentOtp(); 
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
 
     return Column(
       children: [

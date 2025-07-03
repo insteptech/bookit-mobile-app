@@ -6,6 +6,7 @@ import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checkli
 import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class OnboardFinishScreen extends ConsumerStatefulWidget {
   const OnboardFinishScreen({super.key});
@@ -120,7 +121,7 @@ class _OnboardFinishScreenState extends ConsumerState<OnboardFinishScreen> {
                   .toList(),
             ),
       onNext: () {
-        // Navigate to dashboard or home
+        context.go("/home_screen");
       },
       nextButtonText: "Go to Dashboard",
       nextButtonDisabled: false,

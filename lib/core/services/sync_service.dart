@@ -6,7 +6,7 @@ class SyncService {
   // final AuthService authService = context.read<AuthService>();
 
   Future<void> syncUserData() async {
-
+    
   }
 
   Future<void> syncOnboardingSteps() async {

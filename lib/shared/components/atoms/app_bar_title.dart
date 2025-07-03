@@ -12,19 +12,18 @@ class AppBarTitle extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
+            Transform.translate(
+              offset: Offset(-10, 0),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, size: 30),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
             ),
           ],
         ),
-        Center(
-          child: Text(
-            title,
-            style: AppTypography.appBarHeading,
-          ),
-        ),
+        Center(child: Text(title, style: AppTypography.appBarHeading)),
       ],
     );
   }

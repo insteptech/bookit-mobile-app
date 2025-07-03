@@ -13,6 +13,9 @@ dependencies:
   flutter:
     sdk: flutter
   go_router: ^13.0.0
+  mapbox_maps_flutter: ^2.0.0
+  permission_handler: ^11.0.1
+  geolocator: ^11.0.0
   flutter_svg: ^1.0.0 
   flutter_localizations:
     sdk: flutter
@@ -67,4 +70,4 @@ flutter:
         - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldCondensed.otf
         - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldExpanded.otf
 
-uses-material-design: true
+  uses-material-design: true

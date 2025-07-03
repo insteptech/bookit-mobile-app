@@ -1,8 +1,12 @@
+import 'package:bookit_mobile_app/app/api_keys.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class OnboardingLocationInfoForm extends StatelessWidget {
+  final void Function(Map<String, dynamic>) onLocationUpdated;
   final TextEditingController locationController;
   final TextEditingController addressController;
   final TextEditingController floorController;
@@ -10,6 +14,10 @@ class OnboardingLocationInfoForm extends StatelessWidget {
   final TextEditingController stateController;
   final TextEditingController countryController;
   final TextEditingController instructionController;
+  final double? lat;
+  final double? lng;
+  final bool showDeleteButton;
+  final Function onClick;
 
   const OnboardingLocationInfoForm({
     super.key,
@@ -19,17 +27,113 @@ class OnboardingLocationInfoForm extends StatelessWidget {
     required this.floorController,
     required this.instructionController,
     required this.countryController,
-    required this.stateController
+    required this.stateController,
+    required this.onClick,
+    required this.showDeleteButton,
+    required this.onLocationUpdated,
+    this.lat,
+    this.lng,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Use provided lat/lng or default to Chandigarh
+    final double latitude = lat ?? 30.6606;
+    final double longitude = lng ?? 76.8604;
+
+    final CameraOptions camera = CameraOptions(
+      center: Point(coordinates: Position(longitude, latitude)),
+      zoom: 14.0,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Address", style: AppTypography.bodyMedium),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Address", style: AppTypography.bodyMedium),
+            if (showDeleteButton)
+              GestureDetector(
+                onTap: () {
+                  onClick();
+                },
+                child: Icon(
+                  Icons.delete_outline,
+                  color: theme.colorScheme.primary,
+                  size: 22,
+                ),
+              ),
+          ],
+        ),
         SizedBox(height: 16),
-        SizedBox(height: 200, width: double.infinity, child: Container(color: Colors.amberAccent)),
+        GestureDetector(
+          onTap: () async {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => MapSelector(
+                      initialLat: lat,
+                      initialLng: lng,
+                      onLocationSelected: (locationData) {
+                        onLocationUpdated(
+                          locationData,
+                        ); // ✅ use your callback directly
+                        Navigator.pop(context); // ✅ close the map screen
+                      },
+                    ),
+              ),
+            );
+          },
+          //----------- For mapbox sdk ----------------
+          // child: SizedBox(
+          //   height: 200,
+          //   width: double.infinity,
+          //   child: Stack(
+          //     children: [
+          //       MapWidget(cameraOptions: camera),
+          //       Center(
+          //         child: Icon(
+          //           Icons.location_pin,
+          //           color: theme.colorScheme.primary,
+          //           size: 34,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+
+          //------------ For mapbox image --------------
+          child: SizedBox(
+            height: 200,
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    'https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/'
+                    '$longitude,$latitude,18,0/1280x720'
+                    '?access_token=$mapboxToken',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 240,
+                  ),
+                ),
+                Icon(
+                  Icons.location_pin,
+                  color: theme.colorScheme.primary,
+                  size: 34,
+                ),
+              ],
+            ),
+          ),
+          
+        ),
 
         SizedBox(height: 16),
         Text("Location name", style: AppTypography.bodyMedium),
@@ -49,7 +153,7 @@ class OnboardingLocationInfoForm extends StatelessWidget {
 
         SizedBox(height: 8),
         Text("State", style: AppTypography.bodyMedium),
-        InputField(hintText: "State", controller: stateController,),
+        InputField(hintText: "State", controller: stateController),
 
         SizedBox(height: 8),
         Text("Country", style: AppTypography.bodyMedium),
@@ -57,7 +161,10 @@ class OnboardingLocationInfoForm extends StatelessWidget {
 
         SizedBox(height: 8),
         Text("Additional instructions", style: AppTypography.bodyMedium),
-        InputField(hintText: "Directions and instructions", controller: instructionController),
+        InputField(
+          hintText: "Directions and instructions",
+          controller: instructionController,
+        ),
       ],
     );
   }

@@ -15,6 +15,8 @@ class LoginForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppTranslationsDelegate.of(context);
+    final state = ref.watch(loginProvider);
+    final controller = ref.read(loginProvider.notifier);
     final rememberMe = ref.watch(rememberMeProvider);
 
     return Container(
@@ -28,12 +30,14 @@ class LoginForm extends ConsumerWidget {
         children: [
           InputField(
             hintText: localizations.text('email'),
-            controller: TextEditingController(),
+            onChanged: controller.updateEmail,
+            initialValue: state.email,
           ),
           const SizedBox(height: 16),
           InputField(
             hintText: localizations.text('password'),
-            controller: TextEditingController(),
+            onChanged: controller.updatePassword,
+            initialValue: state.password,
             obscureText: true,
           ),
           const SizedBox(height: 3),
@@ -47,16 +51,21 @@ class LoginForm extends ConsumerWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: (){
-                
-                print('Login button pressed');
-              }, 
-              style: ElevatedButton.styleFrom(),
-              child: Text(
-                localizations.text("login_button"),
-                style: AppTypography.button
-              )
-              ),
+              onPressed: state.isLoading
+                  ? null
+                  : () async {
+                      try {
+                        await controller.submit(context, ref);
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(e.toString())),
+                        );
+                      }
+                    },
+              child: state.isLoading
+                  ? const CircularProgressIndicator()
+                  : Text(localizations.text("login_button"), style: AppTypography.button),
+            ),
           ),
           const SizedBox(height: 18),
           Row(
@@ -69,7 +78,6 @@ class LoginForm extends ConsumerWidget {
               _socialIcon('assets/icons/facebook.svg'),
             ],
           ),
-          
         ],
       ),
     );
@@ -86,5 +94,4 @@ class LoginForm extends ConsumerWidget {
       child: SvgPicture.asset(assetPath, height: 20, width: 20),
     );
   }
-  
 }

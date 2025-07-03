@@ -12,8 +12,13 @@ class AuthService {
 
   final TokenService _tokenService = TokenService();
 
-  ///  Signup: Returns token on success
-  Future<String?> signup(String name, String email, String password) async {
+  ///  Signup
+  Future<String?> signup({
+    required name,
+    required String email,
+    required String password,
+    String? OTP,
+  }) async {
     final url = Uri.parse('$_baseUrl/business-register');
     final response = await http.post(
       url,
@@ -27,17 +32,7 @@ class AuthService {
 
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      final token = data['data']?['token']; // Extract from nested "data"
-
-      if (token != null) {
-        await _tokenService.saveToken(token);
-        await OnboardingService().saveStep("Welcome");
-        // print("Token: $token");
-        return token;
-      } else {
-        // print("Signup succeeded but token missing.");
-        return null;
-      }
+      print("user signup up data saved");
     } else {
       final message = jsonDecode(response.body)['message'] ?? 'Signup failed.';
       // print("Error: $message");
@@ -45,8 +40,57 @@ class AuthService {
     }
   }
 
+  //verify OTP
+  Future<Map<String, dynamic>> verifyOTP({required email, required otp}) async {
+    final url = Uri.parse('$_baseUrl/verify-otp');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"email": email, "otp": otp}),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final token = data['data']?['token']; // Extract from nested "data"
+
+      if (token != null) {
+        await _tokenService.saveToken(token);
+
+        return data;
+      } else {
+        return {};
+      }
+    } else {
+      final message = jsonDecode(response.body)['message'] ?? 'Signup failed.';
+      print("Error: $message");
+      throw Exception(message);
+    }
+  }
+
+  //resend otp
+  Future<void> resendOtp(String email) async {
+    final url = Uri.parse('$_baseUrl/resend-otp');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+ 
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final token = data['token'];
+      if (token != null) {
+        await _tokenService.saveToken(token); // store token locally
+      }
+    } else {
+      final message = jsonDecode(response.body)['message'] ?? 'Login failed.';
+      throw Exception(message);
+    }
+  }
+
   ///  Login: Stores token and returns success
-  Future<void> login(String email, String password) async {
+  Future<Map<String, dynamic>?> login(String email, String password) async {
     final url = Uri.parse('$_baseUrl/login');
     final response = await http.post(
       url,
@@ -56,10 +100,7 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final token = data['token'];
-      if (token != null) {
-        await _tokenService.saveToken(token); // store token locally
-      }
+      return data['data'];
     } else {
       final message = jsonDecode(response.body)['message'] ?? 'Login failed.';
       throw Exception(message);
@@ -94,8 +135,6 @@ class UserService {
       },
     );
 
-    print("response: ${response.body}");
-
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       final data = json['data'];
@@ -120,11 +159,12 @@ class UserService {
       },
     );
 
+    print(response.body);
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
 
-      final userData = json; 
-      return UserModel.fromJson(userData); 
+      final userData = json;
+      return UserModel.fromJson(userData);
     } else {
       final error = jsonDecode(response.body);
       final message = error['message'] ?? 'Failed to fetch user details';

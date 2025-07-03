@@ -1,8 +1,10 @@
-import 'package:bookit_mobile_app/app/staticData/services_list.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/create_new_password_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/otp_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/signin_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/forgot_password_screen.dart';
+import 'package:bookit_mobile_app/features/auth/presentation/signup_verify_otp_screen.dart';
+import 'package:bookit_mobile_app/features/main/home/home_screen.dart';
+import 'package:bookit_mobile_app/features/main/home/presentation/dashboard_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_about_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_finish_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_locations_screen.dart';
@@ -21,6 +23,12 @@ final GoRouter router = GoRouter(
     GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(path: '/signup', builder: (context, state) => const SignupScreen()),
+    GoRoute(
+      path: '/signup_otp', 
+      builder: (context, state){
+        final data = state.extra as Map<String, String>? ?? {};
+        return SignupVerifyOtpScreen(email: data['email'] ?? '',);
+      }),
     GoRoute(
       path: '/forgetpassword',
       builder: (context, state) => ForgotPasswordScreen(),
@@ -67,6 +75,10 @@ final GoRouter router = GoRouter(
         return OnboardAddServicesDetailsScreen();
       },
     ),
-    GoRoute(path: "/onboard_finish_screen", builder:(context, state) => OnboardFinishScreen(),)
+    GoRoute(path: "/onboard_finish_screen", builder:(context, state) => OnboardFinishScreen(),),
+
+
+    //dasboard
+    GoRoute(path: "/home_screen", builder: (context, state) => HomeScreen(),)
   ],
 );
