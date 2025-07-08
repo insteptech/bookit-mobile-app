@@ -25,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 34,
-                    vertical: 100,
+                    vertical: 70,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
