@@ -1,6 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/core/services/auth_service.dart';
-import 'package:bookit_mobile_app/core/services/onboarding_api_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
@@ -22,6 +22,7 @@ class _OnboardLocationsScreenState
   List<Map<String, dynamic>> addressControllersList = [];
   bool isFormValid = false;
   bool isOpenMap = false;
+  bool isButtonDisabled = false;
 
   @override
   void initState() {
@@ -47,7 +48,6 @@ class _OnboardLocationsScreenState
         );
       }
     } else {
-      // _addAddressForm(lat: widget.lat, lng: widget.lng);
       setState(() {
         isOpenMap = true;
       });
@@ -111,6 +111,9 @@ class _OnboardLocationsScreenState
   }
 
   Future<void> _submitAddresses() async {
+    setState(() {
+      isButtonDisabled = true;
+    });
     final businessId = ref.read(businessProvider)?.id;
 
     if (businessId == null) {
@@ -150,7 +153,11 @@ class _OnboardLocationsScreenState
       }
     } catch (e) {
       print("Error submitting locations: $e");
-    } finally {}
+    } finally {
+      setState(() {
+        isButtonDisabled = false;
+      });
+    }
   }
 
   void _removeAddressForm(int index) {
@@ -255,7 +262,7 @@ class _OnboardLocationsScreenState
         // context.push("/offerings");
       },
       nextButtonText: "Next: select offering",
-      nextButtonDisabled: false,
+      nextButtonDisabled: isButtonDisabled || !isFormValid,
       currentStep: 1,
     );
   }

@@ -1,0 +1,137 @@
+import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/features/main/home/staff/models/staff_profile_request_model.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
+import 'package:flutter/material.dart';
+
+import '../widgets/category_selector.dart';
+import '../widgets/location_selector.dart';
+import '../widgets/profile_photo_picker.dart';
+import '../widgets/gender_selector.dart'; // <- Import the GenderSelector
+
+class AddMemberForm extends StatefulWidget {
+  final VoidCallback? onAdd;
+  final VoidCallback? onDelete;
+  final Function(StaffProfile)? onDataChanged;
+
+  const AddMemberForm({
+    super.key,
+    this.onAdd,
+    this.onDelete,
+    this.onDataChanged,
+  });
+
+  @override
+  State<AddMemberForm> createState() => _AddMemberFormState();
+}
+
+class _AddMemberFormState extends State<AddMemberForm> {
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  final _categorySelectorKey = GlobalKey<CategorySelectorState>();
+  final _locationSelectorKey = GlobalKey<LocationSelectorState>();
+  final _profilePickerKey = GlobalKey<ProfilePhotoPickerState>();
+  final _genderSelectorKey = GlobalKey<GenderSelectorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_onDataChanged);
+    _emailController.addListener(_onDataChanged);
+    _phoneController.addListener(_onDataChanged);
+  }
+
+  void _onDataChanged() async {
+    if (widget.onDataChanged != null) {
+      final categoryId = _categorySelectorKey.currentState?.selectedCategoryId;
+      final locationIds = _locationSelectorKey.currentState?.selectedLocationIds.toList() ?? [];
+      final profileImage = _profilePickerKey.currentState?.profileImage;
+      final gender = _genderSelectorKey.currentState?.selectedGender;
+
+      if (categoryId != null && locationIds.isNotEmpty) {
+        widget.onDataChanged!(
+          StaffProfile(
+            userId: '',
+            name: _nameController.text,
+            email: _emailController.text,
+            phoneNumber: _phoneController.text,
+            gender: gender ?? 'male',
+            categoryId: categoryId,
+            locationIds: locationIds,
+            profileImage: profileImage,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Staff member information", style: AppTypography.headingSm),
+            if (widget.onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                onPressed: widget.onDelete,
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Profile Photo
+        ProfilePhotoPicker(
+          key: _profilePickerKey,
+          onImageChanged: _onDataChanged,
+        ),
+        const SizedBox(height: 16),
+
+        // Name field
+        Text("Full name", style: AppTypography.bodyMedium),
+        const SizedBox(height: 8),
+        InputField(hintText: "Full name", controller: _nameController),
+
+        const SizedBox(height: 16),
+        Text("Email", style: AppTypography.bodyMedium),
+        const SizedBox(height: 8),
+        InputField(hintText: "email@yourbusiness.com", controller: _emailController),
+
+        const SizedBox(height: 16),
+        Text("Mobile phone", style: AppTypography.bodyMedium),
+        const SizedBox(height: 8),
+        InputField(hintText: "Mobile phone", controller: _phoneController),
+
+        const SizedBox(height: 16),
+        GenderSelector(
+          key: _genderSelectorKey,
+          onSelectionChanged: _onDataChanged,
+        ),
+
+        const SizedBox(height: 16),
+        CategorySelector(
+          key: _categorySelectorKey,
+          onSelectionChanged: _onDataChanged,
+        ),
+        const SizedBox(height: 16),
+
+        LocationSelector(
+          key: _locationSelectorKey,
+          onSelectionChanged: _onDataChanged,
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+}

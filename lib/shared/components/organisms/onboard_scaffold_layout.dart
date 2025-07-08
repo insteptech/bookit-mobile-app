@@ -30,7 +30,6 @@ class OnboardScaffoldLayout extends StatelessWidget {
   Widget build(BuildContext context) {
   void logout()async{
     await TokenService().clearToken();
-    print("Token cleared");
     context.go("/login");
   }
     return Scaffold(
@@ -65,14 +64,14 @@ class OnboardScaffoldLayout extends StatelessWidget {
                 text: nextButtonText,
               )
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 1),
-                child: PrimaryButton(
-                onPressed: logout,
-                isDisabled: false,
-                text: "Logout",
-              )
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(vertical: 1),
+              //   child: PrimaryButton(
+              //   onPressed: logout,
+              //   isDisabled: false,
+              //   text: "Logout",
+              // )
+              // ),
             ],
           ),
         ),

@@ -4,7 +4,6 @@ import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
 
-// 🧠 Service Form Data
 class ServiceFormData {
   final String serviceId;
   final TextEditingController titleController = TextEditingController();
@@ -61,7 +60,6 @@ class ServiceFormData {
   }
 }
 
-// 🔧 Onboard Service Form
 class OnboardServicesForm extends StatefulWidget {
   final String serviceId;
   const OnboardServicesForm({super.key, required this.serviceId});

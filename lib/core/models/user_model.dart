@@ -1,4 +1,3 @@
-// lib/core/models/user_model.dart
 class UserModel {
   final String id;
   final String fullName;
@@ -31,5 +30,18 @@ class UserModel {
       isActive: json['is_active'],
       businessIds: List<String>.from(json['business_ids']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'full_name': fullName,
+      'email': email,
+      'phone': phone,
+      'preferred_language': preferredLanguage,
+      'is_verified': isVerified,
+      'is_active': isActive,
+      'business_ids': businessIds,
+    };
   }
 }

@@ -1,4 +1,4 @@
-import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
@@ -59,8 +59,6 @@ class _SignupFormState extends ConsumerState<SignupForm> {
     isButtonDisabled = true;
     try {
       final authService = AuthService();
-
-      // Todo write function to send OTP
 
       await authService.signup(
         name: nameController.text,

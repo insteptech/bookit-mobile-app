@@ -3,7 +3,6 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class OnboardingLocationInfoForm extends StatelessWidget {
   final void Function(Map<String, dynamic>) onLocationUpdated;
@@ -42,11 +41,6 @@ class OnboardingLocationInfoForm extends StatelessWidget {
     // Use provided lat/lng or default to Chandigarh
     final double latitude = lat ?? 30.6606;
     final double longitude = lng ?? 76.8604;
-
-    final CameraOptions camera = CameraOptions(
-      center: Point(coordinates: Position(longitude, latitude)),
-      zoom: 14.0,
-    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

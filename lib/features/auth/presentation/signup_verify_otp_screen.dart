@@ -1,6 +1,6 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/otp_form.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,7 +15,6 @@ class SignupVerifyOtpScreen extends StatefulWidget {
 
 class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
   bool isLoading = false;
-  bool isButtonDisabled = false;
   String error = "";
 
   final TextEditingController otpController = TextEditingController();
@@ -28,13 +27,13 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
   Future<void> handleSignup() async {
     setState(() {
       isLoading = true;
+      error = "";
     });
-    isButtonDisabled = true;
 
     try {
       final authService = AuthService();
 
-      final data = await authService.verifyOTP(
+      await authService.verifyOTP(
         email: widget.email,
         otp: otpController.text,
       );
@@ -47,12 +46,12 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
           businessId: businessId,
         );
         if (businessDetails.isOnboardingComplete) {
-          context.go('/home_screen');
+          if(mounted) context.go('/home_screen');
         } else {
-          context.go('/onboarding_welcome');
+          if(mounted) context.go('/onboarding_welcome');
         }
       } else {
-        context.go('/onboarding_welcome');
+        if(mounted) context.go('/onboarding_welcome');
       }
 
       if (!mounted) return;
@@ -63,7 +62,6 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
         error = e.toString().replaceAll('Exception:', '').trim();
       });
     } finally {
-      isButtonDisabled = false;
       if (mounted) setState(() => isLoading = false);
     }
   }
@@ -89,14 +87,15 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
               const SizedBox(height: 64),
               Text("Verify your OTP", style: AppTypography.bodyLg),
               const SizedBox(height: 3),
-              Text("We’ve sent your 6-digit code to ${widget.email}"),
+              Text("We've sent your 6-digit code to ${widget.email}"),
               const SizedBox(height: 3),
-              Text(
-                error,
-                style: AppTypography.bodySmall.copyWith(
-                  color: theme.colorScheme.error,
+              if (error.isNotEmpty)
+                Text(
+                  error,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
                 ),
-              ),
               SizedBox(height: 48),
               Expanded(
                 child: OtpForm(
@@ -105,6 +104,7 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
                   nextButton: () async {
                     await handleSignup();
                   },
+                  isSubmitting: isLoading,
                 ),
               ),
             ],

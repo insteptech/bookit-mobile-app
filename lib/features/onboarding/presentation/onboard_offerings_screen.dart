@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:bookit_mobile_app/core/models/category_model.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
-import 'package:bookit_mobile_app/core/services/auth_service.dart';
-import 'package:bookit_mobile_app/core/services/onboarding_api_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +42,6 @@ class _OnboardOfferingsScreenState
   final businessId = business?.id;
 
   if (businessId == null || selectedCategoryId == null) {
-    print("Missing business ID or selected category");
     return;
   }
 
@@ -70,7 +69,10 @@ class _OnboardOfferingsScreenState
 
     context.push("/add_services/?category_id=$selectedCategoryId");
   } catch (e) {
-    print("Error during category update: $e");
+    // Handle error, e.g., show a snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Failed to update category. Please try again.")),
+    );
   } finally {
     isButtonDisabled = false;
   }

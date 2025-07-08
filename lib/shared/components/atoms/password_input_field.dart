@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:bookit_mobile_app/app/theme/theme_data.dart';
 
 class PasswordInputField extends StatefulWidget {
   final String hintText;

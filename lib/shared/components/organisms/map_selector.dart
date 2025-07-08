@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:bookit_mobile_app/app/api_keys.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';

@@ -4,7 +4,9 @@ import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScree
 import 'package:bookit_mobile_app/features/auth/presentation/forgot_password_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/signup_verify_otp_screen.dart';
 import 'package:bookit_mobile_app/features/main/home/home_screen.dart';
-import 'package:bookit_mobile_app/features/main/home/presentation/dashboard_screen.dart';
+import 'package:bookit_mobile_app/features/main/home/staff/presentation/add_staff_schedule_screen.dart';
+import 'package:bookit_mobile_app/features/main/home/staff/presentation/add_staff_screen.dart';
+import 'package:bookit_mobile_app/features/main/home/staff/presentation/get_staff_list_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_about_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_finish_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_locations_screen.dart';
@@ -24,11 +26,12 @@ final GoRouter router = GoRouter(
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(path: '/signup', builder: (context, state) => const SignupScreen()),
     GoRoute(
-      path: '/signup_otp', 
-      builder: (context, state){
+      path: '/signup_otp',
+      builder: (context, state) {
         final data = state.extra as Map<String, String>? ?? {};
-        return SignupVerifyOtpScreen(email: data['email'] ?? '',);
-      }),
+        return SignupVerifyOtpScreen(email: data['email'] ?? '');
+      },
+    ),
     GoRoute(
       path: '/forgetpassword',
       builder: (context, state) => ForgotPasswordScreen(),
@@ -58,7 +61,7 @@ final GoRouter router = GoRouter(
       path: "/locations",
       builder: (context, state) => OnboardLocationsScreen(),
     ),
-    GoRoute( 
+    GoRoute(
       path: "/offerings",
       builder: (context, state) => OnboardOfferingsScreen(),
     ),
@@ -75,10 +78,31 @@ final GoRouter router = GoRouter(
         return OnboardAddServicesDetailsScreen();
       },
     ),
-    GoRoute(path: "/onboard_finish_screen", builder:(context, state) => OnboardFinishScreen(),),
+    GoRoute(
+      path: "/onboard_finish_screen",
+      builder: (context, state) => OnboardFinishScreen(),
+    ),
 
+    //.....................dasboard..................
+    GoRoute(path: "/home_screen", builder: (context, state) => HomeScreen()),
 
-    //dasboard
-    GoRoute(path: "/home_screen", builder: (context, state) => HomeScreen(),)
+    //..................add staff screen....................
+    GoRoute(path: "/add_staff", builder: (context, state) => AddStaffScreen()),
+
+    //..................staff list screen..............
+    GoRoute(
+      path: "/staff_list",
+      builder: (context, state) => GetStaffListScreen(),
+    ),
+
+    //................set staff schedule.............
+    GoRoute(
+      path: "/set_schedule",
+      builder: (context, state){ 
+        final data = state.extra as Map<String, dynamic>;
+        final staffId = data['staffId'];
+        return AddStaffScheduleScreen(staffId: staffId);
+      },
+    ),
   ],
 );
