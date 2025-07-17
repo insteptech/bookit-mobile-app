@@ -38,6 +38,7 @@ class _OnboardAddServiceScreenState
             : '');
 
     futureCategories = OnboardingApiService().getCategories();
+    print(futureCategories);
   }
 
   void toggleSelection(String id, List<CategoryModel> categories) {
@@ -91,6 +92,7 @@ class _OnboardAddServiceScreenState
         return OnboardScaffoldLayout(
           heading: "Select your services",
           subheading: "Choose all services you offer under this category.",
+          backButtonDisabled: false,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: 

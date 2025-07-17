@@ -38,9 +38,9 @@ class OnboardingLocationInfoForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Use provided lat/lng or default to Chandigarh
-    final double latitude = lat ?? 30.6606;
-    final double longitude = lng ?? 76.8604;
+    // Use provided lat/lng or default to egypt
+    final double latitude = lat ?? 30;
+    final double longitude = lng ?? 31;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

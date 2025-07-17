@@ -20,9 +20,24 @@ class InputField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SizedBox(
-      width: double.infinity,
+    return Container(
       height: 44,
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14212529), // 8% opacity
+            offset: Offset(0, 0),
+            blurRadius: 1,
+          ),
+          BoxShadow(
+            color: Color(0x10212529), // 6% opacity
+            offset: Offset(0, 2),
+            blurRadius: 2,
+          ),
+        ],
+      ),
       child: controller != null
           ? TextField(
               controller: controller,
@@ -41,9 +56,9 @@ class InputField extends StatelessWidget {
 
   InputDecoration _inputDecoration(ThemeData theme) {
     return InputDecoration(
+      hintText: hintText,
       filled: true,
       fillColor: theme.scaffoldBackgroundColor,
-      hintText: hintText,
       hintStyle: theme.textTheme.bodyMedium?.copyWith(
         color: const Color(0xFF6C757D),
         fontFamily: 'Campton',

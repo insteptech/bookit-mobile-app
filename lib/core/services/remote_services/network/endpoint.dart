@@ -21,3 +21,19 @@ final getStaffListByUserIdEndpoint = "$baseUrl/profile/staff/user";
 
 //Get and post staff user details
 final staffScheduleEndpoint = "$baseUrl/profile/staff"; //'staffUserId'/schedule' 
+
+
+//.................................Appointments.......................................]
+String getBusinessLocationsEndpoint(String businessId) =>
+    "$baseUrl/business/businesses/$businessId/locations";
+
+String fetchAppointmentsEndpoint(String locationId)=>
+    "$baseUrl/appointments/location/$locationId";
+
+//.......................Practitionaer (staff) based on location........................
+String getPractitionersBasedOnLocationEndpoint(String locationId) =>
+    "$baseUrl/profile/staff/location/$locationId";
+
+//............................service list based on business............................
+String getServiceListListFromBusiness(String businessId) =>
+    "$baseUrl/business/$businessId/services";

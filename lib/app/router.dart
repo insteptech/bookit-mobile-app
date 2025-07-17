@@ -3,10 +3,13 @@ import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScree
 import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/signin_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/forgot_password_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/signup_verify_otp_screen.dart';
-import 'package:bookit_mobile_app/features/main/home/home_screen.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/presentation/add_staff_schedule_screen.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/presentation/add_staff_screen.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/presentation/get_staff_list_screen.dart';
+import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen.dart';
+import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen_2.dart';
+import 'package:bookit_mobile_app/features/main/calendar/presentation/view_all_appointments_screen.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/home_screen.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_schedule_screen.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_screen.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/get_staff_list_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_about_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_finish_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_locations_screen.dart';
@@ -104,5 +107,17 @@ final GoRouter router = GoRouter(
         return AddStaffScheduleScreen(staffId: staffId);
       },
     ),
+
+    //.................View all appointments...........
+    GoRoute(path: "/view_all_appointments", builder: (context, state) => ViewAllAppointmentsScreen(),),
+
+    //..................Book new appointment...........
+    GoRoute(path: "/book_new_appointment", builder: (context, state) => BookNewAppointmentScreen()),
+
+    //.........Book new appointment screen 2 (add client)...
+    GoRoute(path: "/book_new_appointment_add_client", builder: (context, state){
+      final data = state.extra as Map<String, dynamic>;
+      return BookNewAppointmentScreen2(partialPayload: data);
+    },)
   ],
 );

@@ -35,6 +35,7 @@ class _OtpScreenState extends State<OtpScreen> {
               email: widget.email,
               nextButton: (){},
               isSubmitting: false,
+              nextButtonText: "Next",
             ),
           ),
         ],

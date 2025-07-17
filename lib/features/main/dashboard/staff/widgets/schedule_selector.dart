@@ -2,7 +2,7 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 import 'dropdown_time_picker.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
 
 class ScheduleSelector extends StatefulWidget {
   final int index;

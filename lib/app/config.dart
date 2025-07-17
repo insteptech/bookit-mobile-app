@@ -2,8 +2,11 @@ class AppConfig {
   static String domainName =
       'https://spondan.com/spn23/chat'; //** Replace with your domain name
 
-  // static String apiBaseUrl = 'http://192.168.1.34:5001/api/v1';
+  // static String apiBaseUrl = 'http://192.168.1.22:5002/api/v1';
+  // static String apiBaseUrl = 'http://192.168.1.15:3007/api/v1';
   static String apiBaseUrl = 'http://13.60.57.127/api/v1';
+  // static String apiBaseUrl = 'https://13.49.145.122/api/v1';
+ 
   // static String apiBaseUrl = 'http://192.168.1.36:3007/api/v1';
   // static String apiBaseUrl = 'https://0064-2401-4900-1c6f-65f7-70d8-8815-ee83-9bc3.ngrok-free.app/api/v1';
 

@@ -14,9 +14,15 @@ class AuthStorageService {
 }
 
 
-  Future<String?> getUserDetails() async {
-    return await _storage.read("userDetails");
+Future<UserModel> getUserDetails() async {
+  final jsonString = await _storage.read("userDetails"); // read from storage
+  if (jsonString == null) {
+    throw Exception("No user details found in storage.");
   }
+  final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+  return UserModel.fromJson(jsonMap);
+}
+
 
   Future<void> clearUserDetails() async {
     await _storage.delete("userDetails");

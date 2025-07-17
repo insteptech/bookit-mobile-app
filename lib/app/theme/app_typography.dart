@@ -37,6 +37,12 @@ class AppTypography {
     fontFamily: 'Campton',
   );
 
+  static const bodyExtraSmall = TextStyle(
+    fontSize: 8,
+    fontWeight: FontWeight.w400,
+    fontFamily: 'Campton',
+  );
+
   static const bodyMedium = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,

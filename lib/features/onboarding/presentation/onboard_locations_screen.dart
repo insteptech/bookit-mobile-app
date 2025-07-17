@@ -23,16 +23,17 @@ class _OnboardLocationsScreenState
   bool isFormValid = false;
   bool isOpenMap = false;
   bool isButtonDisabled = false;
+  bool isFirstTimeVisit = false; // Track if this is first time with no locations
 
   @override
   void initState() {
     super.initState();
 
     final business = ref.read(businessProvider);
-
     final locations = business?.locations ?? [];
 
     if (locations.isNotEmpty) {
+      // User has existing locations, populate forms
       for (final loc in locations) {
         _addAddressForm(
           id: loc.id,
@@ -48,8 +49,10 @@ class _OnboardLocationsScreenState
         );
       }
     } else {
+      // First time visit - no existing locations
       setState(() {
         isOpenMap = true;
+        isFirstTimeVisit = true;
       });
     }
   }
@@ -149,10 +152,10 @@ class _OnboardLocationsScreenState
 
         context.push("/offerings");
       } catch (e) {
-        print("Error fething business details: $e");
+        // print("Error fething business details: $e");
       }
     } catch (e) {
-      print("Error submitting locations: $e");
+      // print("Error submitting locations: $e");
     } finally {
       setState(() {
         isButtonDisabled = false;
@@ -167,6 +170,18 @@ class _OnboardLocationsScreenState
     });
   }
 
+  void _handleMapBack() {
+    if (isFirstTimeVisit && addressControllersList.isEmpty) {
+      // First time visit with no locations added yet - go back to previous screen
+      context.pop();
+    } else {
+      // Close the map and return to form view
+      setState(() {
+        isOpenMap = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -176,6 +191,7 @@ class _OnboardLocationsScreenState
         onLocationSelected: (locationData) {
           setState(() {
             isOpenMap = false;
+            isFirstTimeVisit = false; // No longer first time after adding location
             _addAddressForm(
               lat: locationData['lat'],
               lng: locationData['lng'],
@@ -185,6 +201,7 @@ class _OnboardLocationsScreenState
             );
           });
         },
+        onBackPressed: _handleMapBack, // Pass the back handler
       );
     }
 
@@ -192,6 +209,7 @@ class _OnboardLocationsScreenState
       heading: "Locations",
       subheading:
           "Tell us where you're located. Go ahead and add your address details below.",
+      backButtonDisabled: false,
       body: Column(
         children: [
           ...addressControllersList.asMap().entries.map((entry) {

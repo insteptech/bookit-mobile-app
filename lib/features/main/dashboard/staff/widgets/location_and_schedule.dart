@@ -1,6 +1,6 @@
-import 'package:bookit_mobile_app/features/main/home/staff/application/staff_schedule_controller.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/widgets/location_selector_radio.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/widgets/schedule_selector.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/location_selector_radio.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/schedule_selector.dart';
 import 'package:flutter/material.dart';
 
 class LocationAndSchedule extends StatefulWidget {

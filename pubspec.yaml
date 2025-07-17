@@ -28,6 +28,8 @@ dependencies:
   flutter_riverpod: ^2.6.1
   dio: ^5.8.0+1
   image_picker: ^1.1.2
+
+  intl: ^0.19.0
   
 
 dev_dependencies:
@@ -71,11 +73,19 @@ flutter:
         - asset: assets/fonts/campton/CamptonSemiBold.otf
         - asset: assets/fonts/campton/CamptonThin.otf
 
-    - family: SaintRegus
+    - family: SaintRegusSemiBold
       fonts:
         - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBold.otf
           weight: 600
+
+    - family: SaintRegusSemiBoldCondensed
+      fonts:
         - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldCondensed.otf
+          weight: 600
+
+    - family: SaintRegusSemiBoldExpanded
+      fonts:
         - asset: assets/fonts/saintregus/Sonar Hubermann - SaintRegus-SemiBoldExpanded.otf
+          weight: 600
 
   uses-material-design: true

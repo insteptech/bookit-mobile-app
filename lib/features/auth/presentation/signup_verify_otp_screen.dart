@@ -83,11 +83,8 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
                 localizations.text("sign_up"),
                 style: AppTypography.headingLg,
               ),
-              // AppBarTitle(title: "title"),
-              const SizedBox(height: 64),
-              Text("Verify your OTP", style: AppTypography.bodyLg),
-              const SizedBox(height: 3),
-              Text("We've sent your 6-digit code to ${widget.email}"),
+              const SizedBox(height: 8),
+              Text("To verify your email we’ve sent a 6-digit code to ${widget.email}", style: AppTypography.bodyMedium,),
               const SizedBox(height: 3),
               if (error.isNotEmpty)
                 Text(
@@ -105,6 +102,7 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
                     await handleSignup();
                   },
                   isSubmitting: isLoading,
+                  nextButtonText: "Complete sign up",
                 ),
               ),
             ],

@@ -97,27 +97,28 @@ class _OnboardOfferingsScreenState
           heading: "Select your offerings",
           subheading:
               "To begin, please select the main service you offer. Don't worry, you can add all other services under 'Service Types' after onboarding.",
+          backButtonDisabled: false,
           body: Column(
-            children:
-                snapshot.connectionState == ConnectionState.waiting
-                    ? [Center(child: CircularProgressIndicator())]
-                    : categories.map((category) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
-                        child: RadioButton(
-                          heading: category.name,
-                          description: category.description ?? "",
-                          rememberMe: selectedCategoryId == category.id,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCategoryId = category.id;
-                            });
-                          },
-                          bgColor: theme.scaffoldBackgroundColor,
-                        ),
-                      );
-                    }).toList(),
-          ),
+  children: snapshot.connectionState == ConnectionState.waiting
+      ? [Center(child: CircularProgressIndicator())]
+      : (categories..sort((a, b) => b.name.compareTo(a.name))) // reverse alphabetical sort
+          .map((category) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: RadioButton(
+                heading: category.name,
+                description: category.description ?? "",
+                rememberMe: selectedCategoryId == category.id,
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategoryId = category.id;
+                  });
+                },
+                bgColor: theme.scaffoldBackgroundColor,
+              ),
+            );
+          }).toList(),
+),
           onNext: _handleNext,
           nextButtonText: "Next: add services",
           nextButtonDisabled: (selectedCategoryId == null) || isButtonDisabled,

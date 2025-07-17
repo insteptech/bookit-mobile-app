@@ -11,6 +11,7 @@ class OtpForm extends StatefulWidget {
   final String email;
   final Function nextButton;
   final bool isSubmitting;
+  final String nextButtonText;
 
   const OtpForm({
     super.key,
@@ -18,6 +19,7 @@ class OtpForm extends StatefulWidget {
     required this.email,
     required this.nextButton,
     required this.isSubmitting,
+    required this.nextButtonText
   });
 
   @override
@@ -135,9 +137,7 @@ class _OtpFormState extends State<OtpForm> {
                         ? localizations.text("forgot_pass_resend_code_link")
                         : "Resend in ${_formatTime(_timerSeconds)}",
                     style: AppTypography.bodySmall.copyWith(
-                      color: isResendEnabled
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -160,7 +160,8 @@ class _OtpFormState extends State<OtpForm> {
             widget.nextButton();
           },
           isDisabled: isButtonDisabled || widget.isSubmitting,
-          text: localizations.text("forgot_pass_next_button"),
+          text: widget.nextButtonText
+          // text: localizations.text("forgot_pass_next_button"),
         ),
       ],
     );

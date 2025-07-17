@@ -1,0 +1,133 @@
+import 'package:flutter/material.dart';
+import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+
+class DropDown extends StatefulWidget {
+  final List<Map<String, dynamic>> items;
+  final String hintText;
+  final Function(Map<String, dynamic>)? onChanged;
+
+  const DropDown({
+    super.key,
+    required this.items,
+    this.hintText = "Select service",
+    this.onChanged,
+  });
+
+  @override
+  State<DropDown> createState() => _DropDownState();
+}
+
+class _DropDownState extends State<DropDown> {
+  Map<String, dynamic>? selectedItem;
+  bool isOpen = false;
+
+  void _selectItem(Map<String, dynamic> item) {
+    setState(() {
+      selectedItem = item;
+      isOpen = false;
+    });
+    if (widget.onChanged != null) {
+      widget.onChanged!(item);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final borderColor = isDark
+        ? theme.colorScheme.onSurface.withOpacity(0.12)
+        : Colors.grey.shade300;
+    final boxColor = theme.scaffoldBackgroundColor;
+    final shadowColor = isDark
+        ? Colors.black.withOpacity(0.2)
+        : Colors.black.withOpacity(0.04);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () => setState(() => isOpen = !isOpen),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: boxColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: borderColor,
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  selectedItem?['name'] ?? widget.hintText,
+                  style: selectedItem == null
+                      ? AppTypography.bodyMedium.copyWith(
+                          color: theme.hintColor,
+                        )
+                      : AppTypography.bodyMedium.copyWith(
+                          color: theme.colorScheme.onSurface,
+                        ),
+                ),
+                // Icon(
+                //   isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                //   color: theme.hintColor,
+                // ),
+              ],
+            ),
+          ),
+        ),
+        if (isOpen)
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            decoration: BoxDecoration(
+              color: boxColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: borderColor,
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: widget.items.length,
+              separatorBuilder: (_, __) => Divider(
+                color: borderColor,
+                height: 1,
+              ),
+              itemBuilder: (context, index) {
+                final item = widget.items[index];
+                return ListTile(
+                  title: Text(
+                    item['name'],
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  onTap: () => _selectItem(item),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  dense: true,
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
+}

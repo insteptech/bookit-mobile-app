@@ -95,7 +95,7 @@ class _PasswordValidationWidgetState extends State<PasswordValidationWidget> {
         Text(
           localizations.text("password_must_contain"),
           style: AppTypography.bodySmall.copyWith(
-            color: AppColors.passwordConditions,
+            color: AppColors.appLightGrayFont,
           ),
         ),
         const SizedBox(height: 5),
@@ -123,7 +123,7 @@ class _PasswordValidationWidgetState extends State<PasswordValidationWidget> {
             child: Text(
               text,
               style: AppTypography.bodySmall.copyWith(
-                color: AppColors.passwordConditions,
+                color: AppColors.appLightGrayFont,
               ),
               overflow: TextOverflow.ellipsis,
             ),

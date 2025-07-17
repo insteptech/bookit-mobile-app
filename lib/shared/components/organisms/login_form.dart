@@ -14,6 +14,7 @@ class LoginForm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final localizations = AppTranslationsDelegate.of(context);
     final state = ref.watch(loginProvider);
     final controller = ref.read(loginProvider.notifier);
@@ -51,6 +52,11 @@ class LoginForm extends ConsumerWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
+               style: ElevatedButton.styleFrom(
+      elevation: 0, 
+      backgroundColor: Theme.of(context).primaryColor, 
+      foregroundColor: theme.colorScheme.onPrimary
+    ),
               onPressed: state.isLoading
                   ? null
                   : () async {

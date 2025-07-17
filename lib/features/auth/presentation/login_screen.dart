@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/login_form.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +12,7 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppTranslationsDelegate.of(context);
-
+    final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         children: [
@@ -28,14 +29,14 @@ class LoginScreen extends StatelessWidget {
               children: [
                 const Spacer(flex: 2),
                 Text(
-                  localizations.text('good_day'),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.surfaceLight,
-                    fontFamily: 'SaintRegus',
-                    fontSize: 56,
-                  ),
-                ),
+  localizations.text('good_day'),
+  style: const TextStyle(
+    fontWeight: FontWeight.w600, 
+    color: AppColors.surfaceLight,
+    fontFamily: 'SaintRegusSemiBoldCondensed',
+    fontSize: 56,
+  ),
+),
                 const Spacer(flex: 4),
                 const LoginForm(),
                 const SizedBox(height: 32),
@@ -64,14 +65,10 @@ class LoginScreen extends StatelessWidget {
                         onTap: (){
                           context.push('/signup');
                         },
+                
                         child: Text(
                           localizations.text('sign_up_link'),
-                          style: const TextStyle(
-                            color: AppColors.surfaceLight,
-                            fontFamily: 'Compton',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500
-                          ),
+                          style: AppTypography.bodySmall.copyWith(color: theme.colorScheme.onPrimary, fontWeight: FontWeight.w500)
                         ),
                       ),
                     ],

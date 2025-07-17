@@ -1,8 +1,8 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/application/staff_schedule_controller.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/widgets/location_and_schedule.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/widgets/services_offer_checklist_row.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/widgets/staff_availability_radio.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/location_and_schedule.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/services_offer_checklist_row.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/staff_availability_radio.dart';
 import 'package:flutter/material.dart';
 
 

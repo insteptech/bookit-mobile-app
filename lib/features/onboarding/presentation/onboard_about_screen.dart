@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/onboarding_service.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +81,7 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
       );
 
       businessId = business.id;
+      await ActiveBusinessService().saveActiveBusiness(businessId);
 
       // fetch business details and save to global state
       try {
@@ -115,6 +117,7 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
     return OnboardScaffoldLayout(
       heading: localizations.text("onboard_about_title"),
       subheading: localizations.text("onboard_about_description"),
+      backButtonDisabled: false,
       body: Column(
         children: [
           RadioButton(
@@ -131,7 +134,8 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
             },
             topRightLabel: "Coming soon",
           ),
-          const SizedBox(height: 16),
+          if (isFormOpen)
+            const SizedBox(height: 16),
           if (isFormOpen)
             OnboardBusinessInfoForm(
               nameController: nameController,
@@ -145,7 +149,7 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
             description: localizations.text(
               "onboard_about_radio_existing_description",
             ),
-            bgColor: const Color.fromARGB(255, 0, 36, 103),
+            bgColor: const Color(0xFF001948),
             rememberMe: false,
             onChanged: (value) {},
             topRightLabel: localizations.text(

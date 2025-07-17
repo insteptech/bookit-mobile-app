@@ -1,12 +1,12 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/models/staff_profile_request_model.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:flutter/material.dart';
 
-import '../widgets/category_selector.dart';
-import '../widgets/location_selector.dart';
-import '../widgets/profile_photo_picker.dart';
-import '../widgets/gender_selector.dart'; // <- Import the GenderSelector
+import 'category_selector.dart';
+import 'location_selector.dart';
+import 'profile_photo_picker.dart';
+import 'gender_selector.dart'; // <- Import the GenderSelector
 
 class AddMemberForm extends StatefulWidget {
   final VoidCallback? onAdd;

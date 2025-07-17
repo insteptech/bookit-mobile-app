@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/core/models/user_model.dart';
+import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,6 +43,7 @@ class LoginController extends StateNotifier<LoginState> {
         
         if (userData.businessIds.isNotEmpty) {
           final String businessId = userData.businessIds[0];
+          await ActiveBusinessService().saveActiveBusiness(businessId);
           final businessDetails = await UserService().fetchBusinessDetails(
             businessId: businessId,
           );

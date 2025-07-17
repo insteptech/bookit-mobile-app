@@ -104,6 +104,7 @@ class _OnboardFinishScreenState extends ConsumerState<OnboardFinishScreen> {
     return OnboardScaffoldLayout(
       heading: "You're all set!",
       subheading: "Your business is ready to go.",
+      backButtonDisabled: true,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -123,7 +124,7 @@ class _OnboardFinishScreenState extends ConsumerState<OnboardFinishScreen> {
       onNext: () {
         context.go("/home_screen");
       },
-      nextButtonText: "Go to Dashboard",
+      nextButtonText: "Go to dashboard",
       nextButtonDisabled: false,
       currentStep: 4,
     );

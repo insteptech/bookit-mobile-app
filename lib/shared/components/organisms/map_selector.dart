@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:bookit_mobile_app/app/api_keys.dart';
+import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart' as geo;
@@ -9,12 +11,14 @@ import 'package:http/http.dart' as http;
 
 class MapSelector extends StatefulWidget {
   final void Function(Map<String, dynamic>) onLocationSelected;
+  final VoidCallback? onBackPressed; // Add callback for back button
   final double? initialLat;
   final double? initialLng;
 
   const MapSelector({
     super.key,
     required this.onLocationSelected,
+    this.onBackPressed,
     this.initialLat,
     this.initialLng,
   });
@@ -25,7 +29,7 @@ class MapSelector extends StatefulWidget {
 
 class _MapSelectorState extends State<MapSelector> {
   MapboxMap? mapboxMap;
-  Position centerPosition = Position(76.8604, 30.6606); // Chandigarh
+  Position centerPosition = Position(30, 31); // Chandigarh
   CameraOptions? camera;
 
   TextEditingController searchController = TextEditingController();
@@ -84,7 +88,7 @@ class _MapSelectorState extends State<MapSelector> {
       );
       setState(() {});
     } catch (e) {
-      print('Error getting current location: $e');
+      // print('Error getting current location: $e');
     }
   }
 
@@ -115,7 +119,6 @@ class _MapSelectorState extends State<MapSelector> {
         'country': country,
       };
     } catch (e) {
-      print('Error in reverse geocoding: $e');
       return {
         'lat': coords.lat,
         'lng': coords.lng,
@@ -158,7 +161,17 @@ class _MapSelectorState extends State<MapSelector> {
       CameraOptions(center: Point(coordinates: centerPosition), zoom: 14),
       MapAnimationOptions(duration: 1000),
     );
-    setState(() {});
+    setState(() {
+      searchResults = []; // clear suggestions after moving
+    });
+  }
+
+  void _handleBackButton() {
+    if (widget.onBackPressed != null) {
+      widget.onBackPressed!();
+    } else {
+      context.pop();
+    }
   }
 
   @override
@@ -166,7 +179,17 @@ class _MapSelectorState extends State<MapSelector> {
     final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
-        child: Stack(
+        child: GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus(); // hide keyboard
+        if (searchResults.isNotEmpty) {
+          setState(() {
+            searchResults = []; // hide suggestions
+          });
+        }
+      },
+      behavior: HitTestBehavior.opaque, // Detect taps on empty space
+      child: Stack(
           children: [
             if (camera != null)
               MapWidget(
@@ -175,42 +198,94 @@ class _MapSelectorState extends State<MapSelector> {
                 onCameraChangeListener: _onCameraChange,
               ),
 
-            // 📍 Pin
             Center(
               child: Icon(Icons.location_pin,
                   size: 50, color: theme.colorScheme.primary),
             ),
 
-            // 🔍 Search Box + Suggestions
             Positioned(
               top: 50,
               left: 34,
               right: 34,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: theme.scaffoldBackgroundColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: TextField(
-                      controller: searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search here',
-                        border: InputBorder.none,
-                        icon: Icon(Icons.search),
+                  Stack(
+                    children: [
+                      Container(
+                        height: 54,
+                        padding: const EdgeInsets.only(left: 48, right: 20),
+                        alignment: Alignment.centerLeft,
+                        child: TextField(
+  controller: searchController,
+  style: AppTypography.bodyMedium,
+  decoration: InputDecoration(
+    hintText: 'Search here',
+    hintStyle: AppTypography.bodyMedium,
+    fillColor: theme.scaffoldBackgroundColor,
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(30), // Circular shape
+      borderSide: BorderSide(color: theme.scaffoldBackgroundColor), // Border color
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(30),
+      borderSide: BorderSide(color: theme.scaffoldBackgroundColor),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(30),
+      borderSide: BorderSide(color: theme.scaffoldBackgroundColor), // Focused border color
+    ),
+  ),
+  onChanged: _searchPlaces,
+),
+
                       ),
-                      onChanged: _searchPlaces,
-                    ),
+                      Positioned(
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: GestureDetector(
+                            onTap: _handleBackButton, // Use the new handler
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: theme.scaffoldBackgroundColor,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.07),
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(Icons.arrow_back, color: Colors.black87),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   if (searchResults.isNotEmpty)
                     Container(
-                      margin: EdgeInsets.only(top: 6),
+                      margin: const EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
                         color: theme.scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.07),
+                            blurRadius: 12,
+                            offset: const Offset(4, 4),
+                          ),
+                        ],
                       ),
+                      constraints: const BoxConstraints(maxHeight: 200),
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: searchResults.length,
@@ -220,7 +295,6 @@ class _MapSelectorState extends State<MapSelector> {
                             title: Text(result['name']),
                             onTap: () {
                               searchController.text = result['name'];
-                              searchResults = [];
                               _moveToSearchResult(result['lat'], result['lng']);
                             },
                           );
@@ -231,7 +305,6 @@ class _MapSelectorState extends State<MapSelector> {
               ),
             ),
 
-            // 🎯 Current location FAB
             Positioned(
               bottom: 80,
               right: 20,
@@ -242,7 +315,6 @@ class _MapSelectorState extends State<MapSelector> {
               ),
             ),
 
-            // ✅ Confirm Button
             Positioned(
               bottom: 0,
               left: 0,
@@ -263,6 +335,7 @@ class _MapSelectorState extends State<MapSelector> {
           ],
         ),
       ),
+    )
     );
   }
 }

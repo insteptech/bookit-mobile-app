@@ -56,7 +56,6 @@ class OnboardingApiService {
       final data = response.data['data'];
       return BusinessModel.fromJson(data);
     } on DioException catch (e) {
-      print('Error submitting business info: ${e.response?.data}');
       throw Exception(e.response?.data['message'] ?? 'Failed to submit business data');
     }
   }

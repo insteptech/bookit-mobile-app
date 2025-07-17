@@ -10,6 +10,7 @@ class SignupScreen extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final localizations = AppTranslationsDelegate.of(context);
     return Scaffold(
       body: SafeArea(
@@ -30,7 +31,7 @@ class SignupScreen extends StatelessWidget{
                     Text(" "),
                     GestureDetector(
                       onTap: () => context.go('/login'),
-                      child: Text(localizations.text("sign_in"), style: AppTypography.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w500)),
+                      child: Text(localizations.text("sign_in"), style: AppTypography.bodyMedium.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w500)),
                     )
                   ],
                 ),

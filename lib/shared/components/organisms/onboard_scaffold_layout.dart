@@ -13,6 +13,7 @@ class OnboardScaffoldLayout extends StatelessWidget {
   final String nextButtonText;
   final bool nextButtonDisabled;
   final int currentStep;
+  final bool backButtonDisabled;
 
   const OnboardScaffoldLayout({
     super.key,
@@ -23,6 +24,7 @@ class OnboardScaffoldLayout extends StatelessWidget {
     required this.nextButtonText,
     required this.nextButtonDisabled,
     required this.currentStep,
+    required this.backButtonDisabled
   });
 
 
@@ -45,7 +47,23 @@ class OnboardScaffoldLayout extends StatelessWidget {
                     children: [
                       const SizedBox(height: 24),
                       ProgressStepper(currentStep: currentStep),
-                      const SizedBox(height: 67),
+                      if(!backButtonDisabled)
+                      SizedBox(height: 26,),
+                      if(!backButtonDisabled)
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: (){
+                              context.pop();
+                            },
+                            child: 
+                            Icon(Icons.arrow_back, size: 32,)
+                          )
+                        ],
+                      ),
+                      if(backButtonDisabled)
+                      const SizedBox(height: 63,),
+                      const SizedBox(height: 9),
                       Text(heading, style: AppTypography.headingLg),
                       const SizedBox(height: 8),
                       Text(subheading, style: AppTypography.bodyMedium),

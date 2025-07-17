@@ -120,11 +120,12 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
     return OnboardScaffoldLayout(
       heading: localizaitions.text("onboard_welcome_title"),
       subheading: localizaitions.text("onboard_welcome_description"),
+      backButtonDisabled: true,
       currentStep: -1,
       // nextButtonText: localizaitions.text(
       //   "onboard_welcome_next_button_about_you",
       // ),
-      nextButtonText: "Next: ${nextStep.split('_').map((word) => word[0].toUpperCase() + word.substring(1)).join(' ')}",
+      nextButtonText: "Next: ${nextStep.split('_').map((word) => word[0].toLowerCase() + word.substring(1)).join(' ')}",
       nextButtonDisabled: isNextDisabled,
       onNext: () {
         // context.push("/$nextRoute");

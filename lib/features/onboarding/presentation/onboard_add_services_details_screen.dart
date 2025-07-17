@@ -65,6 +65,7 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
       heading: "Services details",
       subheading:
           "Great! Now, let's add some detail to those services. Describe each one as you'd like your clients to see it.",
+      backButtonDisabled: false,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

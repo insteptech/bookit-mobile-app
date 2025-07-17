@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:bookit_mobile_app/core/providers/business_provider.dart';
+import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_interceptor.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
-import 'package:bookit_mobile_app/features/main/home/staff/models/staff_profile_request_model.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
 import 'package:dio/dio.dart';
 
 
@@ -24,10 +27,12 @@ class APIRepository {
   }) async {
     // Get user ID
     String userId = "";
+    String businessId = "";
     final userDetails = await AuthStorageService().getUserDetails();
     if (userDetails != null) {
-      Map<String, dynamic> jsonData = jsonDecode(userDetails);
-      userId = jsonData['id'];
+      // Map<String, dynamic> jsonData = jsonDecode(userDetails);
+      userId = userDetails.id;
+      businessId = userDetails.businessIds[0];
     } else {
       return Response(
         requestOptions: RequestOptions(path: addStaffEndpoint),
@@ -41,6 +46,7 @@ class APIRepository {
         staffProfiles.map((profile) {
           final profileJson = profile.toJson();
           profileJson['user_id'] = userId;
+          profileJson['business_id'] = businessId;
 
           // Ensure correct structure
           profileJson['is_available'] = profileJson['is_available'] == true;
@@ -84,8 +90,8 @@ class APIRepository {
       String userId = "";
 
       if (userDetails != null) {
-        Map<String, dynamic> jsonData = jsonDecode(userDetails);
-        userId = jsonData['id'];
+        // Map<String, dynamic> jsonData = jsonDecode(userDetails);
+        userId = userDetails.id;
       } else {
         // print("No user details found.");
       }
@@ -105,8 +111,8 @@ class APIRepository {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = "";
       if (userDetails != null) {
-        Map<String, dynamic> jsonData = jsonDecode(userDetails);
-        userId = jsonData['id'];
+        // Map<String, dynamic> jsonData = jsonDecode(userDetails);
+        userId = userDetails.id;
       } else {
         // print("No user details found.");
       }
@@ -145,5 +151,60 @@ static Future<Response> postStaffUserDetails({
     throw Exception("Failed to post staff data: ${e.toString()}");
   }
 }
+  //...............................Get business locations.................................
+  static Future<Map<String, dynamic>> getBusinessLocations()async{
+    try {
+      final userDetails = await UserService().fetchUserDetails();
+      String businessId = userDetails.businessIds[0];
 
+      String url = getBusinessLocationsEndpoint(businessId);
+
+      final response = await _dio.get(url);
+
+      return response.data['data'];
+
+    } catch (e) {
+      throw Exception("failed to fetch locations ${e.toString()}");
+    }
+  }
+
+  //...................................Fetch appointments..................................
+  static Future<Map<String, dynamic>> getAppointments(String locationId)async{
+    try {
+      final url = fetchAppointmentsEndpoint(locationId);
+
+      final response = await _dio.get(url);
+
+      return response.data['data'];
+
+    } catch (e) {
+      throw Exception("failed to fetch appointments ${e.toString()}");
+    }
+  }
+//.......................Practitionaer (staff) based on location........................
+static Future<Map<String, dynamic>> getPractitioners(String locationId)async{
+  try {
+      final url = getPractitionersBasedOnLocationEndpoint(locationId);
+
+      final response = await _dio.get(url);
+
+      return response.data['data'];
+  } catch (e) {
+      throw Exception("failed to fetch practitioners ${e.toString()}");
+  }
+}
+
+//............................get service details from business ID.......................
+static Future<Map<String, dynamic>> getServiceList()async{
+   try {
+      String businessId = await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getServiceListListFromBusiness(businessId);
+
+      final response = await _dio.get(url);
+
+      return response.data;
+  } catch (e) {
+      throw Exception("failed to fetch service list ${e.toString()}");
+  }
+}
 }

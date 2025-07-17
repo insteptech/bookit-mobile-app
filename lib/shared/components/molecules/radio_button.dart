@@ -49,19 +49,26 @@ class RadioButton extends StatelessWidget {
                 : CrossAxisAlignment.center,
             children: [
               Transform.translate(
-                offset: hasDescription ? const Offset(0, -12) : Offset.zero,
-                child: Checkbox(
-                  value: rememberMe,
-                  shape: const CircleBorder(),
-                  side: BorderSide(
-                    color: rememberMe
-                        ? theme.colorScheme.primary
-                        : AppColors.socialIcon,
-                    width: 2,
-                  ),
-                  onChanged: disabled ? null : (_) => onChanged(true),
-                ),
-              ),
+  offset: hasDescription ? const Offset(0, -12) : Offset.zero,
+  child: Opacity(
+    opacity: disabled ? 0.8 : 1.0, // Only fades the radio icon
+    child: Checkbox(
+    value: rememberMe,
+    shape: const CircleBorder(),
+    side: BorderSide(
+      color: disabled
+          ? Colors.black
+          : (rememberMe
+              ? theme.colorScheme.primary
+              : AppColors.socialIcon),
+      width: 2,
+    ),
+    checkColor: Colors.white,
+    onChanged: disabled ? null : (_) => onChanged(true),
+  ),
+  ),
+),
+
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -90,13 +97,17 @@ class RadioButton extends StatelessWidget {
           Positioned(
             top: 5,
             right: 9,
-            child: Text(
+            
+            child:Opacity(
+              opacity: 0.8,
+              child: Text(
               topRightLabel!,
               style: AppTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w600,
                 color: theme.scaffoldBackgroundColor,
               ),
             ),
+            ) 
           ),
       ],
     );
