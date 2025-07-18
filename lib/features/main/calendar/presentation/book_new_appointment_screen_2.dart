@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
@@ -76,7 +77,7 @@ class _BookNewAppointmentScreen2State
       });
     } catch (e) {
       setState(() {
-        _appointmentSummary = "Could not load appointment details.";
+        _appointmentSummary = AppTranslationsDelegate.of(context).text("could_not_load_appointment_details");
       });
     }
   }

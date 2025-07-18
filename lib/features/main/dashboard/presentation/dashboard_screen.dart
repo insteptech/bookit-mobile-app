@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/add_staff_and_availability_box.dart';
@@ -181,7 +182,7 @@ Future<void> _fetchFreshLocations() async {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text("Welcome back", style: AppTypography.headingLg),
+                  Text(AppTranslationsDelegate.of(context).text("welcome_back"), style: AppTypography.headingLg),
                   const SizedBox(height: 8),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -228,7 +229,7 @@ Future<void> _fetchFreshLocations() async {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Today's appointments",
+                        AppTranslationsDelegate.of(context).text("todays_appointments"),
                         style: AppTypography.headingMd.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
@@ -242,7 +243,7 @@ Future<void> _fetchFreshLocations() async {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Today's class schedule",
+                        AppTranslationsDelegate.of(context).text("todays_class_schedule"),
                         style: AppTypography.headingMd.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
@@ -264,7 +265,7 @@ Future<void> _fetchFreshLocations() async {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        "Click to add staff and class schedules.",
+                        AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.w500,

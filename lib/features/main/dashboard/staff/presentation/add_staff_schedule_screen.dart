@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/set_schedule_form.dart';
@@ -170,7 +171,7 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
                               Icons.add_circle_outline,
                               size: 22,
                             ),
-                            label: const Text('Add another location schedule'),
+                            label: Text(AppTranslationsDelegate.of(context).text("add_another_location_schedule")),
                           ),
                       ],
                     ),
@@ -181,7 +182,7 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
                   child: Column(
                     children: [
                       PrimaryButton(
-                        text: "Continue to schedule",
+                        text: AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
                         onPressed: () {
                           saveUserSchedule();
                         },
@@ -192,7 +193,7 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
                         child: TextButton(
                           onPressed: () => context.go("/home_screen"),
                           child: Text(
-                            "Save & exit",
+                            AppTranslationsDelegate.of(context).text("save_and_exit"),
                             style: AppTypography.bodyMedium.copyWith(
                               fontWeight: FontWeight.w500,
                             ),

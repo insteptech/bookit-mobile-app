@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
@@ -91,7 +92,7 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Name your service", style: AppTypography.headingSm),
+              Text(AppTranslationsDelegate.of(context).text("name_your_service"), style: AppTypography.headingSm),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -109,18 +110,18 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
 
           const SizedBox(height: 8),
           InputField(
-            hintText: "Service title",
+            hintText: AppTranslationsDelegate.of(context).text("service_title"),
             controller: formData.titleController,
           ),
           const SizedBox(height: 16),
-          Text("Write a short description", style: AppTypography.bodyMedium),
+          Text(AppTranslationsDelegate.of(context).text("write_short_description"), style: AppTypography.bodyMedium),
           const SizedBox(height: 8),
           InputField(
-            hintText: "Service description",
+            hintText: AppTranslationsDelegate.of(context).text("service_description"),
             controller: formData.descriptionController,
           ),
           const SizedBox(height: 16),
-          Text("Duration", style: AppTypography.headingSm),
+          Text(AppTranslationsDelegate.of(context).text("duration"), style: AppTypography.headingSm),
           const SizedBox(height: 8),
           Column(
             children: List.generate(formData.durationAndCosts.length, (i) {
@@ -194,7 +195,7 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
             },
           ),
           const SizedBox(height: 16),
-          Text("Cost", style: AppTypography.headingSm),
+          Text(AppTranslationsDelegate.of(context).text("cost"), style: AppTypography.headingSm),
           const SizedBox(height: 8),
           Column(
             children:
@@ -239,7 +240,7 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  "Package",
+                                  AppTranslationsDelegate.of(context).text("package"),
                                   style: AppTypography.bodyMedium,
                                 ),
                                 Row(

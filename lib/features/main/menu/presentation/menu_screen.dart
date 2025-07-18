@@ -1,7 +1,8 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/molecules/language_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,13 +32,54 @@ class _MenuScreenState extends State<MenuScreen> {
                 children: [
                   const SizedBox(height: 98),
                   const SizedBox(height: 16),
-                  Text("Menu", style: AppTypography.headingLg),
+                  Text(AppTranslationsDelegate.of(context).text("menu_title"), style: AppTypography.headingLg),
                   const SizedBox(height: 8),
                   const SizedBox(height: 48),
 
                   SizedBox(height: 48),
                   Column(
                     children: [
+                      // Language Selector
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 36,
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => const LanguageSelector(showAsDialog: true),
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: theme.colorScheme.primary,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                ),
+                                icon: Icon(
+                                  Icons.language,
+                                  color: theme.colorScheme.primary,
+                                  size: 18,
+                                ),
+                                label: Text(
+                                  AppTranslationsDelegate.of(context).text("choose_language"),
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      // Log out button
                       Row(
                         children: [
                           SizedBox(
@@ -59,7 +101,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                 // padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                               ),
                               child: Text(
-                                "Log out",
+                                AppTranslationsDelegate.of(context).text("log_out"),
                                 style: AppTypography.bodyMedium.copyWith(
                                   color: theme.colorScheme.primary,
                                   fontWeight: FontWeight.w500,

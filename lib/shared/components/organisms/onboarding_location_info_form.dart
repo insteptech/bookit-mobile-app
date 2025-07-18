@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/api_keys.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class OnboardingLocationInfoForm extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Address", style: AppTypography.bodyMedium),
+            Text(AppTranslationsDelegate.of(context).text("address"), style: AppTypography.bodyMedium),
             if (showDeleteButton)
               GestureDetector(
                 onTap: () {
@@ -130,31 +131,31 @@ class OnboardingLocationInfoForm extends StatelessWidget {
         ),
 
         SizedBox(height: 16),
-        Text("Location name", style: AppTypography.bodyMedium),
-        InputField(hintText: "Location name", controller: locationController),
+        Text(AppTranslationsDelegate.of(context).text("location_name"), style: AppTypography.bodyMedium),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("location_name"), controller: locationController),
 
         SizedBox(height: 8),
-        Text("Address", style: AppTypography.bodyMedium),
-        InputField(hintText: "Street", controller: addressController),
+        Text(AppTranslationsDelegate.of(context).text("address"), style: AppTypography.bodyMedium),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("street"), controller: addressController),
 
         SizedBox(height: 8),
-        Text("Floor / Apt", style: AppTypography.bodyMedium),
-        InputField(hintText: "Floor, Apt. number", controller: floorController),
+        Text(AppTranslationsDelegate.of(context).text("floor_apt"), style: AppTypography.bodyMedium),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("floor_apt_number"), controller: floorController),
 
         SizedBox(height: 8),
-        Text("City", style: AppTypography.bodyMedium),
-        InputField(hintText: "City", controller: cityController),
+        Text(AppTranslationsDelegate.of(context).text("city"), style: AppTypography.bodyMedium),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("city"), controller: cityController),
 
         SizedBox(height: 8),
-        Text("State", style: AppTypography.bodyMedium),
+        Text(AppTranslationsDelegate.of(context).text("state"), style: AppTypography.bodyMedium),
         InputField(hintText: "State", controller: stateController),
 
         SizedBox(height: 8),
-        Text("Country", style: AppTypography.bodyMedium),
+        Text(AppTranslationsDelegate.of(context).text("country"), style: AppTypography.bodyMedium),
         InputField(hintText: "Country", controller: countryController),
 
         SizedBox(height: 8),
-        Text("Additional instructions", style: AppTypography.bodyMedium),
+        Text(AppTranslationsDelegate.of(context).text("additional_instructions"), style: AppTypography.bodyMedium),
         InputField(
           hintText: "Directions and instructions",
           controller: instructionController,

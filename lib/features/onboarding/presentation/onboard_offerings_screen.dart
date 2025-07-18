@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/models/category_model.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
@@ -72,7 +73,7 @@ class _OnboardOfferingsScreenState
   } catch (e) {
     // Handle error, e.g., show a snackbar
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Failed to update category. Please try again.")),
+      SnackBar(content: Text(AppTranslationsDelegate.of(context).text("failed_to_update_category"))),
     );
   } finally {
     isButtonDisabled = false;
@@ -89,15 +90,14 @@ class _OnboardOfferingsScreenState
       builder: (context, snapshot) {
 
         if (snapshot.hasError) {
-          return Center(child: Text("Failed to load categories."));
+          return Center(child: Text(AppTranslationsDelegate.of(context).text("failed_to_load_categories")));
         }
 
         final categories = snapshot.data ?? [];
 
         return OnboardScaffoldLayout(
-          heading: "Select your offerings",
-          subheading:
-              "To begin, please select the main service you offer. Don't worry, you can add all other services under 'Service Types' after onboarding.",
+          heading: AppTranslationsDelegate.of(context).text("select_your_offerings"),
+          subheading: AppTranslationsDelegate.of(context).text("select_offerings_description"),
           backButtonDisabled: false,
           body: Column(
   children: snapshot.connectionState == ConnectionState.waiting
@@ -121,7 +121,7 @@ class _OnboardOfferingsScreenState
           }).toList(),
 ),
           onNext: _handleNext,
-          nextButtonText: "Next: add services",
+          nextButtonText: AppTranslationsDelegate.of(context).text("next_add_services"),
           nextButtonDisabled: (selectedCategoryId == null) || isButtonDisabled,
           currentStep: 2,
         );

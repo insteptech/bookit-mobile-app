@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ Widget build(BuildContext context) {
         const Center(child: Text(""))
       else ...[
         Text(
-          "Choose location",
+          AppTranslationsDelegate.of(context).text("choose_location"),
           style: AppTypography.headingSm,
         ),
         const SizedBox(height: 8),

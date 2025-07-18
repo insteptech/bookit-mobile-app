@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 
 // Definition for the callback function.
@@ -320,7 +321,7 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
                                     child: dayAppointments.isEmpty
                                         ? Center(
                                             child: Text(
-                                              'No Availability',
+                                              AppTranslationsDelegate.of(context).text("no_availability"),
                                               // Using standard TextTheme instead of AppTypography
                                                style: theme.textTheme.bodySmall,
                                               ),

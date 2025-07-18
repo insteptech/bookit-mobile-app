@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/calendar/widgets/upcoming_appointments.dart';
@@ -70,7 +71,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 children: [
                   const SizedBox(height: 98),
                   const SizedBox(height: 16),
-                  Text("Calendar", style: AppTypography.headingLg),
+                  Text(AppTranslationsDelegate.of(context).text("calendar_title"), style: AppTypography.headingLg),
                   const SizedBox(height: 8),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -109,7 +110,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Appointments",
+                        AppTranslationsDelegate.of(context).text("appointments"),
                         style: AppTypography.headingMd.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
@@ -129,7 +130,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Schedule",
+                        AppTranslationsDelegate.of(context).text("schedule"),
                         style: AppTypography.headingMd.copyWith(
                           fontWeight: FontWeight.w500,
                         ),

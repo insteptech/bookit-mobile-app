@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -29,9 +30,9 @@ class _StaffAvailabilityRadioState extends State<StaffAvailabilityRadio> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _buildRadioOption('Available', true),
+        _buildRadioOption(AppTranslationsDelegate.of(context).text("available"), true),
         const SizedBox(width: 40),
-        _buildRadioOption('Unavailable', false),
+        _buildRadioOption(AppTranslationsDelegate.of(context).text("unavailable"), false),
       ],
     );
   }

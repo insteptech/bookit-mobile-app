@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -61,14 +62,14 @@ List<Map<String, String>> category = [];
                           child: const Icon(Icons.arrow_back, size: 32),
                         ),
                         const SizedBox(height: 9),
-                        const Text(
-                          "Class schedule",
+                        Text(
+                          AppTranslationsDelegate.of(context).text("class_schedule"),
                           style: AppTypography.headingLg,
                         ),
 
                         SizedBox(height: 8,),
 
-                        Text("Wonderful! Next, you can input your class schedule. This is where you'll specify the times and days each class takes place. Remember, you can modify this information anytime in the 'Schedule' section.", style: AppTypography.bodyMedium,),
+                        Text(AppTranslationsDelegate.of(context).text("class_schedule_description"), style: AppTypography.bodyMedium,),
                         
                         const SizedBox(height: 40),
 
@@ -100,8 +101,8 @@ List<Map<String, String>> category = [];
                         const SizedBox(height: 24),
 //location specific pricing
 
-                        Text("Location specific pricing", style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),),
-                        Text("Override price for this location?", style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),),
+                        Text(AppTranslationsDelegate.of(context).text("location_specific_pricing"), style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),),
+                        Text(AppTranslationsDelegate.of(context).text("override_price_for_location"), style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),),
                       ],
                     ),
                   ),
@@ -111,7 +112,7 @@ List<Map<String, String>> category = [];
                   child: Column(
                     children: [
                       PrimaryButton(
-                        text: "Continue to schedule",
+                        text: AppTranslationsDelegate.of(context).text("continue_to_schedule"),
                         onPressed: () {
 
                         },
@@ -122,7 +123,7 @@ List<Map<String, String>> category = [];
                         child: TextButton(
                           onPressed: () => context.go('home_screen'),
                           child: Text(
-                            "Save & exit",
+                            AppTranslationsDelegate.of(context).text("save_and_exit"),
                             style: AppTypography.bodyMedium.copyWith(
                               fontWeight: FontWeight.w500,
                             ),

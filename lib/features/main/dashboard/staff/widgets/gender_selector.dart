@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 
 class GenderSelector extends StatefulWidget {
@@ -41,7 +42,7 @@ class GenderSelectorState extends State<GenderSelector> {
             },
           ),
           const SizedBox(width: 8),
-          Text(value, style: AppTypography.bodyMedium),
+          Text(AppTranslationsDelegate.of(context).text(value), style: AppTypography.bodyMedium),
         ],
       ),
     );

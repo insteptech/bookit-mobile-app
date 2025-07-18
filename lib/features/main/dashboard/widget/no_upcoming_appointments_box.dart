@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -43,7 +44,7 @@ class _NoUpcomingAppointmentsBoxState extends State<NoUpcomingAppointmentsBox> {
             Icon(Icons.add_circle_outline, color: theme.colorScheme.primary, size: 18),
             const SizedBox(width: 4),
             Text(
-              "Book new appointment",
+              AppTranslationsDelegate.of(context).text("book_new_appointment"),
               style: AppTypography.bodyMedium.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w500,

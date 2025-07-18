@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -73,7 +74,7 @@ class _ServicesOfferChecklistRowState extends State<ServicesOfferChecklistRow> {
                 showAll = !showAll;
               });
             },
-            child: Text(showAll ? 'See Less' : 'See All'),
+            child: Text(showAll ? AppTranslationsDelegate.of(context).text("see_less") : AppTranslationsDelegate.of(context).text("see_all")),
           ),
       ],
     );

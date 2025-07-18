@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
@@ -65,7 +66,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Staff members added successfully!')),
+          SnackBar(content: Text(AppTranslationsDelegate.of(context).text("staff_members_added_successfully"))),
         );
         
         // Navigator.pop(context);
@@ -76,7 +77,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ).showSnackBar(SnackBar(content: Text('${AppTranslationsDelegate.of(context).text("error")}: $e')));
     } finally {
       setState(() {
         isLoading = false;
@@ -99,7 +100,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 child: const Icon(Icons.arrow_back, size: 32),
               ),
               const SizedBox(height: 9),
-              const Text("Add staff", style: AppTypography.headingLg),
+              Text(AppTranslationsDelegate.of(context).text("add_staff"), style: AppTypography.headingLg),
               const SizedBox(height: 48),
 
               // Render all member forms
@@ -121,13 +122,13 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               TextButton.icon(
                 onPressed: addMemberForm,
                 icon: const Icon(Icons.add_circle_outline, size: 22),
-                label: const Text('Add Another Staff Member'),
+                label: Text(AppTranslationsDelegate.of(context).text("add_another_staff_member")),
               ),
 
               // Action buttons
               const SizedBox(height: 24),
               PrimaryButton(
-                text: isLoading ? "Adding Staff..." : "Continue to schedule",
+                text: isLoading ? AppTranslationsDelegate.of(context).text("adding_staff") : AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
                 onPressed: isLoading ? null : submitStaffProfiles,
                 isDisabled: !canSubmit || isLoading,
               ),
@@ -136,7 +137,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(
-                    "Save & exit",
+                    AppTranslationsDelegate.of(context).text("save_and_exit"),
                     style: AppTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w500,
                     ),

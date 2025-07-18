@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
+import 'app/localization/language_provider.dart';
 import 'core/providers/shared_pref_provider.dart';
 
 Future<void> bootstrap() async {
@@ -26,11 +28,18 @@ Future<void> bootstrap() async {
 
 
   runApp(
-    ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
+    provider.MultiProvider(
+      providers: [
+        provider.ChangeNotifierProvider(
+          create: (context) => LanguageProvider()..initializeLanguage(),
+        ),
       ],
-      child: const AppBootstrap(),
+      child: ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+        child: const AppBootstrap(),
+      ),
     ),
   );
 }

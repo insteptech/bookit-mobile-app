@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/staff_member_row.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
@@ -69,13 +70,13 @@ class _GetStaffListScreen extends State<GetStaffListScreen> {
                           child: const Icon(Icons.arrow_back, size: 32),
                         ),
                         const SizedBox(height: 9),
-                        const Text(
-                          "Set schedule",
+                        Text(
+                          AppTranslationsDelegate.of(context).text("set_schedule"),
                           style: AppTypography.headingLg,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          "Fantastic! Now, let's get their schedules sorted. You can add their availability here, and it's always editable under 'Schedule'. Choose a member to edit their schedule.",
+                        Text(
+                          AppTranslationsDelegate.of(context).text("set_schedule_description"),
                           style: AppTypography.bodyMedium,
                         ),
                         const SizedBox(height: 40),
@@ -84,7 +85,7 @@ class _GetStaffListScreen extends State<GetStaffListScreen> {
                         if (isLoading)
                           const Center(child: CircularProgressIndicator())
                         else if (staffMembers.isEmpty)
-                          const Center(child: Text("No staff created yet."))
+                           Center(child: Text(AppTranslationsDelegate.of(context).text("no_staff_created_yet")))
                         else
                           ...staffMembers.map(
                             (member) => StaffMemberRow(
@@ -109,7 +110,7 @@ class _GetStaffListScreen extends State<GetStaffListScreen> {
                             context.push("/add_staff");
                           },
                           icon: const Icon(Icons.add_circle_outline, size: 22),
-                          label: const Text('Add Another Member'),
+                          label: Text(AppTranslationsDelegate.of(context).text("add_another_member")),
                         ),
                         const SizedBox(height: 24),
                       ],
@@ -121,7 +122,7 @@ class _GetStaffListScreen extends State<GetStaffListScreen> {
                   child: Column(
                     children: [
                       PrimaryButton(
-                        text: "Continue to schedule",
+                        text: AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
                         onPressed: () {},
                         isDisabled: false,
                       ),
@@ -130,7 +131,7 @@ class _GetStaffListScreen extends State<GetStaffListScreen> {
                         child: TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: Text(
-                            "Save & exit",
+                            AppTranslationsDelegate.of(context).text("save_and_exit"),
                             style: AppTypography.bodyMedium.copyWith(
                               fontWeight: FontWeight.w500,
                             ),

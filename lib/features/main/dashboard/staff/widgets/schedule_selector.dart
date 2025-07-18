@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 import 'dropdown_time_picker.dart';
@@ -221,9 +222,9 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
                     },
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text("to"),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(AppTranslationsDelegate.of(context).text("to")),
                 ),
                 Expanded(
                   child: DropdownTimePicker(

@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,7 +21,7 @@ Widget build(BuildContext context) {
     alignment: Alignment.center,
     padding: const EdgeInsets.symmetric(horizontal: 32),
     child: Text(
-      "Click to add staff and their availability.",
+      AppTranslationsDelegate.of(context).text("click_to_add_staff_and_their_availability"),
       textAlign: TextAlign.center,
       style: AppTypography.bodyMedium.copyWith(
         fontWeight: FontWeight.w500,

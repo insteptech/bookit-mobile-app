@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 
 class SmallFixedTextBox extends StatelessWidget {
@@ -18,7 +19,7 @@ class SmallFixedTextBox extends StatelessWidget {
         width: 88,
         child: Center(
           child: Text(
-            "minutes", 
+            AppTranslationsDelegate.of(context).text("minutes"), 
             style: AppTypography.bodyMedium
           )
         ),

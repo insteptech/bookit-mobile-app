@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/features/main/calendar/presentation/calendar_s
 import 'package:bookit_mobile_app/features/main/dashboard/presentation/dashboard_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/menu_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/offerings_screen.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -60,7 +61,7 @@ Widget build(BuildContext context) {
                   ? theme.colorScheme.primary
                   : theme.colorScheme.onSurface,
             ),
-            label: 'Dashboard',
+            label: AppTranslationsDelegate.of(context).text("dashboard"),
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -69,7 +70,7 @@ Widget build(BuildContext context) {
                   ? theme.colorScheme.primary
                   : theme.colorScheme.onSurface,
             ),
-            label: 'Calendar',
+            label: AppTranslationsDelegate.of(context).text("calendar"),
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -78,7 +79,7 @@ Widget build(BuildContext context) {
                   ? theme.colorScheme.primary
                   : theme.colorScheme.onSurface,
             ),
-            label: 'Offerings',
+            label: AppTranslationsDelegate.of(context).text("offerings"),
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -87,7 +88,7 @@ Widget build(BuildContext context) {
                   ? theme.colorScheme.primary
                   : theme.colorScheme.onSurface,
             ),
-            label: 'Menu',
+            label: AppTranslationsDelegate.of(context).text("menu"),
           ),
         ],
         showUnselectedLabels: true,

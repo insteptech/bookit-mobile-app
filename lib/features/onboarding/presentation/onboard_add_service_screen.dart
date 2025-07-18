@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:flutter/material.dart';
@@ -79,8 +80,8 @@ class _OnboardAddServiceScreenState
         }
 
         if (snapshot.hasError || !snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: Text("Failed to load services")),
+          return Scaffold(
+            body: Center(child: Text(AppTranslationsDelegate.of(context).text("failed_to_load_services"))),
           );
         }
 

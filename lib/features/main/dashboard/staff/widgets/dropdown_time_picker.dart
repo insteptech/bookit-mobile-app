@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:flutter/material.dart';
 
 class DropdownTimePicker extends StatefulWidget {
@@ -109,7 +110,7 @@ class _DropdownTimePickerState extends State<DropdownTimePicker> {
             border: Border.all(color: Theme.of(context).colorScheme.surface),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Text(widget.value ?? "Time", style: AppTypography.bodyMedium),
+          child: Text(widget.value ?? AppTranslationsDelegate.of(context).text("time"), style: AppTypography.bodyMedium),
         ),
       ),
     );

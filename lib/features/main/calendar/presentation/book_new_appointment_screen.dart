@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
@@ -362,8 +363,8 @@ class _BookNewAppointmentScreenState
                     ],
                   ),
                   const SizedBox(height: 9),
-                  const Text(
-                    "Book a new appointment",
+                  Text(
+                    AppTranslationsDelegate.of(context).text("book_a_new_appointment"),
                     style: AppTypography.headingLg,
                   ),
                   const SizedBox(height: 16),
@@ -403,7 +404,7 @@ class _BookNewAppointmentScreenState
                     ),
                   ),
                   const SizedBox(height: 48),
-                  Text("Choose practitioner", style: AppTypography.headingSm),
+                  Text(AppTranslationsDelegate.of(context).text("choose_practitioner"), style: AppTypography.headingSm),
                   const SizedBox(height: 8),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -485,7 +486,7 @@ class _BookNewAppointmentScreenState
                     ),
                   ),
                   const SizedBox(height: 32),
-                  Text("Choose service", style: AppTypography.headingSm),
+                  Text(AppTranslationsDelegate.of(context).text("choose_service"), style: AppTypography.headingSm),
                   const SizedBox(height: 8),
                   DropDown(
                     items: serviceList,
@@ -514,7 +515,7 @@ class _BookNewAppointmentScreenState
                   ),
                   const SizedBox(height: 32),
                   if (selectedService.isNotEmpty) ...[
-                    Text("Select duration", style: AppTypography.headingSm),
+                    Text(AppTranslationsDelegate.of(context).text("select_duration"), style: AppTypography.headingSm),
                     const SizedBox(height: 8),
                     if (durationOptions.isNotEmpty)
                       RadioButtonCustom(
@@ -534,14 +535,14 @@ class _BookNewAppointmentScreenState
                       ),
                     const SizedBox(height: 32),
                   ],
-                  Text("Calendar", style: AppTypography.headingSm),
+                  Text(AppTranslationsDelegate.of(context).text("calendar_heading"), style: AppTypography.headingSm),
                   const SizedBox(height: 8),
                   if (selectedService.isEmpty || selectedDuration.isEmpty)
                     Container(
                       height: 200,
                       child: Center(
                         child: Text(
-                          "Please select a service and duration to view available slots",
+                          AppTranslationsDelegate.of(context).text("please_select_service_and_duration"),
                           style: AppTypography.bodyMedium.copyWith(
                             color: AppColors.appLightGrayFont,
                           ),
