@@ -8,6 +8,7 @@ import 'router.dart';
 import 'localization/app_translations_delegate.dart';
 import 'localization/language_provider.dart';
 import '../core/providers/theme_provider.dart';
+import '../core/services/navigation_service.dart';
 
 class AppBootstrap extends ConsumerWidget {
   const AppBootstrap({super.key});
@@ -15,6 +16,9 @@ class AppBootstrap extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+
+    // Initialize navigation service with router
+    NavigationService.initialize(router);
 
     return provider.Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
@@ -26,6 +30,9 @@ class AppBootstrap extends ConsumerWidget {
           themeMode: themeMode,
           locale: languageProvider.currentLocale,
           routerConfig: router,
+          // Set the navigator key for global navigation access
+          // Note: This is commented out because MaterialApp.router manages its own navigator
+          // navigatorKey: NavigationService.navigatorKey,
           supportedLocales: const [
             Locale('en', 'US'),
             Locale('ar', 'SA'),

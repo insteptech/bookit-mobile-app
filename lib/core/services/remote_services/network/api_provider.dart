@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/auth_interceptor.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint.dart';
-import 'package:bookit_mobile_app/core/services/token_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/dio_client.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
 import 'package:dio/dio.dart';
 
@@ -13,11 +11,7 @@ import 'package:dio/dio.dart';
 // APIRepository handles all API calls related to staff management, including adding multiple staff members, fetching staff lists, and managing staff schedules.
 
 class APIRepository {
-  static final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl))
-    ..interceptors.add(AuthInterceptor(
-      dio: Dio(BaseOptions(baseUrl: baseUrl)), // for refresh call
-      tokenService: TokenService(),
-    ));
+  static final Dio _dio = DioClient.instance;
 
 
   //.................................Add Multiple Staff.............................
@@ -28,12 +22,11 @@ class APIRepository {
     // Get user ID
     String userId = "";
     String businessId = "";
-    final userDetails = await AuthStorageService().getUserDetails();
-    if (userDetails != null) {
-      // Map<String, dynamic> jsonData = jsonDecode(userDetails);
+    try {
+      final userDetails = await AuthStorageService().getUserDetails();
       userId = userDetails.id;
       businessId = userDetails.businessIds[0];
-    } else {
+    } catch (e) {
       return Response(
         requestOptions: RequestOptions(path: addStaffEndpoint),
         statusCode: 400,
@@ -87,14 +80,8 @@ class APIRepository {
   static Future<Response> getUserDataForStaffRegistration() async {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
-      String userId = "";
+      String userId = userDetails.id;
 
-      if (userDetails != null) {
-        // Map<String, dynamic> jsonData = jsonDecode(userDetails);
-        userId = userDetails.id;
-      } else {
-        // print("No user details found.");
-      }
       final String fetchUrl =
           "$getUserRegisteredCategoriesEndpoint/$userId/summary";
       final response = await _dio.get(fetchUrl);
@@ -109,13 +96,8 @@ class APIRepository {
   static Future<Response> getStaffList() async {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
-      String userId = "";
-      if (userDetails != null) {
-        // Map<String, dynamic> jsonData = jsonDecode(userDetails);
-        userId = userDetails.id;
-      } else {
-        // print("No user details found.");
-      }
+      String userId = userDetails.id;
+      
       final String fetchUrl = "$getStaffListByUserIdEndpoint/$userId";
       final response = await _dio.get(fetchUrl);
       return response;

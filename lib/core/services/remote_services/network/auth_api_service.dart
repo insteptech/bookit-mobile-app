@@ -51,9 +51,13 @@ class AuthService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = response.data;
         final token = data['data']?['token'];
+        final refreshToken = data['data']?['refresh_token'];
 
         if (token != null) {
           await _tokenService.saveToken(token);
+          if (refreshToken != null) {
+            await _tokenService.saveRefreshToken(refreshToken);
+          }
           return data;
         } else {
           return {};
@@ -78,8 +82,12 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final token = response.data['token'];
+        final refreshToken = response.data['refresh_token'];
         if (token != null) {
           await _tokenService.saveToken(token);
+          if (refreshToken != null) {
+            await _tokenService.saveRefreshToken(refreshToken);
+          }
         }
       } else {
         throw Exception(response.data['message'] ?? 'Resend OTP failed.');
