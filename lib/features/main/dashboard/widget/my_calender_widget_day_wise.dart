@@ -82,7 +82,7 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
         final int? targetWeekday = _dayNameToWeekday[dayName];
 
         if (targetWeekday == null) {
-          print("Invalid day name in data: $dayName");
+          // Skip invalid day names
           continue;
         }
 
@@ -113,7 +113,7 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
                 color: color,
               ));
             } catch (e) {
-              print('Error parsing slot time for $dayName: $e');
+              // Skip slots with invalid time format
             }
             // Optimization: Once we found the matching day in this week, break the inner loop
             break; 
@@ -158,6 +158,16 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
   void _syncBodyScroll() {
     if (_headerHorizontalController.hasClients && _headerHorizontalController.offset != _bodyHorizontalController.offset) {
       _headerHorizontalController.jumpTo(_bodyHorizontalController.offset);
+    }
+  }
+
+  @override
+  void didUpdateWidget(MyCalenderWidgetDayWise oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-parse appointments if the calendar data has changed
+    if (widget.calenderData != oldWidget.calenderData) {
+      _parseAppointments();
+      setState(() {});
     }
   }
 

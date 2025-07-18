@@ -305,13 +305,6 @@ class _BookNewAppointmentScreenState
       'practitioner_name': tappedAppointment.practitionerName,
     };
 
-    // 3. Print the payload for verification.
-    // Using json.encode for pretty printing
-    // final prettyPayload = const JsonEncoder.withIndent('  ').convert(appointmentPayload);
-    // print('--- Appointment Payload (Ready for next screen) ---');
-    // print(prettyPayload);
-    // print('----------------------------------------------------');
-
     // 4. Navigate to the next screen, passing the payload.
     Navigator.push(
       context,
@@ -544,6 +537,7 @@ class _BookNewAppointmentScreenState
                     SizedBox(
                       height: 424,
                       child: MyCalenderWidgetDayWise(
+                        key: ValueKey('$selectedPractitioner-$selectedService-$selectedDuration'),
                         calenderData: generateCalendarData(),
                         onAppointmentTap: _handleAppointmentTap,
                       ),
