@@ -110,7 +110,7 @@ class OnboardingApiService {
         '$categoryUrl$query',
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
-
+      print(response);
       final categoriesJson = response.data['data']['categories'] as List;
       return categoriesJson.map((e) => CategoryModel.fromJson(e)).toList();
     } on DioException catch (e) {

@@ -35,6 +35,7 @@ class _OnboardOfferingsScreenState
 
     // Fetch categories
     categoriesFuture = OnboardingApiService().getCategories(categoryLevel: "0");
+    print(categoriesFuture);
   }
 
   Future<void> _handleNext() async {

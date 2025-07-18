@@ -6,8 +6,8 @@ class CategoryModel {
   final String? description;
   final int level;
   final bool isActive;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   CategoryModel({
     required this.id,
@@ -17,8 +17,8 @@ class CategoryModel {
     this.description,
     required this.level,
     required this.isActive,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
@@ -44,8 +44,8 @@ class CategoryModel {
       'description': description,
       'level': level,
       'is_active': isActive,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt != null ? createdAt?.toIso8601String() : "",
+      'updatedAt': updatedAt != null ? updatedAt?.toIso8601String() : "",
     };
   }
 }

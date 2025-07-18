@@ -298,7 +298,6 @@ class _BookNewAppointmentScreenState
     final Map<String, dynamic> appointmentPayload = {
       'business_id': businessId,
       'location_id': activeLocationId,
-      'booked_by': null, //to be filled on next screen
       'business_service_id': tappedAppointment.businessServiceId,
       'status': 'booked', // Default status for a new booking
       'practitioner': tappedAppointment.practitionerId,
@@ -306,10 +305,10 @@ class _BookNewAppointmentScreenState
       'start_from': formatUtcTimeOnly(tappedAppointment.startTime),         // HH:mm:ss (UTC)
       'end_at': formatUtcTimeOnly(tappedAppointment.endTime),   
       'user_id':userId, 
-      'rescheduled_from': null,
-      'status_reason': null,
-      'class_id': null,
-      'is_cancelled': false,
+      'rescheduled_from': "",
+      'status_reason': "",
+      'class_id': "",
+      'is_cancelled': "",
       'duration_minutes': tappedAppointment.duration.inMinutes,
       'service_name': tappedAppointment.title,
       'practitioner_name': tappedAppointment.practitionerName,

@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 class InputField extends StatelessWidget {
@@ -84,6 +85,108 @@ class InputField extends StatelessWidget {
           width: 1,
         ),
       ),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 10,
+      ),
+    );
+  }
+}
+
+
+class SearchableClientField extends StatelessWidget {
+  final LayerLink layerLink;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String hintText;
+  final bool showSearchIcon;
+
+  const SearchableClientField({
+    super.key,
+    required this.layerLink,
+    required this.controller,
+    required this.focusNode,
+    this.hintText = "Search clients",
+    this.showSearchIcon = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // This CompositedTransformTarget is essential for the dropdown overlay.
+    return CompositedTransformTarget(
+      link: layerLink,
+      // The Container for shadows and height is taken directly from InputField.
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(8),
+          // BoxShadows from InputField
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x14212529), // 8% opacity
+              offset: Offset(0, 0),
+              blurRadius: 1,
+            ),
+            BoxShadow(
+              color: Color(0x10212529), // 6% opacity
+              offset: Offset(0, 2),
+              blurRadius: 2,
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: controller,
+          focusNode: focusNode,
+          decoration: _inputDecoration(theme),
+          style: AppTypography.bodyMedium
+        ),
+      ),
+    );
+  }
+
+  // This decoration function is adapted from InputField to include the search icon.
+  InputDecoration _inputDecoration(ThemeData theme) {
+    return InputDecoration(
+      hintText: hintText,
+      filled: true,
+      fillColor: theme.scaffoldBackgroundColor,
+      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+        color: const Color(0xFF6C757D),
+        fontFamily: 'Campton',
+      ),
+      // Kept from SearchableClientField
+      prefixIcon: showSearchIcon
+          ? Icon(
+              Icons.search,
+              color: theme.colorScheme.onSurface.withOpacity(0.5),
+            )
+          : null,
+      // All border styles are taken from InputField
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(
+          color: Color(0xFFCED4DA),
+          width: 1,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(
+          color: Color(0xFFCED4DA), 
+          width: 2,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(
+          color: Color(0xFFCED4DA),
+          width: 1,
+        ),
+      ),
+      // Padding from InputField. It works well with the icon.
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 10,

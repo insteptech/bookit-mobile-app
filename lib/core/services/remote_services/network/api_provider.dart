@@ -207,4 +207,36 @@ static Future<Map<String, dynamic>> getServiceList()async{
       throw Exception("failed to fetch service list ${e.toString()}");
   }
 }
+
+//..............................fetch clients..............................
+static Future<Map<String, dynamic>> fetchClients({
+  String? fullName,
+  String? email,
+  String? phoneNumber,
+}) async {
+  try {
+    final url = getClientSearchUrl(
+      fullName: fullName,
+      email: email,
+      phoneNumber: phoneNumber,
+    );
+
+    final response = await _dio.get(url);
+    return response.data["data"];
+  } catch (e) {
+    throw Exception("Failed to fetch clients: ${e.toString()}");
+  }
+}
+
+//..............................Book appointment..............................
+static Future<Response> bookAppointment({
+  required List<Map<String, dynamic>> payload
+})async{
+  try {
+    final response =  await _dio.post(bookAppointmentEndpoint, data: payload);
+    return response;
+  } catch (e) {
+    throw Exception("Failed to book appointment: ${e.toString()}");
+  }
+}
 }

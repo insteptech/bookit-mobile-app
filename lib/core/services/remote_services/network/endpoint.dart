@@ -37,3 +37,29 @@ String getPractitionersBasedOnLocationEndpoint(String locationId) =>
 //............................service list based on business............................
 String getServiceListListFromBusiness(String businessId) =>
     "$baseUrl/business/$businessId/services";
+
+//............................Fetch clients....................................
+String getClientSearchUrl({
+  String? fullName,
+  String? email,
+  String? phoneNumber,
+}) {
+  String base = "$baseUrl/profile/client/filter?";
+  List<String> params = [];
+
+  if (fullName != null && fullName.isNotEmpty) {
+    params.add("full_name=$fullName");
+  }
+  if (email != null && email.isNotEmpty) {
+    params.add("email=$email");
+  }
+  if (phoneNumber != null && phoneNumber.isNotEmpty) {
+    params.add("phone_number=$phoneNumber");
+  }
+
+  return base + params.join("&");
+}
+
+//..........................Book appointment.......................................
+String bookAppointmentEndpoint = "$baseUrl/appointments";
+
