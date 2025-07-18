@@ -7,6 +7,12 @@ import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Screen for adding/editing staff schedules with UTC time format support.
+/// 
+/// Time Handling:
+/// - Backend sends/receives time in UTC format (HH:mm:ss) e.g., "09:00:00"
+/// - UI displays time in local format for user convenience
+/// - Automatic conversion between formats handled by time utilities
 class AddStaffScheduleScreen extends StatefulWidget {
   final String staffId;
   const AddStaffScheduleScreen({super.key, required this.staffId});
@@ -73,8 +79,8 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
             if (schedule['is_selected'] == true) {
               parsedSchedule.add({
                 'day': schedule['day'],
-                'from': schedule['from'],
-                'to': schedule['to'],
+                'from': schedule['from'], // Backend sends UTC format (HH:mm:ss)
+                'to': schedule['to'],     // Backend sends UTC format (HH:mm:ss)
               });
             }
           }

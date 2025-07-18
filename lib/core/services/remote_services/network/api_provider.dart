@@ -239,4 +239,4 @@ static Future<Response> bookAppointment({
     throw Exception("Failed to book appointment: ${e.toString()}");
   }
 }
-}
+} 

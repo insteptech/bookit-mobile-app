@@ -55,8 +55,10 @@ class _AppointmentsWidgetState extends State<AppointmentsWidget> {
       final status = appointment['status']?.toString().toLowerCase() ?? '';
       
       try {
-        final startTime = DateTime.parse(startTimeStr);
-        final appointmentDate = DateTime(startTime.year, startTime.month, startTime.day);
+        // Parse UTC time and convert to local time
+        final utcStartTime = DateTime.parse(startTimeStr);
+        final localStartTime = utcStartTime.toLocal();
+        final appointmentDate = DateTime(localStartTime.year, localStartTime.month, localStartTime.day);
         
         switch (selectedStatus) {
           case AppointmentStatus.upcoming:
@@ -73,12 +75,14 @@ class _AppointmentsWidgetState extends State<AppointmentsWidget> {
       }
     }).toList();
 
-    // Sort appointments by start time
+    // Sort appointments by start time (convert to local time for sorting)
     filtered.sort((a, b) {
       try {
-        final aTime = DateTime.parse(a['start_time'] ?? '');
-        final bTime = DateTime.parse(b['start_time'] ?? '');
-        return aTime.compareTo(bTime);
+        final aUtcTime = DateTime.parse(a['start_time'] ?? '');
+        final bUtcTime = DateTime.parse(b['start_time'] ?? '');
+        final aLocalTime = aUtcTime.toLocal();
+        final bLocalTime = bUtcTime.toLocal();
+        return aLocalTime.compareTo(bLocalTime);
       } catch (e) {
         return 0;
       }
@@ -264,22 +268,15 @@ class AppointmentCard extends StatelessWidget {
 
   String _formatTimeSlot(String startTimeStr, int durationMinutes) {
     try {
-      final startTime = DateTime.parse(startTimeStr);
-      final endTime = startTime.add(Duration(minutes: durationMinutes));
+      // Parse UTC time and convert to local time
+      final utcStartTime = DateTime.parse(startTimeStr);
+      final localStartTime = utcStartTime.toLocal();
+      final localEndTime = localStartTime.add(Duration(minutes: durationMinutes));
       
       final timeFormat = DateFormat('h:mm a');
-      return '${timeFormat.format(startTime)} - ${timeFormat.format(endTime)}';
+      return '${timeFormat.format(localStartTime)} - ${timeFormat.format(localEndTime)}';
     } catch (e) {
       return 'Invalid time';
-    }
-  }
-
-  String _formatDate(String startTimeStr) {
-    try {
-      final dateTime = DateTime.parse(startTimeStr);
-      return DateFormat('dd MMM yyyy').format(dateTime);
-    } catch (e) {
-      return '';
     }
   }
 
@@ -297,21 +294,22 @@ class AppointmentCard extends StatelessWidget {
     final status = appointment['status']?.toString().toLowerCase() ?? '';
     
     final timeSlot = _formatTimeSlot(startTimeStr, durationMinutes);
-    final date = _formatDate(startTimeStr);
     final treatmentInfo = '$serviceName ($durationMinutes min)';
 
     // Determine status chip properties
     Color statusColor;
     String statusText;
     
-    // Determine if appointment is past based on current time
+    // Determine if appointment is past based on current time (convert UTC to local)
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     bool isPast = false;
     
     try {
-      final startTime = DateTime.parse(startTimeStr);
-      final appointmentDate = DateTime(startTime.year, startTime.month, startTime.day);
+      // Parse UTC time and convert to local time
+      final utcStartTime = DateTime.parse(startTimeStr);
+      final localStartTime = utcStartTime.toLocal();
+      final appointmentDate = DateTime(localStartTime.year, localStartTime.month, localStartTime.day);
       isPast = appointmentDate.isBefore(today);
     } catch (e) {
       // If parsing fails, assume not past

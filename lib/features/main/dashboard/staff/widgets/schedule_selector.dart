@@ -5,6 +5,13 @@ import 'package:flutter/material.dart';
 import 'dropdown_time_picker.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
 
+/// Schedule selector widget that handles time input for staff schedules.
+/// 
+/// Time Handling:
+/// - UI displays time in local format (12-hour with AM/PM)
+/// - Converts local time to actual UTC time before sending to backend
+/// - Backend communication uses UTC format (24-hour HH:mm:ss)
+/// - When receiving data from backend, converts UTC time back to local for display
 class ScheduleSelector extends StatefulWidget {
   final int index;
   final StaffScheduleController controller;
@@ -68,9 +75,9 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
           
           if (dayIndex != -1) {
             try {
-              // Parse the time strings - handle both formats
-              final startTime = _parseTimeString(from);
-              final endTime = _parseTimeString(to);
+              // Parse the time strings - backend sends UTC format (HH:mm:ss)
+              final startTime = _parseTimeFromBackend(from);
+              final endTime = _parseTimeFromBackend(to);
               
               setState(() {
                 selectedDays[dayIndex] = true;
@@ -85,6 +92,16 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
           }
         }
       }
+    }
+  }
+
+  TimeOfDay _parseTimeFromBackend(String timeStr) {
+    // First try to parse as UTC format (HH:mm:ss) from backend and convert to local
+    try {
+      return parseUtcTimeFormatToLocal(timeStr); // Converts UTC to local time
+    } catch (e) {
+      // Fallback to existing parsing for legacy format
+      return _parseTimeString(timeStr);
     }
   }
 
@@ -120,8 +137,8 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
         final range = timeRanges[index]!;
         daysSchedule.add({
           "day": fullDays[index].toLowerCase(),
-          "from": range.startStr(context),
-          "to": range.endStr(context),
+          "from": timeOfDayToUtcFormatWithTimezone(range.start), // Now converts local to UTC
+          "to": timeOfDayToUtcFormatWithTimezone(range.end),     // Now converts local to UTC
         });
       }
     }

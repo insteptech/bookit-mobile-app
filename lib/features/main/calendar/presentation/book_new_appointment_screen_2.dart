@@ -6,6 +6,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class BookNewAppointmentScreen2 extends ConsumerStatefulWidget {
@@ -20,7 +21,7 @@ class BookNewAppointmentScreen2 extends ConsumerStatefulWidget {
 class _BookNewAppointmentScreen2State
     extends ConsumerState<BookNewAppointmentScreen2> {
   // --- State Variables ---
-  bool _isLoading = true;
+  bool _isLoading = false;
   String _appointmentSummary = "Loading details...";
 
   // For Autocomplete Client Search
@@ -330,15 +331,28 @@ class _BookNewAppointmentScreen2State
               child: PrimaryButton(
                 onPressed: _selectedClient != null
                     ? () async{
-                        final clientPayload = {
-                          ...widget.partialPayload,
-                          'booked_by': _selectedClient!['id'],
-                        };
-                        List<Map<String,dynamic>> arrayPayload = [clientPayload];
-                        await APIRepository.bookAppointment(payload: arrayPayload);
+                      setState(() {
+                        _isLoading = true;
+                      });
+                        List<Map<String,dynamic>> newPayload = [
+                          {
+                            'business_id': widget.partialPayload['business_id'],
+                            'location_id': widget.partialPayload['location_id'],
+                            'booked_by': _selectedClient!['id'],
+                            'status': 'booked',
+                            'business_service_id': widget.partialPayload['business_service_id'],
+                            'practitioner': widget.partialPayload['practitioner'],
+                            'start_from': widget.partialPayload['start_from'],
+                            'end_at': widget.partialPayload['end_at'],
+                            'date': widget.partialPayload['date'],
+                            'user_id': widget.partialPayload['user_id'],
+                          }
+                        ];
+                        await APIRepository.bookAppointment(payload: newPayload);
+                        context.go("/home_screen");
                       }
                     : null,
-                isDisabled: _selectedClient == null,
+                isDisabled: (_selectedClient == null || _isLoading),
                 text: "Confirm booking",
               ),
             ),

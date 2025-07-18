@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
@@ -67,35 +66,25 @@ class _BookNewAppointmentScreenState
     });
   }
 
-  // Helper function to convert time format from "3:00 PM" to "15:00:00"
-  String convertTo24HourFormat(String time12Hour) {
+  // Helper function to validate and format UTC time string
+  String validateUtcTimeFormat(String utcTime) {
     try {
-      final parts = time12Hour.split(' ');
-      final timePart = parts[0];
-      final period = parts[1].toUpperCase();
-
-      final timeParts = timePart.split(':');
-      int hour = int.parse(timeParts[0]);
-      final minute = timeParts.length > 1 ? timeParts[1] : '00';
-
-      if (period == 'PM' && hour != 12) {
-        hour += 12;
-      } else if (period == 'AM' && hour == 12) {
-        hour = 0;
+      // Expecting format like "HH:mm:ss" or "HH:mm"
+      final parts = utcTime.split(':');
+      if (parts.length >= 2) {
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        final second = parts.length > 2 ? int.parse(parts[2]) : 0;
+        
+        // Validate ranges
+        if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 && second >= 0 && second <= 59) {
+          return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:${second.toString().padLeft(2, '0')}';
+        }
       }
-
-      return '${hour.toString().padLeft(2, '0')}:${minute.padLeft(2, '0')}:00';
     } catch (e) {
-      print('Error converting time: $e');
-      return time12Hour;
+      print('Error validating UTC time format: $e');
     }
-  }
-
-  // Helper function to convert minutes to hours and minutes
-  String minutesToHoursMinutes(int totalMinutes) {
-    final hours = totalMinutes ~/ 60;
-    final minutes = totalMinutes % 60;
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:00';
+    return utcTime;
   }
 
   // Helper function to add minutes to a time string
@@ -131,8 +120,9 @@ class _BookNewAppointmentScreenState
   ) {
     List<Map<String, String>> slots = [];
 
-    final startTime24 = convertTo24HourFormat(startTime);
-    final endTime24 = convertTo24HourFormat(endTime);
+    // Since times are now in UTC format, validate and use them directly
+    final startTime24 = validateUtcTimeFormat(startTime);
+    final endTime24 = validateUtcTimeFormat(endTime);
 
     final totalMinutes = getTimeDifferenceInMinutes(startTime24, endTime24);
     final numberOfSlots = totalMinutes ~/ durationMinutes;

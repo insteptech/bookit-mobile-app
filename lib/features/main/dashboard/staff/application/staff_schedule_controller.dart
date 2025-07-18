@@ -1,6 +1,14 @@
+/// Represents a staff schedule entry for a specific location.
+/// 
+/// Time Format:
+/// - daySchedules contains time in UTC format (HH:mm:ss) for backend compatibility
+/// - UI conversion is handled automatically by ScheduleSelector widget
 class LocationScheduleEntry {
   String? locationId;
   Set<String> selectedServices = {};
+  
+  /// List of daily schedules with UTC time format.
+  /// Each entry contains: {"day": "monday", "from": "09:00:00", "to": "17:00:00"}
   List<Map<String, String>> daySchedules = [];
   bool isAvailable;
 
@@ -35,6 +43,28 @@ class StaffScheduleController {
     entries[index].isAvailable = value;
   }
 
+  /// Builds the final payload for backend submission.
+  /// 
+  /// Returns a payload with time values in UTC format (HH:mm:ss) as required by backend.
+  /// Example payload structure:
+  /// ```json
+  /// {
+  ///   "locations": [
+  ///     {
+  ///       "id": "1",
+  ///       "is_available": true,
+  ///       "services": ["service1", "service2"],
+  ///       "days_schedule": [
+  ///         {
+  ///           "day": "monday",
+  ///           "from": "09:00:00",  // UTC format
+  ///           "to": "17:00:00"     // UTC format
+  ///         }
+  ///       ]
+  ///     }
+  ///   ]
+  /// }
+  /// ```
   Map<String, dynamic> buildFinalPayload() {
     return {
       "locations":
