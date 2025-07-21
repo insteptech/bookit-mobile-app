@@ -37,6 +37,7 @@ class _BookNewAppointmentScreenState
     final data = await APIRepository.getPractitioners(locationId);
     setState(() {
       practitioners = List<Map<String, dynamic>>.from(data['profiles']);
+      print("Practitioners: $practitioners");
     });
   }
 
@@ -63,6 +64,7 @@ class _BookNewAppointmentScreenState
         }).toList();
     setState(() {
       serviceList = extractedList;
+      print("Service List: $serviceList");
     });
   }
 
@@ -120,14 +122,14 @@ class _BookNewAppointmentScreenState
   ) {
     List<Map<String, String>> slots = [];
 
-    // Since times are now in UTC format, validate and use them directly
-    final startTime24 = validateUtcTimeFormat(startTime);
-    final endTime24 = validateUtcTimeFormat(endTime);
+    // Convert UTC times to local times for slot generation
+    final startTimeLocal = _convertUtcTimeToLocalTimeString(startTime);
+    final endTimeLocal = _convertUtcTimeToLocalTimeString(endTime);
 
-    final totalMinutes = getTimeDifferenceInMinutes(startTime24, endTime24);
+    final totalMinutes = getTimeDifferenceInMinutes(startTimeLocal, endTimeLocal);
     final numberOfSlots = totalMinutes ~/ durationMinutes;
 
-    String currentStartTime = startTime24;
+    String currentStartTime = startTimeLocal;
 
     for (int i = 0; i < numberOfSlots; i++) {
       final slotEndTime = addMinutesToTime(currentStartTime, durationMinutes);
@@ -138,6 +140,33 @@ class _BookNewAppointmentScreenState
     }
 
     return slots;
+  }
+
+  // Helper function to convert UTC time string to local time string
+  String _convertUtcTimeToLocalTimeString(String utcTimeString) {
+    try {
+      final parts = utcTimeString.split(':');
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+      
+      // Create a UTC DateTime with today's date and the given time
+      final now = DateTime.now().toUtc();
+      final utcDateTime = DateTime.utc(
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+      
+      // Convert to local time
+      final localDateTime = utcDateTime.toLocal();
+      
+      return '${localDateTime.hour.toString().padLeft(2, '0')}:${localDateTime.minute.toString().padLeft(2, '0')}:00';
+    } catch (e) {
+      print('Error converting UTC time to local: $e');
+      return utcTimeString; // Fallback to original string
+    }
   }
 
   // Convert API data to calendar widget format
@@ -231,6 +260,7 @@ class _BookNewAppointmentScreenState
         });
       }
     }
+    print('Generated calendar data: $calendarData');
     return calendarData;
   }
 
