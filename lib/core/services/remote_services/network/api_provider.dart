@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:bookit_mobile_app/core/models/business_model.dart';
+import 'package:bookit_mobile_app/core/models/category_model.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
@@ -7,12 +9,10 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/dio_clie
 import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
 import 'package:dio/dio.dart';
 
-
 // APIRepository handles all API calls related to staff management, including adding multiple staff members, fetching staff lists, and managing staff schedules.
 
 class APIRepository {
   static final Dio _dio = DioClient.instance;
-
 
   //.................................Add Multiple Staff.............................
   /// Adds multiple staff profiles to the system.
@@ -62,7 +62,7 @@ class APIRepository {
 
     // Manually check response
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return response; 
+      return response;
     } else {
       return Response(
         requestOptions: RequestOptions(path: addStaffEndpoint),
@@ -97,7 +97,7 @@ class APIRepository {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = userDetails.id;
-      
+
       final String fetchUrl = "$getStaffListByUserIdEndpoint/$userId";
       final response = await _dio.get(fetchUrl);
       return response;
@@ -107,7 +107,7 @@ class APIRepository {
   }
 
   //................................Fetch staff user details............................
-  static Future<Response> getStaffUserDetails(final String id)async{
+  static Future<Response> getStaffUserDetails(final String id) async {
     try {
       final url = "$staffScheduleEndpoint/$id/schedule";
       final response = await _dio.get(url);
@@ -117,24 +117,25 @@ class APIRepository {
     }
   }
 
- //..................................Post staff user details............................
-static Future<Response> postStaffUserDetails({
-  required String id,
-  required Map<String, dynamic> payload,
-}) async {
-  try {
-    final url = "$staffScheduleEndpoint/$id/schedule";
-    final response = await _dio.post(
-      url,
-      data: payload, // Pass the schedule data here
-    );
-    return response;
-  } catch (e) {
-    throw Exception("Failed to post staff data: ${e.toString()}");
+  //..................................Post staff user details............................
+  static Future<Response> postStaffUserDetails({
+    required String id,
+    required Map<String, dynamic> payload,
+  }) async {
+    try {
+      final url = "$staffScheduleEndpoint/$id/schedule";
+      final response = await _dio.post(
+        url,
+        data: payload, // Pass the schedule data here
+      );
+      return response;
+    } catch (e) {
+      throw Exception("Failed to post staff data: ${e.toString()}");
+    }
   }
-}
+
   //...............................Get business locations.................................
-  static Future<Map<String, dynamic>> getBusinessLocations()async{
+  static Future<Map<String, dynamic>> getBusinessLocations() async {
     try {
       final userDetails = await UserService().fetchUserDetails();
       String businessId = userDetails.businessIds[0];
@@ -144,81 +145,127 @@ static Future<Response> postStaffUserDetails({
       final response = await _dio.get(url);
 
       return response.data['data'];
-
     } catch (e) {
       throw Exception("failed to fetch locations ${e.toString()}");
     }
   }
 
   //...................................Fetch appointments..................................
-  static Future<Map<String, dynamic>> getAppointments(String locationId)async{
+  static Future<Map<String, dynamic>> getAppointments(String locationId) async {
     try {
       final url = fetchAppointmentsEndpoint(locationId);
 
       final response = await _dio.get(url);
 
       return response.data['data'];
-
     } catch (e) {
       throw Exception("failed to fetch appointments ${e.toString()}");
     }
   }
-//.......................Practitionaer (staff) based on location........................
-static Future<Map<String, dynamic>> getPractitioners(String locationId)async{
-  try {
+
+  //.......................Practitionaer (staff) based on location........................
+  static Future<Map<String, dynamic>> getPractitioners(
+    String locationId,
+  ) async {
+    try {
       final url = getPractitionersBasedOnLocationEndpoint(locationId);
 
       final response = await _dio.get(url);
 
       return response.data['data'];
-  } catch (e) {
+    } catch (e) {
       throw Exception("failed to fetch practitioners ${e.toString()}");
+    }
   }
-}
 
-//............................get service details from business ID.......................
-static Future<Map<String, dynamic>> getServiceList()async{
-   try {
-      String businessId = await ActiveBusinessService().getActiveBusiness() as String;
+  //............................get service details from business ID.......................
+  static Future<Map<String, dynamic>> getServiceList() async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
       final url = getServiceListListFromBusiness(businessId);
 
       final response = await _dio.get(url);
 
       return response.data;
-  } catch (e) {
+    } catch (e) {
       throw Exception("failed to fetch service list ${e.toString()}");
+    }
   }
-}
 
-//..............................fetch clients..............................
-static Future<Map<String, dynamic>> fetchClients({
-  String? fullName,
-  String? email,
-  String? phoneNumber,
-}) async {
-  try {
-    final url = getClientSearchUrl(
-      fullName: fullName,
-      email: email,
-      phoneNumber: phoneNumber,
-    );
+  //..............................fetch clients..............................
+  static Future<Map<String, dynamic>> fetchClients({
+    String? fullName,
+    String? email,
+    String? phoneNumber,
+  }) async {
+    try {
+      final url = getClientSearchUrl(
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+      );
 
-    final response = await _dio.get(url);
-    return response.data["data"];
-  } catch (e) {
-    throw Exception("Failed to fetch clients: ${e.toString()}");
+      final response = await _dio.get(url);
+      return response.data["data"];
+    } catch (e) {
+      throw Exception("Failed to fetch clients: ${e.toString()}");
+    }
   }
-}
 
-//..............................Book appointment..............................
-static Future<Response> bookAppointment({
-  required List<Map<String, dynamic>> payload
-})async{
-  try {
-    final response =  await _dio.post(bookAppointmentEndpoint, data: payload);
-    return response;
-  } catch (e) {
-    throw Exception("Failed to book appointment: ${e.toString()}");
+  //..............................Book appointment..............................
+  static Future<Response> bookAppointment({
+    required List<Map<String, dynamic>> payload,
+  }) async {
+    try {
+      final response = await _dio.post(bookAppointmentEndpoint, data: payload);
+      return response;
+    } catch (e) {
+      throw Exception("Failed to book appointment: ${e.toString()}");
+    }
   }
+
+  //..............................Create a new client account.......................
+  static Future<Response> createClientAccount({
+    required Map<String, dynamic> payload,
+  }) async {
+    try {
+      final response = await _dio.post(
+        createClientAccountEndpoint,
+        data: payload,
+      );
+      return response;
+    } catch (e) {
+      throw Exception("Failed to create client account: ${e.toString()}");
+    }
+  }
+
+  //............................Get business categories..............................
+  static Future<Map<String, dynamic>> getBusinessCategories() async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getBusinessCategoriesEndpoint(businessId);
+      final response = await _dio.get(url);
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to fetch business categories: ${e.toString()}");
+    }
+  }
+
+
+  //............................Get business offerings..................................
+  static Future<List<Map<String, dynamic>>> getBusinessOfferings() async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getBusinessOfferingsEndpoint(businessId);
+      final response = await _dio.get(url);
+      print("Business offerings: ${response.data}");
+      return List<Map<String, dynamic>>.from(response.data);
+    } catch (e) {
+      throw Exception("Failed to fetch business offerings: ${e.toString()}");
+    }
+  }
+
 }
-} 

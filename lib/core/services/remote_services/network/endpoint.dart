@@ -64,3 +64,13 @@ String getClientSearchUrl({
 //..........................Book appointment.......................................
 String bookAppointmentEndpoint = "$baseUrl/appointments";
 
+//.......................Create a new client accoutn............
+String createClientAccountEndpoint = "$baseUrl/profile/client";
+
+//..........................Get business categories...................................
+String getBusinessCategoriesEndpoint(String businessId) =>
+    "$baseUrl/business/businesses/$businessId/categories";
+
+//..........................Get business services...................................
+String getBusinessOfferingsEndpoint(String businessId) =>
+    "$baseUrl/business/$businessId/services/details";

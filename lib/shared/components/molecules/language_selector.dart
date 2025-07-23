@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bookit_mobile_app/app/localization/language_provider.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 
 class LanguageSelector extends StatelessWidget {
   final bool showAsDialog;
@@ -23,26 +24,27 @@ class LanguageSelector extends StatelessWidget {
   Widget _buildLanguageButton(context) {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
-        return IconButton(
-          icon: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.language,
-                color: Colors.grey[600],
-              ),
-              const SizedBox(width: 4),
-              Text(
-                languageProvider.currentLocale.languageCode.toUpperCase(),
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          onPressed: () => _showLanguageDialog(context),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLanguageOption(
+              context: context,
+              locale: const Locale('en', 'US'),
+              title: 'English',
+              subtitle: 'English',
+              flag: '🇺🇸',
+              isDialog: false,
+            ),
+            const SizedBox(height: 12),
+            _buildLanguageOption(
+              context: context,
+              locale: const Locale('ar', 'SA'),
+              title: 'العربية',
+              subtitle: 'Arabic',
+              flag: '🇸🇦',
+              isDialog: false,
+            ),
+          ],
         );
       },
     );
@@ -65,6 +67,7 @@ class LanguageSelector extends StatelessWidget {
             title: 'English',
             subtitle: 'English',
             flag: '🇺🇸',
+            isDialog: true,
           ),
           const SizedBox(height: 12),
           _buildLanguageOption(
@@ -73,6 +76,7 @@ class LanguageSelector extends StatelessWidget {
             title: 'العربية',
             subtitle: 'Arabic',
             flag: '🇸🇦',
+            isDialog: true,
           ),
         ],
       ),
@@ -93,73 +97,48 @@ class LanguageSelector extends StatelessWidget {
     required String title,
     required String subtitle,
     required String flag,
+    required bool isDialog,
   }) {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
         final isSelected = languageProvider.currentLocale.languageCode == locale.languageCode;
+        final theme = Theme.of(context);
         
-        return InkWell(
+        return GestureDetector(
           onTap: () async {
             await languageProvider.changeLanguage(locale);
-            Navigator.of(context).pop();
+            if (isDialog) {
+              Navigator.of(context).pop();
+            }
           },
           child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade300,
-                width: isSelected ? 2 : 1,
-              ),
-              borderRadius: BorderRadius.circular(8),
-              color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.1) : null,
-            ),
+            margin: const EdgeInsets.only(bottom: 12),
             child: Row(
               children: [
                 Text(
                   flag,
-                  style: const TextStyle(fontSize: 24),
+                  style: const TextStyle(fontSize: 20),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: languageProvider.isRTL 
-                        ? CrossAxisAlignment.end 
-                        : CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? Theme.of(context).primaryColor : null,
-                        ),
-                      ),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    title,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 if (isSelected)
                   Icon(
-                    Icons.check_circle,
-                    color: Theme.of(context).primaryColor,
+                    Icons.check,
+                    size: 20,
+                    color: theme.colorScheme.primary,
                   ),
               ],
             ),
           ),
         );
       },
-    );
-  }
-
-  void _showLanguageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => const LanguageSelector(showAsDialog: true),
     );
   }
 }

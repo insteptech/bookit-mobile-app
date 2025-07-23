@@ -172,5 +172,21 @@
     "select_your_offerings": "Select your offerings",
     "select_offerings_description": "To begin, please select the main service you offer. Don't worry, you can add all other services under 'Service Types' after onboarding.",
     "next_add_services": "Next: add services",
-    "could_not_load_appointment_details": "Could not load appointment details."
+    "could_not_load_appointment_details": "Could not load appointment details.",
+    "setup_checklist": "Setup checklist",
+    "appointments": "Appointments",
+    "schedule": "Schedule",
+    "wellness": "Wellness",
+    "classes": "Classes",
+    "beauty": "Beauty",
+    "profiles": "Profiles",
+    "business_information": "Business information",
+    "client_web_app": "Client web app",
+    "billing_payment": "Billing & payment",
+    "password_security": "Password & security",
+    "app_language": "App language",
+    "membership_status": "Membership status",
+    "notifications": "Notifications",
+    "account_visibility": "Account visibility",
+    "terms_conditions": "Terms & conditions"
 }

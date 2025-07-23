@@ -37,7 +37,6 @@ class _BookNewAppointmentScreenState
     final data = await APIRepository.getPractitioners(locationId);
     setState(() {
       practitioners = List<Map<String, dynamic>>.from(data['profiles']);
-      print("Practitioners: $practitioners");
     });
   }
 
@@ -64,7 +63,6 @@ class _BookNewAppointmentScreenState
         }).toList();
     setState(() {
       serviceList = extractedList;
-      print("Service List: $serviceList");
     });
   }
 
@@ -260,7 +258,6 @@ class _BookNewAppointmentScreenState
         });
       }
     }
-    print('Generated calendar data: $calendarData');
     return calendarData;
   }
 

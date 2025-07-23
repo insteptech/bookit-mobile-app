@@ -109,7 +109,7 @@ class _BookNewAppointmentScreen2State
     try {
       final data = await APIRepository.fetchClients(fullName: query);
       final List<Map<String, dynamic>> clients =
-          (data != null && data['profile'] != null)
+          (data['profile'] != null)
               ? List<Map<String, dynamic>>.from(data['profile'])
               : [];
       setState(() {
@@ -317,12 +317,42 @@ class _BookNewAppointmentScreen2State
                   const SizedBox(height: 24),
                   const Text("Client", style: AppTypography.headingSm),
                   const SizedBox(height: 8),
-                  // *** REPLACEMENT HAPPENED HERE ***
+
                   SearchableClientField(
                     layerLink: _layerLink,
                     controller: _clientController,
                     focusNode: _clientFocusNode,
                   ),
+
+                  SizedBox(height: 8,),
+              
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await context.push(
+                        "/add_new_client",
+                        extra: widget.partialPayload,
+                      );
+                      
+                      // If a client was created, select it
+                      if (result != null && result is Map<String, dynamic>) {
+                        _selectClient(result);
+                      }
+                    },
+                    child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.add_circle_outline_outlined, color: theme.colorScheme.primary, size: 18,),
+                      SizedBox(width: 5,),
+                      Text(
+                        "Add new client",
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  )
                 ],
               ),
             ),

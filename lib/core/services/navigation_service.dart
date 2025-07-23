@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../app/routes.dart';
 
 /// A global navigation service that allows navigation from anywhere in the app,
 /// including from services and interceptors outside the widget tree.
@@ -24,11 +25,12 @@ class NavigationService {
 
   /// Navigate to login screen and clear navigation stack
   static void navigateToLogin() {
-    go('/login');
+    go(AppRoutes.login);
   }
 
   /// Navigate to a specific route (replaces current route)
   static void go(String location, {Object? extra}) {
+    _validateRoute(location);
     if (_router != null) {
       _router!.go(location, extra: extra);
     } else {
@@ -36,13 +38,14 @@ class NavigationService {
       if (context != null) {
         context.go(location, extra: extra);
       } else {
-        print('Warning: Unable to navigate to $location - no router or context available');
+        debugPrint('Warning: Unable to navigate to $location - no router or context available');
       }
     }
   }
 
   /// Push a new route onto the stack
   static void push(String location, {Object? extra}) {
+    _validateRoute(location);
     if (_router != null) {
       _router!.push(location, extra: extra);
     } else {
@@ -50,13 +53,14 @@ class NavigationService {
       if (context != null) {
         context.push(location, extra: extra);
       } else {
-        print('Warning: Unable to push to $location - no router or context available');
+        debugPrint('Warning: Unable to push to $location - no router or context available');
       }
     }
   }
 
   /// Replace the current route
   static void replace(String location, {Object? extra}) {
+    _validateRoute(location);
     if (_router != null) {
       _router!.replace(location, extra: extra);
     } else {
@@ -64,7 +68,7 @@ class NavigationService {
       if (context != null) {
         context.replace(location, extra: extra);
       } else {
-        print('Warning: Unable to replace with $location - no router or context available');
+        debugPrint('Warning: Unable to replace with $location - no router or context available');
       }
     }
   }
@@ -75,7 +79,7 @@ class NavigationService {
     if (context != null) {
       context.pop(result);
     } else {
-      print('Warning: Unable to go back - no context available');
+      debugPrint('Warning: Unable to go back - no context available');
     }
   }
 
@@ -97,16 +101,50 @@ class NavigationService {
     return null;
   }
 
+  /// Validate route before navigation
+  static void _validateRoute(String route) {
+    if (!AppRoutes.isValidRoute(route)) {
+      debugPrint('Warning: Attempting to navigate to unregistered route: $route');
+    }
+  }
+
+  // Commonly used navigation methods with type safety
+  
+  /// Navigate to home screen
+  static void goToHome() => go(AppRoutes.homeScreen);
+  
+  /// Navigate to login
+  static void goToLogin() => go(AppRoutes.login);
+  
+  /// Navigate to app language screen
+  static void pushAppLanguage() => push(AppRoutes.appLanguage);
+  
+  /// Navigate to staff list
+  static void pushStaffList() => push(AppRoutes.staffList);
+  
+  /// Navigate to book appointment
+  static void pushBookAppointment() => push(AppRoutes.bookNewAppointment);
+  
+  /// Navigate to add staff screen
+  static void pushAddStaff({bool isClass = false}) => push(AppRoutesExtension.addStaffWithType(isClass: isClass));
+
+  /// Navigate to service categories selection
+  static void pushServiceCategories() => push(AppRoutes.addServiceCategories);
+  
+  /// Navigate to add service with category
+  static void pushAddServiceWithCategory({required String categoryId, required String categoryName}) => 
+    push(AppRoutesExtension.addServiceWithCategory(categoryId: categoryId, categoryName: categoryName));
+
   // Legacy methods for backwards compatibility
-  @deprecated
+  @Deprecated('Use go() instead')
   static void navigateTo(String route, {Object? extra}) => go(route, extra: extra);
   
-  @deprecated
+  @Deprecated('Use push() instead')
   static void pushTo(String route, {Object? extra}) => push(route, extra: extra);
   
-  @deprecated
+  @Deprecated('Use pop() instead')
   static void goBack() => pop();
   
-  @deprecated
+  @Deprecated('Use canPop() instead')
   static bool canGoBack() => canPop();
 }

@@ -18,7 +18,6 @@ class OnboardingApiService {
 
   final Dio _dio = DioClient.withBaseUrl('${AppConfig.apiBaseUrl}/business/onboarding');
 
-
   final String categoryUrl = '${AppConfig.apiBaseUrl}/categories';
 
 
@@ -69,7 +68,7 @@ class OnboardingApiService {
     try {
       final response = await _dio.get(
         '/$businessId',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
+        options: Options(headers: {'Authorization': 'Bearer $token'}), 
       );
       final data = response.data['data'];
       return BusinessModel.fromJson(data);
@@ -107,6 +106,7 @@ class OnboardingApiService {
     final query = categoryLevel != null ? '?level=$categoryLevel' : '';
     try {
       final response = await Dio().get(
+        // '$categoryUrl$query/?limit=10000',
         '$categoryUrl$query',
         options: Options(headers: {'Content-Type': 'application/json'}),
       );

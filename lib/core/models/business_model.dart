@@ -162,6 +162,7 @@ class Category {
   final String? slug;
   final int? level;
   final bool? isActive;
+  final bool isClass;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -175,6 +176,7 @@ class Category {
     this.isActive,
     this.createdAt,
     this.updatedAt,
+    required this.isClass,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) {
@@ -192,6 +194,7 @@ class Category {
       updatedAt: json['updatedAt'] != null
           ? DateTime.tryParse(json['updatedAt'])
           : null,
+      isClass: json['is_class']
     );
   }
 
@@ -201,6 +204,8 @@ class Category {
       id: '',
       name: 'Unknown',
       level: 0,
+      isActive: false,
+      isClass: false,
     );
   }
 }

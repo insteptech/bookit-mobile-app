@@ -8,7 +8,9 @@ import 'package:go_router/go_router.dart';
 import '../widgets/add_member_form.dart';
 
 class AddStaffScreen extends StatefulWidget {
-  const AddStaffScreen({super.key});
+  final bool isClass;
+  
+  const AddStaffScreen({super.key, this.isClass = false});
 
   @override
   State<AddStaffScreen> createState() => _AddStaffScreenState();
@@ -66,7 +68,9 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppTranslationsDelegate.of(context).text("staff_members_added_successfully"))),
+          SnackBar(content: Text(
+              AppTranslationsDelegate.of(context).text("staff_members_added_successfully")
+          )),
         );
         
         // Navigator.pop(context);
@@ -100,7 +104,10 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 child: const Icon(Icons.arrow_back, size: 32),
               ),
               const SizedBox(height: 9),
-              Text(AppTranslationsDelegate.of(context).text("add_staff"), style: AppTypography.headingLg),
+              Text(
+                  AppTranslationsDelegate.of(context).text("add_staff"), 
+                style: AppTypography.headingLg
+              ),
               const SizedBox(height: 48),
 
               // Render all member forms
@@ -122,13 +129,18 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               TextButton.icon(
                 onPressed: addMemberForm,
                 icon: const Icon(Icons.add_circle_outline, size: 22),
-                label: Text(AppTranslationsDelegate.of(context).text("add_another_staff_member")),
+                label: Text(
+                    AppTranslationsDelegate.of(context).text("add_another_staff_member")
+                ),
               ),
 
               // Action buttons
               const SizedBox(height: 24),
               PrimaryButton(
-                text: isLoading ? AppTranslationsDelegate.of(context).text("adding_staff") : AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
+                text: isLoading 
+                  ? 
+                   AppTranslationsDelegate.of(context).text("adding_staff")
+                  : AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
                 onPressed: isLoading ? null : submitStaffProfiles,
                 isDisabled: !canSubmit || isLoading,
               ),

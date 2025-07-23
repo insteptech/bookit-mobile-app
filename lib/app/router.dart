@@ -3,6 +3,7 @@ import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScree
 import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/signin_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/forgot_password_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/signup_verify_otp_screen.dart';
+import 'package:bookit_mobile_app/features/main/calendar/presentation/add_new_client_screen.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen_2.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/view_all_appointments_screen.dart';
@@ -10,6 +11,11 @@ import 'package:bookit_mobile_app/features/main/dashboard/home_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_schedule_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/get_staff_list_screen.dart';
+import 'package:bookit_mobile_app/features/main/home/presentation/setup_checklist_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/app_language_screen.dart';
+import 'package:bookit_mobile_app/features/main/offerings/presentation/category_selection_screen.dart';
+import 'package:bookit_mobile_app/features/main/offerings/presentation/select_services_screen.dart';
+import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_about_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_finish_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_locations_screen.dart';
@@ -90,7 +96,13 @@ final GoRouter router = GoRouter(
     GoRoute(path: "/home_screen", builder: (context, state) => HomeScreen()),
 
     //..................add staff screen....................
-    GoRoute(path: "/add_staff", builder: (context, state) => AddStaffScreen()),
+    GoRoute(
+      path: "/add_staff", 
+      builder: (context, state) {
+        final isClass = state.uri.queryParameters['isClass'] == 'true';
+        return AddStaffScreen(isClass: isClass);
+      }
+    ),
 
     //..................staff list screen..............
     GoRoute(
@@ -118,6 +130,50 @@ final GoRouter router = GoRouter(
     GoRoute(path: "/book_new_appointment_add_client", builder: (context, state){
       final data = state.extra as Map<String, dynamic>;
       return BookNewAppointmentScreen2(partialPayload: data);
-    },)
+    },),
+
+    //.........Add new client screen...
+    GoRoute(path: "/add_new_client", builder: (context, state){
+      final data = state.extra as Map<String, dynamic>;
+      return AddNewClientScreen(partialPayload: data);
+    },),
+
+    //..................App Language Screen...........
+    GoRoute(path: "/app_language", builder: (context, state) => const AppLanguageScreen()),
+
+    //..................Setup Checklist Screen...........
+    GoRoute(path: "/setup_checklist", builder: (context, state) => const SetupChecklistScreen()),
+
+    //..................Category Selection Screen...........
+    GoRoute(
+      path: "/select_category",
+      builder: (context, state) => const CategorySelectionScreen(),
+    ),
+
+    //..................Select Services Screen...........
+    GoRoute(
+      path: "/add_service_categories",
+      builder: (context, state) {
+        final categoryId = state.uri.queryParameters['categoryId'] ?? '';
+        final categoryName = state.uri.queryParameters['categoryName'] ?? '';
+        return SelectServicesScreen(
+          categoryId: categoryId,
+          categoryName: categoryName,
+        );
+      },
+    ),
+
+    //..................Add Service Screen...........
+    GoRoute(
+      path: "/add_service",
+      builder: (context, state) {
+        final categoryId = state.uri.queryParameters['categoryId'];
+        final categoryName = state.uri.queryParameters['categoryName'];
+        return AddServiceScreen(
+          categoryId: categoryId,
+          categoryName: categoryName,
+        );
+      },
+    ),
   ],
 );

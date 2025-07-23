@@ -2,9 +2,11 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
-import 'package:bookit_mobile_app/shared/components/molecules/language_selector.dart';
+import 'package:bookit_mobile_app/core/services/navigation_service.dart';
+import 'package:bookit_mobile_app/features/main/menu/widgets/menu_item.dart';
+import 'package:bookit_mobile_app/features/main/menu/widgets/menu_section.dart';
+import 'package:bookit_mobile_app/features/main/menu/controllers/menu_controller.dart' as menu_ctrl;
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -14,6 +16,20 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+  late final menu_ctrl.MenuController _menuController;
+
+  @override
+  void initState() {
+    super.initState();
+    _menuController = menu_ctrl.MenuController();
+  }
+
+  @override
+  void dispose() {
+    _menuController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -25,62 +41,134 @@ class _MenuScreenState extends State<MenuScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 34,
-                  vertical: 24,
+                padding: const EdgeInsets.fromLTRB(
+                  35,80,35,10
                 ),
                 children: [
-                  const SizedBox(height: 98),
-                  const SizedBox(height: 16),
-                  Text(AppTranslationsDelegate.of(context).text("menu_title"), style: AppTypography.headingLg),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 24),
+                  Text(
+                    AppTranslationsDelegate.of(context).text("menu_title"),
+                    style: AppTypography.headingLg,
+                  ),
                   const SizedBox(height: 48),
-
-                  SizedBox(height: 48),
-                  Column(
+                  
+                  // HOME Section
+                  MenuSection(
+                    title: "HOME",
                     children: [
-                      // Language Selector
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 36,
-                              child: OutlinedButton.icon(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => const LanguageSelector(showAsDialog: true),
-                                  );
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: theme.colorScheme.primary,
-                                    width: 1.5,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(100),
-                                  ),
-                                ),
-                                icon: Icon(
-                                  Icons.language,
-                                  color: theme.colorScheme.primary,
-                                  size: 18,
-                                ),
-                                label: Text(
-                                  AppTranslationsDelegate.of(context).text("choose_language"),
-                                  style: AppTypography.bodyMedium.copyWith(
-                                    color: theme.colorScheme.primary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      MenuItem(
+                        icon: Icons.checklist_outlined,
+                        title: AppTranslationsDelegate.of(context).text("setup_checklist"),
+                        onTap: _menuController.navigateToSetupChecklist,
                       ),
-                      const SizedBox(height: 16),
-                      // Log out button
-                      Row(
+                    ],
+                  ),
+
+                  // CALENDAR Section
+                  MenuSection(
+                    title: "CALENDAR",
+                    children: [
+                      MenuItem(
+                        icon: Icons.calendar_today_outlined,
+                        title: AppTranslationsDelegate.of(context).text("appointments"),
+                        onTap: _menuController.navigateToAppointments,
+                      ),
+                      MenuItem(
+                        icon: Icons.schedule_outlined,
+                        title: AppTranslationsDelegate.of(context).text("schedule"),
+                        onTap: _menuController.navigateToSchedule,
+                      ),
+                    ],
+                  ),
+
+                  // OFFERINGS Section
+                  MenuSection(
+                    title: "OFFERINGS",
+                    children: [
+                      MenuItem(
+                        icon: Icons.spa_outlined,
+                        title: AppTranslationsDelegate.of(context).text("wellness"),
+                        onTap: _menuController.navigateToWellness,
+                      ),
+                      MenuItem(
+                        icon: Icons.fitness_center_outlined,
+                        title: AppTranslationsDelegate.of(context).text("classes"),
+                        onTap: _menuController.navigateToClasses,
+                      ),
+                      MenuItem(
+                        icon: Icons.face_outlined,
+                        title: AppTranslationsDelegate.of(context).text("beauty"),
+                        onTap: _menuController.navigateToBeauty,
+                      ),
+                    ],
+                  ),
+
+                  // STAFF Section
+                  MenuSection(
+                    title: "STAFF",
+                    children: [
+                      MenuItem(
+                        icon: Icons.person_outline,
+                        title: AppTranslationsDelegate.of(context).text("profiles"),
+                        onTap: _menuController.navigateToProfiles,
+                      ),
+                    ],
+                  ),
+
+                  // SETTINGS Section
+                  MenuSection(
+                    title: "SETTINGS",
+                    children: [
+                      MenuItem(
+                        icon: Icons.business_outlined,
+                        title: AppTranslationsDelegate.of(context).text("business_information"),
+                        onTap: _menuController.navigateToBusinessInformation,
+                      ),
+                      MenuItem(
+                        icon: Icons.web_outlined,
+                        title: AppTranslationsDelegate.of(context).text("client_web_app"),
+                        onTap: _menuController.navigateToClientWebApp,
+                      ),
+                      MenuItem(
+                        icon: Icons.payment_outlined,
+                        title: AppTranslationsDelegate.of(context).text("billing_payment"),
+                        onTap: _menuController.navigateToBillingPayment,
+                      ),
+                      MenuItem(
+                        icon: Icons.lock_outline,
+                        title: AppTranslationsDelegate.of(context).text("password_security"),
+                        onTap: _menuController.navigateToPasswordSecurity,
+                      ),
+                      MenuItem(
+                        icon: Icons.language_outlined,
+                        title: AppTranslationsDelegate.of(context).text("app_language"),
+                        onTap: _menuController.navigateToAppLanguage,
+                      ),
+                      MenuItem(
+                        icon: Icons.star_outline,
+                        title: AppTranslationsDelegate.of(context).text("membership_status"),
+                        onTap: _menuController.navigateToMembershipStatus,
+                      ),
+                      MenuItem(
+                        icon: Icons.notifications_outlined,
+                        title: AppTranslationsDelegate.of(context).text("notifications"),
+                        onTap: _menuController.navigateToNotifications,
+                      ),
+                      MenuItem(
+                        icon: Icons.visibility_outlined,
+                        title: AppTranslationsDelegate.of(context).text("account_visibility"),
+                        onTap: _menuController.navigateToAccountVisibility,
+                      ),
+                      MenuItem(
+                        icon: Icons.description_outlined,
+                        title: AppTranslationsDelegate.of(context).text("terms_conditions"),
+                        onTap: _menuController.navigateToTermsConditions,
+                      ),
+                    ],
+                  ),
+
+                  // Log out button
+                   Row(
                         children: [
                           SizedBox(
                             height: 36,
@@ -88,7 +176,7 @@ class _MenuScreenState extends State<MenuScreen> {
                               onPressed: () async {
                                 await TokenService().clearToken();
                                 await ActiveBusinessService().clearActiveBusiness();
-                                context.go("/login");
+                                NavigationService.go("/login");
                               },
                               style: OutlinedButton.styleFrom(
                                 side: BorderSide(
@@ -98,7 +186,6 @@ class _MenuScreenState extends State<MenuScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100),
                                 ),
-                                // padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                               ),
                               child: Text(
                                 AppTranslationsDelegate.of(context).text("log_out"),
@@ -111,10 +198,8 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ],
                       ),
-                    ],
-                  ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
