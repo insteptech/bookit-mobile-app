@@ -84,8 +84,8 @@ class APIRepository {
 
       final String fetchUrl =
           "$getUserRegisteredCategoriesEndpoint/$userId/summary";
-      final response = await _dio.get(fetchUrl);
-      // print(response.data);
+      final response = await _dio.get(fetchUrl); 
+      print(response.data);
       return response;
     } catch (e) {
       throw Exception("Failed to fetch staff list: ${e.toString()}");
@@ -111,6 +111,7 @@ class APIRepository {
     try {
       final url = "$staffScheduleEndpoint/$id/schedule";
       final response = await _dio.get(url);
+      print(response.data);
       return response;
     } catch (e) {
       throw Exception("Failed to fetch staff data: ${e.toString()}");
@@ -255,14 +256,14 @@ class APIRepository {
 
 
   //............................Get business offerings..................................
-  static Future<List<Map<String, dynamic>>> getBusinessOfferings() async {
+  static Future<Map<String, dynamic>> getBusinessOfferings() async {
     try {
       String businessId =
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
       print("Business offerings: ${response.data}");
-      return List<Map<String, dynamic>>.from(response.data);
+      return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business offerings: ${e.toString()}");
     }

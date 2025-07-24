@@ -1,10 +1,10 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/core/services/navigation_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../widgets/add_member_form.dart';
 
 class AddStaffScreen extends StatefulWidget {
@@ -73,8 +73,12 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           )),
         );
         
-        // Navigator.pop(context);
-        context.push("/staff_list");
+        // Navigate based on whether this is for a class or regular staff
+        if (widget.isClass) {
+          NavigationService.push("/add_class_schedule");
+        } else {
+          NavigationService.pushStaffList();
+        }
       } else {
         throw Exception('Failed to add staff members');
       }
@@ -116,6 +120,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   padding: const EdgeInsets.only(bottom: 32),
                   child: AddMemberForm(
                     key: ValueKey(id),
+                    isClass: widget.isClass,
                     onAdd: addMemberForm,
                     onDelete:
                         memberForms.length > 1

@@ -27,7 +27,7 @@ class NavigationService {
   static void navigateToLogin() {
     go(AppRoutes.login);
   }
-
+ 
   /// Navigate to a specific route (replaces current route)
   static void go(String location, {Object? extra}) {
     _validateRoute(location);

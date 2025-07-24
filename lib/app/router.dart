@@ -10,6 +10,7 @@ import 'package:bookit_mobile_app/features/main/calendar/presentation/view_all_a
 import 'package:bookit_mobile_app/features/main/dashboard/home_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_schedule_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_screen.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_class_schedule_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/get_staff_list_screen.dart';
 import 'package:bookit_mobile_app/features/main/home/presentation/setup_checklist_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/app_language_screen.dart';
@@ -174,6 +175,12 @@ final GoRouter router = GoRouter(
           categoryName: categoryName,
         );
       },
+    ),
+
+    //..................Add Class Schedule Screen...........
+    GoRoute(
+      path: "/add_class_schedule",
+      builder: (context, state) => const AddClassScheduleScreen(),
     ),
   ],
 );
