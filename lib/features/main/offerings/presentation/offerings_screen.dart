@@ -67,23 +67,24 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 34,
-                    vertical: 24,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 34,
+                  vertical: 24,
+                ),
+                child: Column(
                   children: [
-                    const SizedBox(height: 98),
-                    const SizedBox(height: 16),
-                    Text("Offerings", style: AppTypography.headingLg),
-                    const SizedBox(height: 8),
-                    const SizedBox(height: 48),
-                   
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 70),
+                    Row(
+                      children: [
+                        Text("Offerings", style: AppTypography.headingLg),
+                      ],
+                    ),
                   ],
                 ),
               ),
+              const Spacer(),
+              // Add Service Button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
                 child: Consumer<OfferingsController>(

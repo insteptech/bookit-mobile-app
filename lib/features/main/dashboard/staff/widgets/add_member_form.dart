@@ -11,6 +11,7 @@ import 'gender_selector.dart'; // <- Import the GenderSelector
 class AddMemberForm extends StatefulWidget {
   final VoidCallback? onAdd;
   final VoidCallback? onDelete;
+  final bool isClass;
   final Function(StaffProfile)? onDataChanged;
 
   const AddMemberForm({
@@ -18,6 +19,7 @@ class AddMemberForm extends StatefulWidget {
     this.onAdd,
     this.onDelete,
     this.onDataChanged,
+    required this.isClass
   });
 
   @override
@@ -44,12 +46,12 @@ class _AddMemberFormState extends State<AddMemberForm> {
 
   void _onDataChanged() async {
     if (widget.onDataChanged != null) {
-      final categoryId = _categorySelectorKey.currentState?.selectedCategoryId;
+      final categoryIds = _categorySelectorKey.currentState?.selectedCategoryIds.toList() ?? [];
       final locationIds = _locationSelectorKey.currentState?.selectedLocationIds.toList() ?? [];
       final profileImage = _profilePickerKey.currentState?.profileImage;
       final gender = _genderSelectorKey.currentState?.selectedGender;
 
-      if (categoryId != null && locationIds.isNotEmpty) {
+      if (categoryIds.isNotEmpty && locationIds.isNotEmpty) {
         widget.onDataChanged!(
           StaffProfile(
             userId: '',
@@ -57,7 +59,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
             email: _emailController.text,
             phoneNumber: _phoneController.text,
             gender: gender ?? 'male',
-            categoryId: categoryId,
+            categoryIds: categoryIds,
             locationIds: locationIds,
             profileImage: profileImage,
           ),
@@ -116,6 +118,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
         CategorySelector(
           key: _categorySelectorKey,
           onSelectionChanged: _onDataChanged,
+          isClass: widget.isClass,
         ),
         const SizedBox(height: 16),
 

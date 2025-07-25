@@ -7,7 +7,7 @@ class StaffProfile {
   final String email;
   final String phoneNumber;
   final String gender;
-  final String categoryId;
+  final List<String> categoryIds;
   final List<String> locationIds;
   final File? profileImage;
   final bool isAvailable;
@@ -21,7 +21,7 @@ class StaffProfile {
     required this.email,
     required this.phoneNumber,
     required this.gender,
-    required this.categoryId,
+    required this.categoryIds,
     required this.locationIds,
     this.profileImage,
     this.isAvailable = true,
@@ -35,7 +35,7 @@ class StaffProfile {
       'email': email,
       'phone_number': phoneNumber,
       'gender': gender,
-      'category_id': categoryId,
+      'category_id': categoryIds,
       'location_id': locationIds,
       'is_available': isAvailable,
     };

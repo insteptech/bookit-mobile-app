@@ -6,16 +6,17 @@ import 'package:dio/dio.dart';
 // 4. Modified CategorySelector to expose selected data
 class CategorySelector extends StatefulWidget {
   final VoidCallback? onSelectionChanged;
+  final bool isClass;
   
-  const CategorySelector({super.key, this.onSelectionChanged});
+  const CategorySelector({super.key, this.onSelectionChanged, required this.isClass});
 
   @override
   State<CategorySelector> createState() => CategorySelectorState();
 }
 
 class CategorySelectorState extends State<CategorySelector> {
-  List<Map<String, String>> categories = [];
-  String? selectedCategoryId;
+  List<Map<String, dynamic>> categories = [];
+  Set<String> selectedCategoryIds = {};
 
   @override
   void initState() {
@@ -27,14 +28,17 @@ class CategorySelectorState extends State<CategorySelector> {
     try {
       final Response response = await APIRepository.getUserDataForStaffRegistration();
       final data = response.data;
+      print("categroies: $data");
 
       if (data['status'] == 200 && data['success'] == true) {
         final List<dynamic> categoryData = data['data']['categories'];
+        
         setState(() {
           categories = categoryData
               .map((cat) => {
                     'id': cat['id'].toString(),
                     'name': cat['name'].toString(),
+                    'isClass': cat['is_class'] ?? false,
                   })
               .toList();
         });
@@ -62,8 +66,9 @@ class CategorySelectorState extends State<CategorySelector> {
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: Row(
                 children: [
+                  // if(category['isClass'] == widget.isClass)
                   Checkbox(
-                    value: selectedCategoryId == category['id'],
+                    value: selectedCategoryIds.contains(category['id']),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -71,12 +76,17 @@ class CategorySelectorState extends State<CategorySelector> {
                     visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                     onChanged: (checked) {
                       setState(() {
-                        selectedCategoryId = checked == true ? category['id'] : null;
+                        if (checked == true) {
+                          selectedCategoryIds.add(category['id']);
+                        } else {
+                          selectedCategoryIds.remove(category['id']);
+                        }
                       });
                       widget.onSelectionChanged?.call();
                     },
                   ),
                   const SizedBox(width: 8),
+                  if(category['isClass'] == widget.isClass)
                   Expanded(
                     child: Text(
                       category['name'] ?? '',

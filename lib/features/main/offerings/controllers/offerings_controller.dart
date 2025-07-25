@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/features/main/offerings/models/business_offerings_model.dart';
 
 /// Category model to represent the API response structure
 class CategoryData {
@@ -146,9 +147,47 @@ class OfferingsController extends ChangeNotifier {
   List<CategoryData> _businessCategories = [];
   final Set<UniqueCategory> _uniqueCategories = {};
 
+  // New properties for business offerings
+  bool _isOfferingsLoading = false;
+  String? _offeringsError;
+  BusinessOfferingsResponse? _businessOfferings;
+  
+  // Expansion state management
+  final Set<String> _expandedCategories = {};
+  final Set<String> _expandedServices = {};
+  bool _allExpanded = false;
+
+  // Scroll controller for category navigation
+  final ScrollController scrollController = ScrollController();
+  final Map<String, GlobalKey> categoryKeys = {};
+
   bool get isLoading => _isLoading;
   String? get error => _error;
   List<CategoryData> get businessCategories => _businessCategories;
+
+  // New getters for business offerings
+  bool get isOfferingsLoading => _isOfferingsLoading;
+  String? get offeringsError => _offeringsError;
+  BusinessOfferingsResponse? get businessOfferings => _businessOfferings;
+  bool get allExpanded => _allExpanded;
+  
+  List<CategoryDetails> get availableCategories {
+    if (_businessOfferings?.data.data.businessCategories.isEmpty ?? true) {
+      return [];
+    }
+    return _businessOfferings!.data.data.businessCategories
+        .map((cat) => cat.category)
+        .toList();
+  }
+
+  bool isCategoryExpanded(String categoryId) => _expandedCategories.contains(categoryId);
+  bool isServiceExpanded(String serviceId) => _expandedServices.contains(serviceId);
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   /// Fetch business categories from API
   Future<void> fetchBusinessCategories() async {
@@ -222,8 +261,106 @@ class OfferingsController extends ChangeNotifier {
     return null;
   }
 
+  /// Fetch business offerings from API
+  Future<void> fetchBusinessOfferings() async {
+    _setOfferingsLoading(true);
+    _offeringsError = null;
+
+    try {
+      final response = await APIRepository.getBusinessOfferings();
+      _businessOfferings = BusinessOfferingsResponse.fromJson(response);
+      
+      // Initialize category keys for scrolling
+      _initializeCategoryKeys();
+      
+    } catch (e) {
+      _offeringsError = 'Error fetching business offerings: ${e.toString()}';
+    } finally {
+      _setOfferingsLoading(false);
+    }
+  }
+
+  /// Initialize category keys for auto-scroll functionality
+  void _initializeCategoryKeys() {
+    categoryKeys.clear();
+    if (_businessOfferings != null) {
+      for (final category in _businessOfferings!.data.data.businessCategories) {
+        categoryKeys[category.category.id] = GlobalKey();
+      }
+    }
+  }
+
+  /// Toggle expansion of a specific category
+  void toggleCategoryExpansion(String categoryId) {
+    if (_expandedCategories.contains(categoryId)) {
+      _expandedCategories.remove(categoryId);
+    } else {
+      _expandedCategories.add(categoryId);
+    }
+    notifyListeners();
+  }
+
+  /// Toggle expansion of a specific service
+  void toggleServiceExpansion(String serviceId) {
+    if (_expandedServices.contains(serviceId)) {
+      _expandedServices.remove(serviceId);
+    } else {
+      _expandedServices.add(serviceId);
+    }
+    notifyListeners();
+  }
+
+  /// Expand all categories and services
+  void expandAll() {
+    _allExpanded = true;
+    if (_businessOfferings != null) {
+      // Add all categories
+      for (final category in _businessOfferings!.data.data.businessCategories) {
+        _expandedCategories.add(category.category.id);
+      }
+      // Add all services
+      for (final service in _businessOfferings!.data.data.businessServices) {
+        _expandedServices.add(service.id);
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Collapse all categories and services
+  void collapseAll() {
+    _allExpanded = false;
+    _expandedCategories.clear();
+    _expandedServices.clear();
+    notifyListeners();
+  }
+
+  /// Scroll to a specific category
+  Future<void> scrollToCategory(String categoryId) async {
+    final key = categoryKeys[categoryId];
+    if (key?.currentContext != null) {
+      await Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  /// Get services for a specific category
+  List<BusinessServiceItem> getServicesForCategory(String categoryId) {
+    if (_businessOfferings == null) return [];
+    return _businessOfferings!.data.data.businessServices
+        .where((service) => service.categoryId == categoryId)
+        .toList();
+  }
+
   void _setLoading(bool loading) {
     _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setOfferingsLoading(bool loading) {
+    _isOfferingsLoading = loading;
     notifyListeners();
   }
 }

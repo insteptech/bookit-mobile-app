@@ -269,4 +269,14 @@ class APIRepository {
     }
   }
 
+  //............................Get staff list........................................
+  static Future<Response> getAllStaffList() async {
+    try {
+      final response = await _dio.get(getStaffListEndpoint);
+        return response;
+    }
+    catch (e) {
+      throw Exception("Failed to fetch staff list: ${e.toString()}");
+    }
+  }
 }

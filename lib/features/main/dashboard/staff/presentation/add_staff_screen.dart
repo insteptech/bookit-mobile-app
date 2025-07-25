@@ -49,7 +49,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               profile.name.isNotEmpty &&
               profile.email.isNotEmpty &&
               profile.phoneNumber.isNotEmpty &&
-              profile.categoryId.isNotEmpty &&
+              profile.categoryIds.isNotEmpty &&
               profile.locationIds.isNotEmpty,
         );
   }
@@ -136,7 +136,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 icon: const Icon(Icons.add_circle_outline, size: 22),
                 label: Text(
                     AppTranslationsDelegate.of(context).text("add_another_staff_member")
-                ),
+                ), 
               ),
 
               // Action buttons

@@ -93,7 +93,6 @@ class InputField extends StatelessWidget {
   }
 }
 
-
 class SearchableClientField extends StatelessWidget {
   final LayerLink layerLink;
   final TextEditingController controller;
@@ -114,16 +113,13 @@ class SearchableClientField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // This CompositedTransformTarget is essential for the dropdown overlay.
     return CompositedTransformTarget(
       link: layerLink,
-      // The Container for shadows and height is taken directly from InputField.
       child: Container(
         height: 44,
         decoration: BoxDecoration(
           color: theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(8),
-          // BoxShadows from InputField
           boxShadow: const [
             BoxShadow(
               color: Color(0x14212529), // 8% opacity
@@ -147,7 +143,6 @@ class SearchableClientField extends StatelessWidget {
     );
   }
 
-  // This decoration function is adapted from InputField to include the search icon.
   InputDecoration _inputDecoration(ThemeData theme) {
     return InputDecoration(
       hintText: hintText,
@@ -157,14 +152,12 @@ class SearchableClientField extends StatelessWidget {
         color: const Color(0xFF6C757D),
         fontFamily: 'Campton',
       ),
-      // Kept from SearchableClientField
       prefixIcon: showSearchIcon
           ? Icon(
               Icons.search,
               color: theme.colorScheme.onSurface.withOpacity(0.5),
             )
           : null,
-      // All border styles are taken from InputField
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(
@@ -175,7 +168,7 @@ class SearchableClientField extends StatelessWidget {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(
-          color: Color(0xFFCED4DA), 
+          color: Color(0xFF007BFF), // Changed to match InputField focus color
           width: 2,
         ),
       ),
@@ -186,7 +179,6 @@ class SearchableClientField extends StatelessWidget {
           width: 1,
         ),
       ),
-      // Padding from InputField. It works well with the icon.
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 10,
