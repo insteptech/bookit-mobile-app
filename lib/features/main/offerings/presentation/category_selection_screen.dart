@@ -30,7 +30,7 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
     _controller.dispose();
     super.dispose();
   }
-
+ 
   Future<void> _fetchCategories() async {
     await _controller.fetchBusinessCategories();
   }
@@ -59,105 +59,95 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 34),
-            child: Column(
-              children: [
-                // Header with consistent styling
-                Padding(
-                  padding: const EdgeInsets.only(top: 40.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(Icons.arrow_back, size: 32),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Text(
-                          "Choose service type",
-                          style: AppTypography.headingLg,
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                    ],
-                  ),
+          child: Column(
+            children: [
+              // Header with consistent styling
+              Padding(
+                padding: const EdgeInsets.fromLTRB(34, 70, 24, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.arrow_back, size: 32),
+                    ),
+                    const SizedBox(height: 9),
+                    Text(
+                      "Choose service type",
+                      style: AppTypography.headingLg,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 48),
-                // Content
-                Expanded(
-                  child: Consumer<OfferingsController>(
-                    builder: (context, controller, child) {
-                      if (controller.isLoading) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+              ),
+              const SizedBox(height: 48),
+              // Content
+              Expanded(
+                child: Consumer<OfferingsController>(
+                  builder: (context, controller, child) {
+                    if (controller.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                      if (controller.error != null) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('Error: ${controller.error}'),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: _fetchCategories,
-                                child: const Text('Retry'),
-                              ),
-                            ],
+                    if (controller.error != null) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Error: ${controller.error}'),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _fetchCategories,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final categories = controller.getAllRelatedCategories();
+
+                    if (categories.isEmpty) {
+                      return const Center(
+                        child: Text('No categories available'),
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      itemCount: categories.length,
+                      itemBuilder: (context, index) {
+                        final category = categories[index];
+                        final isSelected = selectedCategoryId == category['id'];
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: RadioButton(
+                            heading: category['name'],
+                            description: category['description'],
+                            rememberMe: isSelected,
+                            onChanged: (_) => _onCategorySelected(category),
+                            bgColor: theme.scaffoldBackgroundColor,
                           ),
                         );
-                      }
-
-                      final categories = controller.getAllRelatedCategories();
-
-                      if (categories.isEmpty) {
-                        return const Center(
-                          child: Text('No categories available'),
-                        );
-                      }
-
-                      return ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: categories.length,
-                        itemBuilder: (context, index) {
-                          final category = categories[index];
-                          final isSelected = selectedCategoryId == category['id'];
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: RadioButton(
-                              heading: category['name'],
-                              description: category['description'],
-                              rememberMe: isSelected,
-                              onChanged: (_) => _onCategorySelected(category),
-                              bgColor: theme.scaffoldBackgroundColor,
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                      },
+                    );
+                  },
                 ),
-                // Next Button
-                Padding(
-                  padding: const EdgeInsets.only(top: 24.0, bottom: 24.0),
-                  child: PrimaryButton(
-                    onPressed: selectedCategory != null ? _onNext : null,
-                    isDisabled: selectedCategory == null,
-                    text: "Next",
-                    isHollow: false,
-                  ),
+              ),
+              // Next Button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: PrimaryButton(
+                  onPressed: selectedCategory != null ? _onNext : null,
+                  isDisabled: selectedCategory == null,
+                  text: "Next",
+                  isHollow: false,
                 ),
+              ),
             ],
           ),
         ),
       ),
-    )
     );
   }
 

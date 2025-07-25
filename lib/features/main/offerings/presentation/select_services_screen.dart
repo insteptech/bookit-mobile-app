@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button.dart';
 import 'package:bookit_mobile_app/core/models/category_model.dart';
@@ -7,6 +8,7 @@ import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class SelectServicesScreen extends ConsumerStatefulWidget {
   final String categoryId;
@@ -62,18 +64,8 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
   Future<void> _onNext() async {
     if (selectedIds.isEmpty) return;
 
-    final business = ref.read(businessProvider);
-    if (business == null || business.id.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Business not found. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
-    }
+    final businessId = await ActiveBusinessService().getActiveBusiness();
+    print(businessId);
 
     setState(() {
       isButtonDisabled = true;
@@ -83,28 +75,24 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
       final categories = await futureCategories;
       final selected = categories.where((c) => selectedIds.contains(c.id));
       
+      
       final List<Map<String, dynamic>> servicesPayload = selected
           .map(
             (e) => {
-              "business_id": business.id,
+              "business_id": businessId,
               "category_id": e.id,
               "title": e.name,
               "description": e.description ?? "",
+              "parent_id": e.parentId,
               "is_active": true,
+              "category_level": e.level,
+              "is_class": e.isClass
             },
           )
           .toList();
 
-      if (servicesPayload.isNotEmpty) {
-        await OnboardingApiService().createServices(
-          services: servicesPayload,
-        );
-        
-        // Fetch updated business details and update provider
-        final businessDetails = await UserService()
-            .fetchBusinessDetails(businessId: business.id);
-        ref.read(businessProvider.notifier).state = businessDetails;
-        
+          
+        print(servicesPayload);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -112,9 +100,8 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.pop(context);
+         context.push('/add_offering_service_details', extra: {'services': servicesPayload});
         }
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

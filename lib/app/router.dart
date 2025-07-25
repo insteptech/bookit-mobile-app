@@ -14,6 +14,7 @@ import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/get_staff_list_screen.dart';
 import 'package:bookit_mobile_app/features/main/home/presentation/setup_checklist_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/app_language_screen.dart';
+import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_details.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/category_selection_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/select_services_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_screen.dart';
@@ -182,5 +183,14 @@ final GoRouter router = GoRouter(
       path: "/add_class_schedule",
       builder: (context, state) => const AddClassScheduleScreen(),
     ),
+
+    //..................Add offering service details.............
+GoRoute(
+  path: "/add_offering_service_details",
+  builder: (context, state) {
+    final payload = state.extra as Map<String, dynamic>?;
+    return AddServiceDetailsScreen(servicePayload: payload);
+  }
+)
   ],
 );

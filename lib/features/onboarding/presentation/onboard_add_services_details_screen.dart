@@ -16,7 +16,7 @@ class OnboardAddServicesDetailsScreen extends ConsumerStatefulWidget {
 
 class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServicesDetailsScreen> {
   final Map<String, GlobalKey<OnboardServicesFormState>> formKeys = {};
-  bool isButtonDisabled = false;
+  bool isButtonDisabled = false; 
 
   Future<void> submitServiceDetails(String businessId) async {
     List<Map<String, dynamic>> allDetails = [];

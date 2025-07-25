@@ -6,6 +6,7 @@ class CategoryModel {
   final String? description;
   final int level;
   final bool isActive;
+  final bool? isClass;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -16,7 +17,8 @@ class CategoryModel {
     required this.name,
     this.description,
     required this.level,
-    required this.isActive,
+    required this.isActive, 
+    this.isClass,
     this.createdAt,
     this.updatedAt,
   });
@@ -32,6 +34,7 @@ class CategoryModel {
       isActive: json['is_active'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      isClass: json['is_class']
     );
   }
 
@@ -46,6 +49,7 @@ class CategoryModel {
       'is_active': isActive,
       'createdAt': createdAt != null ? createdAt?.toIso8601String() : "",
       'updatedAt': updatedAt != null ? updatedAt?.toIso8601String() : "",
+      'is_class': isClass
     };
   }
 }
