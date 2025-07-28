@@ -14,10 +14,15 @@ import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/get_staff_list_screen.dart';
 import 'package:bookit_mobile_app/features/main/home/presentation/setup_checklist_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/app_language_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/businessInformation/business_addresses_sceen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/businessInformation/business_hours_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/businessInformation/business_photo_gallery_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/businessInformation/name_email_phone_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/business_information_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/client_web_app_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_details.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/category_selection_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/select_services_screen.dart';
-import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_about_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_finish_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_locations_screen.dart';
@@ -158,22 +163,11 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         final categoryId = state.uri.queryParameters['categoryId'] ?? '';
         final categoryName = state.uri.queryParameters['categoryName'] ?? '';
+        final isClass = state.uri.queryParameters['isClass'] == false;
         return SelectServicesScreen(
           categoryId: categoryId,
           categoryName: categoryName,
-        );
-      },
-    ),
-
-    //..................Add Service Screen...........
-    GoRoute(
-      path: "/add_service",
-      builder: (context, state) {
-        final categoryId = state.uri.queryParameters['categoryId'];
-        final categoryName = state.uri.queryParameters['categoryName'];
-        return AddServiceScreen(
-          categoryId: categoryId,
-          categoryName: categoryName,
+          isClass: isClass,
         );
       },
     ),
@@ -191,6 +185,32 @@ GoRoute(
     final payload = state.extra as Map<String, dynamic>?;
     return AddServiceDetailsScreen(servicePayload: payload);
   }
-)
+),
+//..................Menu business information screen..............
+    GoRoute(
+      path: "/menu_business_information",
+      builder: (context, state) => BusinessInformationScreen(),
+    ),
+
+//..................Menu business information screen..............
+    GoRoute(
+      path: "/menu_client_web_app",
+      builder: (context, state) => ClientWebAppScreen(),
+    ),
+
+//................Business information name, email, phone screen..............
+    GoRoute(
+      path: "/business-information/name-email-phone",
+      builder: (context, state) => NameEmailPhoneScreen(),
+    ),
+
+//.........................business photo gallery screen...............
+    GoRoute(path: "/business-information/addresses", builder: (context, state) => BusinessAddressesScreen()),
+
+//..................business hours screen..............
+    GoRoute(path: "/business-information/business-hours", builder: (context, state) => BusinessHoursScreen()),
+
+//.........................business photo gallary screen...............
+    GoRoute(path: "/business-information/photo-gallery", builder: (context, state) => BusinessPhotoGalleryScreen()),
   ],
 );

@@ -171,7 +171,7 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
     try {
       final payload = _generatePayload();
       // await APIRepository.createClassSchedule(payload);
-
+      print(payload);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -179,7 +179,7 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context);
+        // Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {

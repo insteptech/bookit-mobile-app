@@ -3,6 +3,8 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
+import '../../../../shared/components/molecules/multi_select_item.dart';
 
 class EnhancedServiceFormData {
   final String serviceId;
@@ -94,8 +96,8 @@ class EnhancedServiceFormData {
       'is_class': isClass,
       'is_archived': false,
       'tags': selectedTags,
-      'media_url': '', // You can add media upload functionality
-      'staff_ids': isClass ? [] : selectedStaffIds,
+      'media_url': '', // Placeholder URL
+      'staff_ids': !isClass ? selectedStaffIds : [],
       'durations': durationList,
       'location_pricing': locationPricingList,
     };
@@ -118,110 +120,138 @@ class EnhancedServiceFormData {
 
 class EnhancedServicesForm extends StatefulWidget {
   final Map<String, dynamic> serviceData;
-  const EnhancedServicesForm({super.key, required this.serviceData});
+  final VoidCallback? onDelete;
+  final List<Map<String, dynamic>>? staffMembers;
+  final List<Map<String, dynamic>>? locations;
+  
+  const EnhancedServicesForm({
+    super.key, 
+    required this.serviceData,
+    this.onDelete,
+    this.staffMembers,
+    this.locations,
+  });
 
   @override
   State<EnhancedServicesForm> createState() => EnhancedServicesFormState();
 }
 
 class EnhancedServicesFormState extends State<EnhancedServicesForm> {
-  late EnhancedServiceFormData formData;
+  final List<EnhancedServiceFormData> forms = [];
   
-  // Dummy data for staff members
-  final List<Map<String, String>> staffMembers = [
-    {'id': 'staff1', 'name': 'Fatima Bombo'},
-    {'id': 'staff2', 'name': 'Mehdi Hassan'},
-    {'id': 'staff3', 'name': 'Nevine Ahmed'},
-    {'id': 'staff4', 'name': 'Patricia Sanders'},
-  ];
+  // Get staff members from widget or use fallback
+  List<Map<String, dynamic>> get staffMembers => widget.staffMembers ?? [];
   
-  // Dummy data for locations
-  final List<Map<String, String>> locations = [
-    {'id': 'loc1', 'name': 'Main Studio'},
-    {'id': 'loc2', 'name': 'Private Room'},
-    {'id': 'loc3', 'name': 'Outdoor Area'},
+  // Get locations from widget or use fallback
+  List<Map<String, dynamic>> get locations => widget.locations ?? [
+    {'id': '62c3f41e-1234-400a-b678-44e89102eddd', 'title': 'Main Studio'},
+    {'id': 'loc2', 'title': 'Private Room'},
+    {'id': 'loc3', 'title': 'Outdoor Area'},
   ];
+
+  // Available tags
+  final List<String> availableTags = [];
 
   @override
   void initState() {
     super.initState();
-    formData = EnhancedServiceFormData(
+    // Initialize with one form
+    final newForm = EnhancedServiceFormData(
       serviceId: widget.serviceData['category_id'] ?? '',
       isClass: widget.serviceData['is_class'] ?? false,
     );
     
+    // Add some default tags for testing
+    newForm.selectedTags.addAll([]);
+    
+    // Add some default staff members for non-class services
+    if (!newForm.isClass) {
+      newForm.selectedStaffIds.addAll([
+        'a7e12345-ffff-4f4f-bbbb-b16e9787ce12',
+        'f1c98e12-abcd-4350-82bb-21412abc901a'
+      ]);
+    }
+    
+    forms.add(newForm);
+    
     // Pre-fill the title with the service title
-    formData.titleController.text = widget.serviceData['title'] ?? '';
+    forms.first.titleController.text = widget.serviceData['title'] ?? '';
   }
 
   @override
   void dispose() {
-    formData.dispose();
+    for (var form in forms) {
+      form.dispose();
+    }
     super.dispose();
   }
 
   Map<String, dynamic>? getServiceDetails() {
-    return formData.toJson(widget.serviceData['business_id'] ?? '');
+    List<Map<String, dynamic>> allDetails = [];
+    for (var form in forms) {
+      final details = form.toJson(widget.serviceData['business_id'] ?? '');
+      if (details != null) {
+        allDetails.add(details);
+      }
+    }
+    return allDetails.isNotEmpty ? {'services': allDetails} : null;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isClass = formData.isClass;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Service name section
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Loop through all forms (multiple service variants)
+        for (var formData in forms) ...[
+          const SizedBox(height: 12),
+          
+          // Service name section with delete button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Name your service',
-                style: AppTypography.headingSm.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTypography.headingSm
               ),
-              Icon(
-                Icons.delete_outline,
-                size: 24,
-                color: theme.colorScheme.primary,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (forms.length > 1) {
+                      forms.remove(formData);
+                    } else if (widget.onDelete != null) {
+                      widget.onDelete!();
+                    }
+                  });
+                },
+                child: Icon(
+                  Icons.delete_outline,
+                  size: 24,
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ],
           ),
-          SizedBox(height: 12),
+          
+          SizedBox(height: 8),
           InputField(
-            hintText: widget.serviceData['title'] ?? 'Service title',
+            hintText: 'Service title',
             controller: formData.titleController,
           ),
           
-          SizedBox(height: 24),
+          SizedBox(height: 16),
           
           // Description section
           Text(
             'Write a short description',
-            style: AppTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
+            style: AppTypography.bodyMedium
           ),
           SizedBox(height: 8),
           InputField(
-            hintText: 'Personalized assessment and treatment plans address pain, movement limitations, and functional deficits...',
+            hintText: 'Service description',
             controller: formData.descriptionController,
-            // maxLines: 4,
           ),
           
           SizedBox(height: 24),
@@ -229,9 +259,7 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
           // Duration section
           Text(
             'Duration', 
-            style: AppTypography.headingSm.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTypography.headingSm,
           ),
           SizedBox(height: 12),
           Column(
@@ -322,9 +350,7 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
           // Cost section
           Text(
             'Cost', 
-            style: AppTypography.headingSm.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTypography.headingSm
           ),
           SizedBox(height: 12),
           Column(
@@ -333,23 +359,59 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
                 .map((item) {
                   return Padding(
                     padding: EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "${item['duration']} min",
-                          style: AppTypography.bodyMedium,
-                        ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("EGP", style: AppTypography.bodyMedium),
-                            SizedBox(width: 12),
-                            SizedBox(
-                              width: 88,
-                              child: NumericInputBox(
-                                controller: item['costController'] as TextEditingController,
-                                onChanged: (val) => setState(() => item['cost'] = val),
-                              ),
+                            Text(
+                              "${item['duration']} min",
+                              style: AppTypography.bodyMedium,
+                            ),
+                            Row(
+                              children: [
+                                Text("EGP", style: AppTypography.bodyMedium),
+                                SizedBox(width: 12),
+                                SizedBox(
+                                  width: 88,
+                                  child: NumericInputBox(
+                                    controller: item['costController'] as TextEditingController,
+                                    onChanged: (val) => setState(() => item['cost'] = val),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Package',
+                              style: AppTypography.bodyMedium,
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 88,
+                                  child: NumericInputBox(
+                                    hintText: "10x",
+                                    controller: item['packagePersonController'],
+                                    onChanged: (val) => setState(() => item['packagePerson'] = val),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                SizedBox(
+                                  width: 88,
+                                  child: NumericInputBox(
+                                    hintText: "3200",
+                                    controller: item['packageAmountController'],
+                                    onChanged: (val) => setState(() => item['packageAmount'] = val),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -365,9 +427,7 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
           // Location specific pricing
           Text(
             'Location specific pricing', 
-            style: AppTypography.headingSm.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTypography.headingSm
           ),
           SizedBox(height: 8),
           Row(
@@ -401,49 +461,29 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
             SizedBox(height: 16),
             Text(
               'Cost override', 
-              style: AppTypography.headingSm.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTypography.headingSm
             ),
             SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: formData.selectedLocationId.isEmpty ? null : formData.selectedLocationId,
-                  hint: Text(
-                    'Choose location',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: Colors.grey[500],
-                    ),
-                  ),
-                  isExpanded: true,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      formData.selectedLocationId = newValue ?? '';
-                      // Initialize controllers for each duration when location is selected
-                      if (newValue != null) {
-                        for (var item in formData.durationAndCosts) {
-                          if (item['duration'].toString().isNotEmpty) {
-                            final key = '${newValue}_${item['duration']}';
-                            formData.getLocationPriceController(key);
-                          }
-                        }
+            DropDown(
+              items: locations.map((location) => {
+                'id': location['id']?.toString() ?? '',
+                'name': location['title']?.toString() ?? location['name']?.toString() ?? 'Unknown Location',
+              }).toList(),
+              hintText: 'Choose location',
+              onChanged: (selectedLocation) {
+                setState(() {
+                  formData.selectedLocationId = selectedLocation['id'] ?? '';
+                  // Initialize controllers for each duration when location is selected
+                  if (selectedLocation['id'] != null) {
+                    for (var item in formData.durationAndCosts) {
+                      if (item['duration'].toString().isNotEmpty) {
+                        final key = '${selectedLocation['id']}_${item['duration']}';
+                        formData.getLocationPriceController(key);
                       }
-                    });
-                  },
-                  items: locations.map<DropdownMenuItem<String>>((location) {
-                    return DropdownMenuItem<String>(
-                      value: location['id'],
-                      child: Text(location['name']!),
-                    );
-                  }).toList(),
-                ),
-              ),
+                    }
+                  }
+                });
+              },
             ),
             SizedBox(height: 12),
             // Location pricing rows
@@ -483,7 +523,7 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
           ],
           
           // Staff members section (only for non-class services)
-          if (!isClass) ...[
+          if (!formData.isClass) ...[
             SizedBox(height: 24),
             Text(
               'Staff members', 
@@ -499,27 +539,25 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
             SizedBox(height: 12),
             Column(
               children: staffMembers.map((staff) {
-                final isSelected = formData.selectedStaffIds.contains(staff['id']);
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Checkbox(
-                        value: isSelected,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            if (value == true) {
-                              formData.selectedStaffIds.add(staff['id']!);
-                            } else {
-                              formData.selectedStaffIds.remove(staff['id']);
-                            }
-                          });
-                        },
-                        activeColor: theme.colorScheme.primary,
-                      ),
-                      Text(staff['name']!, style: AppTypography.bodyMedium),
-                    ],
-                  ),
+                final staffId = staff['id']?.toString() ?? '';
+                final isSelected = formData.selectedStaffIds.contains(staffId);
+                final staffName = staff['name']?.toString() ?? 
+                    staff['full_name']?.toString() ?? 
+                    staff['first_name']?.toString() ?? 
+                    'Unknown Staff';
+                
+                return MultiSelectItem(
+                    title: staffName,
+                    isSelected: isSelected,
+                    onChanged: (bool value) {
+                      setState(() {
+                        if (value) {
+                          formData.selectedStaffIds.add(staffId);
+                        } else {
+                          formData.selectedStaffIds.remove(staffId);
+                        }
+                      });
+                    },
                 );
               }).toList(),
             ),
@@ -536,8 +574,41 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
               ),
             ),
           ],
+          
+          const SizedBox(height: 24),
         ],
-      ),
+        
+        // Add new service button (works correctly for classes)
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              final newForm = EnhancedServiceFormData(
+                serviceId: widget.serviceData['category_id'] ?? '',
+                isClass: widget.serviceData['is_class'] ?? false,
+              );
+              forms.add(newForm);
+            });
+          },
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.add_circle_outline,
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                "Add new ${widget.serviceData['title'] ?? 'service'}",
+                style: AppTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

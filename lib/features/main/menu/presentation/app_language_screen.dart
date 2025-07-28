@@ -1,8 +1,9 @@
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
-import 'package:bookit_mobile_app/shared/components/molecules/language_selector.dart';
+import 'package:bookit_mobile_app/app/localization/language_provider.dart';
+import 'package:bookit_mobile_app/features/main/menu/widgets/menu_screens_scaffold.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class AppLanguageScreen extends StatefulWidget {
   const AppLanguageScreen({super.key});
@@ -12,43 +13,49 @@ class AppLanguageScreen extends StatefulWidget {
 }
 
 class _AppLanguageScreenState extends State<AppLanguageScreen> {
+  final List<Map<String, dynamic>> languages = [
+    {'name': 'English', 'code': 'en'},
+    {'name': 'العربية', 'code': 'ar'},
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final currentLanguageCode = languageProvider.currentLocale.languageCode;
+        
+        return MenuScreenScaffold(
+          title: AppTranslationsDelegate.of(context).text("app_language"),
+          subtitle: AppTranslationsDelegate.of(context).text("choose_language"),
+          content: Column(
             children: [
-              const SizedBox(height: 70),
-              GestureDetector(
-                onTap: () => context.pop(),
-                child: const Icon(Icons.arrow_back, size: 32),
+              DropDown(
+                items: languages,
+                hintText: languages.firstWhere(
+                  (lang) => lang['code'] == currentLanguageCode,
+                  orElse: () => {'name': AppTranslationsDelegate.of(context).text("select_language")},
+                )['name'],
+                onChanged: (selectedLanguage) async {
+                  final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+                  final locale = Locale(selectedLanguage['code'], selectedLanguage['code'] == 'ar' ? 'SA' : 'US');
+                  
+                  await languageProvider.changeLanguage(locale);
+                  
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Language changed to ${selectedLanguage['name']}'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
               ),
-              const SizedBox(height: 9),
-              Text(
-                AppTranslationsDelegate.of(context).text("app_language"),
-                style: AppTypography.headingLg,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppTranslationsDelegate.of(context).text("choose_language"),
-                style: AppTypography.bodyMedium.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Expanded(
-                child: LanguageSelector(showAsDialog: false),
-              ),
+              const Spacer(),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

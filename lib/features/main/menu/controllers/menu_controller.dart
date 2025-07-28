@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/routes.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/services/navigation_service.dart';
 
@@ -44,14 +45,12 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to business information
   void navigateToBusinessInformation() {
-    // TODO: Implement business information screen and add route
-    debugPrint('Navigate to Business Information - Screen not implemented yet');
+    NavigationService.push('/menu_business_information');
   }
 
   /// Navigate to client web app
   void navigateToClientWebApp() {
-    // TODO: Implement client web app screen and add route
-    debugPrint('Navigate to Client Web App - Screen not implemented yet');
+    NavigationService.push('/menu_client_web_app');
   }
 
   /// Navigate to billing & payment

@@ -29,7 +29,7 @@ class NavigationService {
   }
  
   /// Navigate to a specific route (replaces current route)
-  static void go(String location, {Object? extra}) {
+  static void go(String location, {Object? extra}) { 
     _validateRoute(location);
     if (_router != null) {
       _router!.go(location, extra: extra);

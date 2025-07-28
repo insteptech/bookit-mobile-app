@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class InputField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
+  final bool? isDisabled;
   final TextEditingController? controller;
   final String? initialValue;
   final void Function(String)? onChanged;
@@ -15,6 +16,7 @@ class InputField extends StatelessWidget {
     this.initialValue,
     this.onChanged,
     this.obscureText = false,
+    this.isDisabled = false,
   });
 
   @override
@@ -24,7 +26,9 @@ class InputField extends StatelessWidget {
     return Container(
       height: 44,
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
+        color: isDisabled == true 
+            ? theme.scaffoldBackgroundColor.withOpacity(0.6)
+            : theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [
           BoxShadow(
@@ -43,13 +47,17 @@ class InputField extends StatelessWidget {
           ? TextField(
               controller: controller,
               obscureText: obscureText,
-              onChanged: onChanged,
+              onChanged: isDisabled == true ? null : onChanged,
+              enabled: isDisabled != true,
+              readOnly: isDisabled == true,
               decoration: _inputDecoration(theme),
             )
           : TextFormField(
               initialValue: initialValue,
               obscureText: obscureText,
-              onChanged: onChanged,
+              onChanged: isDisabled == true ? null : onChanged,
+              enabled: isDisabled != true,
+              readOnly: isDisabled == true,
               decoration: _inputDecoration(theme),
             ),
     );
@@ -59,26 +67,43 @@ class InputField extends StatelessWidget {
     return InputDecoration(
       hintText: hintText,
       filled: true,
-      fillColor: theme.scaffoldBackgroundColor,
+      fillColor: isDisabled == true 
+          ? theme.scaffoldBackgroundColor.withOpacity(0.6)
+          : theme.scaffoldBackgroundColor,
       hintStyle: theme.textTheme.bodyMedium?.copyWith(
-        color: const Color(0xFF6C757D),
+        color: isDisabled == true 
+            ? const Color(0xFF6C757D).withOpacity(0.5)
+            : const Color(0xFF6C757D),
         fontFamily: 'Campton',
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(
-          color: Color(0xFFCED4DA),
+        borderSide: BorderSide(
+          color: isDisabled == true 
+              ? const Color(0xFFCED4DA).withOpacity(0.5)
+              : const Color(0xFFCED4DA),
           width: 1,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(
-          color: Color(0xFF007BFF),
+        borderSide: BorderSide(
+          color: isDisabled == true 
+              ? const Color(0xFFCED4DA).withOpacity(0.5)
+              : const Color(0xFF007BFF),
           width: 2,
         ),
       ),
       enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          color: isDisabled == true 
+              ? const Color(0xFFCED4DA).withOpacity(0.5)
+              : const Color(0xFFCED4DA),
+          width: 1,
+        ),
+      ),
+      disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(
           color: Color(0xFFCED4DA),

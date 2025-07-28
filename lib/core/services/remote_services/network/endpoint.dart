@@ -75,3 +75,6 @@ String getBusinessCategoriesEndpoint(String businessId) =>
 //..........................Get business services...................................
 String getBusinessOfferingsEndpoint(String businessId) =>
     "$baseUrl/business/$businessId/services/details";
+
+//.........................Post offerings........................................
+String postBusinessOfferingsEndpoint = "$baseUrl/business/offering";

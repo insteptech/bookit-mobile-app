@@ -279,4 +279,20 @@ class APIRepository {
       throw Exception("Failed to fetch staff list: ${e.toString()}");
     }
   }
+
+  //............................Post business offerings.................................
+  static Future<Response> postBusinessOfferings({
+    required Map<String, dynamic> payload,
+  }) async {
+    try {
+      final response = await _dio.post(
+        postBusinessOfferingsEndpoint,
+        data: payload,
+      );
+      print("Response from postBusinessOfferings: ${response.data}");
+      return response;
+    } catch (e) {
+      throw Exception("Failed to post business offerings: ${e.toString()}");
+    }
+  }
 }

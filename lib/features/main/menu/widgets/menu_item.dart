@@ -2,14 +2,14 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 class MenuItem extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String title;
   final VoidCallback? onTap;
   final bool hasArrow;
 
   const MenuItem({
     super.key,
-    required this.icon,
+    this.icon,
     required this.title,
     this.onTap,
     this.hasArrow = true,
@@ -25,11 +25,13 @@ class MenuItem extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         child: Row(
           children: [
+            if (icon != null)
             Icon(
               icon,
               size: 20,
               color: theme.colorScheme.onSurface,
             ),
+            if (icon != null) 
             const SizedBox(width: 16),
             Expanded(
               child: Text(

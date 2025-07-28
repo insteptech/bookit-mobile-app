@@ -8,7 +8,9 @@ class OnboardBusinessInfoForm extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController mobileController;
   final TextEditingController websiteController;
-  const OnboardBusinessInfoForm({super.key, required this.nameController, required this.emailController, required this.mobileController, required this.websiteController});
+  final bool? isDisabled;
+  final bool? showHeading;
+  const OnboardBusinessInfoForm({super.key, required this.nameController, required this.emailController, required this.mobileController, required this.websiteController, this.isDisabled, this.showHeading});
 
   @override
   State<OnboardBusinessInfoForm> createState() => _OnboardBusinessInfoFormState();
@@ -21,23 +23,44 @@ class _OnboardBusinessInfoFormState extends State<OnboardBusinessInfoForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(AppTranslationsDelegate.of(context).text("business_information"), style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),),
+        if (widget.showHeading ?? true)
+          Text(
+            AppTranslationsDelegate.of(context).text("business_information"),
+            style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)
+          ),
+        // Text(AppTranslationsDelegate.of(context).text("business_information"), style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),),
         SizedBox(height: 16),
         Text(AppTranslationsDelegate.of(context).text("name"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("name"), controller: widget.nameController,),
+        InputField(
+          hintText: AppTranslationsDelegate.of(context).text("name"), 
+          controller: widget.nameController,
+          isDisabled: widget.isDisabled,
+        ),
         SizedBox(height: 16),
         Text(AppTranslationsDelegate.of(context).text("email"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("email"), controller: widget.emailController),
+        InputField(
+          hintText: AppTranslationsDelegate.of(context).text("email"), 
+          controller: widget.emailController,
+          isDisabled: widget.isDisabled,
+        ),
         SizedBox(height: 16),
         Text(AppTranslationsDelegate.of(context).text("mobile_phone"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("mobile"), controller: widget.mobileController),
+        InputField(
+          hintText: AppTranslationsDelegate.of(context).text("mobile"), 
+          controller: widget.mobileController,
+          isDisabled: widget.isDisabled,
+        ),
         SizedBox(height: 16),
         Text(AppTranslationsDelegate.of(context).text("website_optional"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("website"), controller: widget.websiteController),
+        InputField(
+          hintText: AppTranslationsDelegate.of(context).text("website"), 
+          controller: widget.websiteController,
+          isDisabled: widget.isDisabled,
+        ),
       ],
     );
   }

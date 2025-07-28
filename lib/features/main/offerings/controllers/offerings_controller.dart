@@ -28,14 +28,14 @@ class CategoryData {
 
 class CategoryInfo {
   final String id;
-  final bool isClass;
+  final bool? isClass;
   final String name;
   final String description;
   final List<RelatedCategory> related;
 
   CategoryInfo({
     required this.id,
-    required this.isClass,
+    this.isClass,
     required this.name,
     required this.description,
     required this.related,
@@ -86,12 +86,14 @@ class RelatedCategoryInfo {
   final String name;
   final String slug;
   final String description;
+  final bool? isClass;
 
   RelatedCategoryInfo({
     required this.id,
     required this.name,
     required this.slug,
     required this.description,
+    this.isClass,
   });
 
   factory RelatedCategoryInfo.fromJson(Map<String, dynamic> json) {
@@ -118,11 +120,13 @@ class UniqueCategory {
   final String id;
   final String name;
   final String description;
+  final bool? isClass;
 
   UniqueCategory({
     required this.id,
     required this.name,
     required this.description,
+    this.isClass,
   });
 
   @override
@@ -226,6 +230,7 @@ class OfferingsController extends ChangeNotifier {
         id: category.id,
         name: category.name,
         description: category.description,
+        isClass: category.isClass,
       );
       _uniqueCategories.add(mainCategory);
 
@@ -248,6 +253,7 @@ class OfferingsController extends ChangeNotifier {
               'id': category.id,
               'name': category.name,
               'description': category.description,
+              'is_class': category.isClass ?? false,
             })
         .toList();
   }
