@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/add_staff_and_availability_box.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widget/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/my_calender_widget.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/no_upcoming_appointments_box.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/models/business_category_model.dart';
@@ -27,20 +28,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   bool isCategoriesLoading = true;
   bool isCategoriesLoaded = false;
 
-  Future<void> fetchAppointments(String locationId) async {
-    setState(() {
-      isLoading = true;
-    });
-    final data = await APIRepository.getAppointments(locationId);
-    setState(() {
-      isLoading = false;
-    });
-    // print("data for $locationId : $data");
-    setState(() {
-      allStaffAppointments = List<Map<String, dynamic>>.from(data['data']);
-    });
-    filterAppointments();
+Future<void> fetchAppointments(String locationId) async {
+  setState(() {
+    isLoading = true;
+  });
+
+  final data = await APIRepository.getAppointments(locationId);
+  final List<Map<String, dynamic>> appointmentsList =
+      List<Map<String, dynamic>>.from(data['data']);
+
+  setState(() {
+    isLoading = false;
+    allStaffAppointments = appointmentsList;
+  });
+
+  filterAppointments();
+}
+
+Future<void> fetchClasses(String locationId) async {
+  try {
+    final classesData =  await APIRepository.getAllClassesDetails();
+    (classesData['data']);
+  } catch (e) {
+    debugPrint("Error fetching classes: $e");
   }
+}
+
 
   Future<void> fetchBusinessCategories(String businessId) async {
     setState(() {
@@ -170,6 +183,7 @@ Future<void> _initializeDashboard() async {
     
     // Start fetching appointments in parallel with categories
     final appointmentsFuture = fetchAppointments(locationId);
+   
     
     // Wait for both to complete
     await Future.wait([categoriesFuture, appointmentsFuture]);
@@ -364,6 +378,8 @@ Future<void> _fetchFreshLocations() async {
                             onTap: () async {
                               ref.read(activeLocationProvider.notifier).state = location['id'];
                               await fetchAppointments(location['id']);
+                              print("Fetching for location ${location['id']}");
+                              fetchClasses(location['id']);
                               // Fetch categories only if not already loaded
                               if (!isCategoriesLoaded) {
                                 await _fetchBusinessCategories();
@@ -457,28 +473,29 @@ Future<void> _fetchFreshLocations() async {
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.push("/add_staff?isClass=true");
-                                    },
-                                    child: Container(
-                                      height: 400, // Expanded height for class-only view
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.lightGrayBoxColor,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
-                                        textAlign: TextAlign.center,
-                                        style: AppTypography.bodyMedium.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  // GestureDetector(
+                                  //   onTap: () {
+                                  //     context.push("/add_staff?isClass=true");
+                                  //   },
+                                  //   child: Container(
+                                  //     height: 400, // Expanded height for class-only view
+                                  //     alignment: Alignment.center,
+                                  //     padding: const EdgeInsets.symmetric(horizontal: 32),
+                                  //     decoration: BoxDecoration(
+                                  //       color: AppColors.lightGrayBoxColor,
+                                  //       borderRadius: BorderRadius.circular(12),
+                                  //     ),
+                                  //     child: Text(
+                                  //       AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
+                                  //       textAlign: TextAlign.center,
+                                  //       style: AppTypography.bodyMedium.copyWith(
+                                  //         fontWeight: FontWeight.w500,
+                                  //         color: theme.colorScheme.primary,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  ClassScheduleCalendar()
                                 ];
                               }
                               

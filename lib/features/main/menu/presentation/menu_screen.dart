@@ -52,57 +52,6 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                   const SizedBox(height: 48),
                   
-                  // HOME Section
-                  MenuSection(
-                    title: "HOME",
-                    children: [
-                      MenuItem(
-                        icon: Icons.checklist_outlined,
-                        title: AppTranslationsDelegate.of(context).text("setup_checklist"),
-                        onTap: _menuController.navigateToSetupChecklist,
-                      ),
-                    ],
-                  ),
-
-                  // CALENDAR Section
-                  MenuSection(
-                    title: "CALENDAR",
-                    children: [
-                      MenuItem(
-                        icon: Icons.calendar_today_outlined,
-                        title: AppTranslationsDelegate.of(context).text("appointments"),
-                        onTap: _menuController.navigateToAppointments,
-                      ),
-                      MenuItem(
-                        icon: Icons.schedule_outlined,
-                        title: AppTranslationsDelegate.of(context).text("schedule"),
-                        onTap: _menuController.navigateToSchedule,
-                      ),
-                    ],
-                  ),
-
-                  // OFFERINGS Section
-                  MenuSection(
-                    title: "OFFERINGS",
-                    children: [
-                      MenuItem(
-                        icon: Icons.spa_outlined,
-                        title: AppTranslationsDelegate.of(context).text("wellness"),
-                        onTap: _menuController.navigateToWellness,
-                      ),
-                      MenuItem(
-                        icon: Icons.fitness_center_outlined,
-                        title: AppTranslationsDelegate.of(context).text("classes"),
-                        onTap: _menuController.navigateToClasses,
-                      ),
-                      MenuItem(
-                        icon: Icons.face_outlined,
-                        title: AppTranslationsDelegate.of(context).text("beauty"),
-                        onTap: _menuController.navigateToBeauty,
-                      ),
-                    ],
-                  ),
-
                   // STAFF Section
                   MenuSection(
                     title: "STAFF",

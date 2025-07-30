@@ -8,6 +8,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint
 import 'package:bookit_mobile_app/core/services/remote_services/network/dio_client.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 
 // APIRepository handles all API calls related to staff management, including adding multiple staff members, fetching staff lists, and managing staff schedules.
 
@@ -293,6 +294,94 @@ class APIRepository {
       return response;
     } catch (e) {
       throw Exception("Failed to post business offerings: ${e.toString()}");
+    }
+  }
+
+  //............................Get all classes.......................................
+
+static Future<Map<String, dynamic>> getAllClasses() async {
+  try {
+    String businessId =
+        await ActiveBusinessService().getActiveBusiness() as String;
+    final url = getAllClassesEndpoint(businessId);
+    final response = await _dio.get(url);
+    return response.data;
+  } catch (e) {
+    throw Exception("Failed to fetch classes: ${e.toString()}");
+  }
+}
+
+//............................Post class details (staff and pricing)................
+static Future<Response> postClassDetails({
+  required Map<String, dynamic> payload,
+}) async {
+  try {
+    final response = await _dio.post(
+      postClassDetailsEndpoint,
+      data: payload,
+    );
+    print("Response from postClassDetails: ${response.data}");
+    return response;
+  } catch (e) {
+    throw Exception("Failed to post class details: ${e.toString()}");
+  }
+}
+
+  //............................Get class details.....................................
+  static Future<Map<String, dynamic>> getClassDetails(String classId) async {
+    try {
+      final url = getClassDetailsEndpoint(classId);
+      final response = await _dio.get(url);
+      print("Response from getClassDetails: ${response.data}");
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to fetch class details: ${e.toString()}");
+    }
+  }
+
+// //........................Get all classes based on location.........................
+// static Future<Map<String, dynamic>> getAllClassesDetails() async {
+//   try {
+//     String businessId =
+//         await ActiveBusinessService().getActiveBusiness() as String;
+//     final url = getAllClassesFromBusinessEndpoint(businessId);
+//     final response = await _dio.get(url);
+//     print("Response from getClassesByLocation: ${response.data}");
+//     return response.data;
+//   } catch (e) {
+//     throw Exception("Failed to fetch classes by location: ${e.toString()}");
+//   }
+// }
+static Future<Map<String, dynamic>> getAllClassesDetails() async {
+  try {
+    String businessId =
+        await ActiveBusinessService().getActiveBusiness() as String;
+
+    final url = getAllClassesFromBusinessEndpoint(businessId);
+    final response = await _dio.get(url);
+
+    // Pretty print JSON
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
+
+    return response.data;
+  } catch (e, stacktrace) {
+    debugPrint("Error in getAllClassesDetails: $e");
+    debugPrint("Stacktrace: $stacktrace");
+    throw Exception("Failed to fetch classes by location: ${e.toString()}");
+  }
+}
+static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
+    String locationId,
+    String day
+  ) async {
+    try {
+      final url = getClassesByBusinessAndDayEndpoint(locationId, day);
+      final response = await _dio.get(url);
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to fetch class schedules: ${e.toString()}");
     }
   }
 }

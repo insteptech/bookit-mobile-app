@@ -78,3 +78,40 @@ String getBusinessOfferingsEndpoint(String businessId) =>
 
 //.........................Post offerings........................................
 String postBusinessOfferingsEndpoint = "$baseUrl/business/offering";
+
+//..........................Get all classes...................................
+String getAllClassesEndpoint(String businessId) =>
+    "$baseUrl/business/$businessId/classes";
+
+//..........................Post classes details (staff and pricing)................
+String postClassDetailsEndpoint = "$baseUrl/classes";
+
+
+
+//..........................Get class details...................................
+String getClassDetailsEndpoint(String classId) =>
+    "$baseUrl/classes/$classId";
+
+//,,...................Get all class schedules...................................
+String getAllClassesFromBusinessEndpoint(String businessId) =>
+    "$baseUrl/classes/$businessId";
+//..........................Get class schedules by location......................
+String getClassesByBusinessAndLocationEndpoint(String businessId, String locationId) =>
+    "$baseUrl/classes/$businessId?locationId=$locationId";
+
+//..........................Get class schedules by business and day......................
+String getClassesByBusinessAndDayEndpoint(String businessId, String day) =>
+    "$baseUrl/classes/$businessId?day=$day";
+
+//..........................Get class schedules by business, location and day......................
+String getClassesByBusinessLocationAndDayEndpoint(String businessId, String locationId, String day) =>
+    "$baseUrl/classes/$businessId?locationId=$locationId&day=$day";
+
+//...........Get paginated classes by Get paginated class schedules (page & limit)......................
+String getPaginatedClassesByBusinessEndpoint(String businessId, int page, int limit) =>
+    "$baseUrl/classes/$businessId?page=$page&limit=$limit";
+
+//...........Get sorted classes by business (sortBy & sortOrder)......................
+String getSortedClassesByBusinessEndpoint(String businessId, String sortBy, String sortOrder) =>
+    "$baseUrl/classes/$businessId?sortBy=$sortBy&sortOrder=$sortOrder";
+

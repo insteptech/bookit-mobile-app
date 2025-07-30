@@ -83,6 +83,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         throw Exception('Failed to add staff members');
       }
     } catch (e) {
+      print("Error occurred while adding staff members: $e");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('${AppTranslationsDelegate.of(context).text("error")}: $e')));

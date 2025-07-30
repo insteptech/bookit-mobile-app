@@ -20,6 +20,8 @@ import 'package:bookit_mobile_app/features/main/menu/presentation/businessInform
 import 'package:bookit_mobile_app/features/main/menu/presentation/businessInformation/name_email_phone_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/business_information_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/client_web_app_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/staff_members_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/terms_and_conditions_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_details.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/category_selection_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/select_services_screen.dart';
@@ -212,5 +214,11 @@ GoRoute(
 
 //.........................business photo gallary screen...............
     GoRoute(path: "/business-information/photo-gallery", builder: (context, state) => BusinessPhotoGalleryScreen()),
+
+//..................List all staff members..............
+    GoRoute(path: "/all_staff_members", builder: (context, state) => StaffMembersScreen()),
+
+//..................Terms and Conditions screen..............
+    GoRoute(path: "/terms_conditions", builder: (context, state) => const TermsAndConditionsScreen()),
   ],
 );

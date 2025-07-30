@@ -40,7 +40,7 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to staff profiles
   void navigateToProfiles() {
-    NavigationService.push('/staff_list');
+    NavigationService.push('/all_staff_members');
   }
 
   /// Navigate to business information
@@ -90,7 +90,6 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to terms & conditions
   void navigateToTermsConditions() {
-    // TODO: Implement terms & conditions screen and add route
-    debugPrint('Navigate to Terms & Conditions - Screen not implemented yet');
+    NavigationService.push('/terms_conditions');
   }
 }

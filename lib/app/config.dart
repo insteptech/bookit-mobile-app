@@ -2,11 +2,11 @@ class AppConfig {
   static String domainName =
       'https://spondan.com/spn23/chat'; //** Replace with your domain name
 
-  // static String apiBaseUrl = 'http://192.168.1.31:5001/api/v1';
+  static String apiBaseUrl = 'http://192.168.1.25:5001/api/v1';
   // static String apiBaseUrl = 'http://192.168.1.24:3007/api/v1';
   // static String apiBaseUrl = 'http://192.168.1.104:3007/api/v1';
 
-  static String apiBaseUrl = 'http://13.60.57.127/api/v1';
+  // static String apiBaseUrl = 'http://13.60.57.127/api/v1';
   // static String apiBaseUrl = 'https://api.cloud.bookit-app.com/api/v1';
  
   // static String apiBaseUrl = 'http://192.168.1.36:3007/api/v1';

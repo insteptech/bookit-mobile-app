@@ -10,7 +10,7 @@ class AppTypography {
   static const headingLg = TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.w600,
-    fontFamily: 'Campton'
+    fontFamily: 'Campton' 
   );
 
   static const headingMd = TextStyle(
