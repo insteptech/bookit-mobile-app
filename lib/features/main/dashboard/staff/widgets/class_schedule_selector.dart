@@ -114,18 +114,26 @@ class ClassScheduleController {
     double? packageAmount,
     int? packagePerson,
   }) {
+    final locationSchedule = <String, dynamic>{
+      'location_id': locationId,
+      'schedule': schedules.map((schedule) => schedule.toJson()).toList(),
+    };
+    
+    // Only include pricing fields if they have values (truly optional)
+    if (price != null) {
+      locationSchedule['price'] = price;
+    }
+    if (packageAmount != null) {
+      locationSchedule['package_amount'] = packageAmount;
+    }
+    if (packagePerson != null) {
+      locationSchedule['package_person'] = packagePerson;
+    }
+    
     return {
       'business_id': businessId,
       'class_id': classId,
-      'location_schedules': [
-        {
-          'location_id': locationId,
-          'price': price ?? 400,
-          'package_amount': packageAmount ?? 3000,
-          'package_person': packagePerson ?? 10,
-          'schedule': schedules.map((schedule) => schedule.toJson()).toList(),
-        }
-      ]
+      'location_schedules': [locationSchedule]
     };
   }
 
@@ -252,14 +260,18 @@ class ClassScheduleSelectorState extends State<ClassScheduleSelector> {
 
   // Add this method to ClassScheduleSelectorState class
 void initializeWithExistingData(List<Map<String, String>> schedules, List<dynamic> originalSchedules) {
-  debugPrint("Initializing ClassScheduleSelector with existing data:");
+  debugPrint("=== initializeWithExistingData Debug ===");
+  debugPrint("Received ${schedules.length} schedules to initialize");
   debugPrint("Schedules: $schedules");
   debugPrint("Original schedules: $originalSchedules");
   
   // Clear existing state
+  debugPrint("Clearing existing state...");
   selectedDays = List.generate(7, (_) => false);
   timeRanges.clear();
   selectedStaffPerDay.clear();
+  
+  debugPrint("Available staff members: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
   
   for (int i = 0; i < schedules.length && i < originalSchedules.length; i++) {
     final schedule = schedules[i];
@@ -289,10 +301,20 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
               end: endTime,
             );
             
-            // Set instructors - this is the key part that was missing
+            // Set instructors - extract IDs from instructor objects
             if (originalSchedule['instructors'] != null) {
               final instructors = originalSchedule['instructors'] as List<dynamic>;
-              selectedStaffPerDay[dayIndex] = instructors.map((e) => e.toString()).toList();
+              final instructorIds = <String>[];
+              
+              for (var instructor in instructors) {
+                if (instructor is Map<String, dynamic> && instructor['id'] != null) {
+                  instructorIds.add(instructor['id'].toString());
+                } else if (instructor is String) {
+                  instructorIds.add(instructor);
+                }
+              }
+              
+              selectedStaffPerDay[dayIndex] = instructorIds;
               debugPrint("Set staff for day $day (index $dayIndex): ${selectedStaffPerDay[dayIndex]}");
             }
           });
@@ -306,7 +328,23 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
   // Update the controller with the loaded data
   _updateSchedule();
   debugPrint("Finished initializing with existing data");
-  debugPrint("Selected staff per day: $selectedStaffPerDay");
+  debugPrint("Final selectedDays: $selectedDays");
+  debugPrint("Final timeRanges: ${timeRanges.map((k, v) => MapEntry(fullDays[k], '${v.startStr(context)} - ${v.endStr(context)}'))}");
+  debugPrint("Final selectedStaffPerDay: $selectedStaffPerDay");
+  debugPrint("Controller schedules after init: ${_scheduleController.schedules.map((s) => '${s.day}: instructors=${s.instructors}')}");
+  debugPrint("=== End initializeWithExistingData ===");
+}
+
+// Add method to clear all schedule data
+void clearAll() {
+  debugPrint("=== clearAll called ===");
+  setState(() {
+    selectedDays = List.generate(7, (_) => false);
+    timeRanges.clear();
+    selectedStaffPerDay.clear();
+    _scheduleController.clear();
+  });
+  debugPrint("Schedule selector state cleared");
 }
 
   TimeOfDay _parseTimeFromBackend(String timeStr) {
@@ -353,18 +391,25 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
       }
     }
 
+    print("=== _updateSchedule Debug ===");
+    print("daySchedules: $daySchedules");
+    print("selectedStaffPerDay: $selectedStaffPerDay");
+
     // Update controller with day schedules
     _scheduleController.updateDaySchedule(daySchedules);
 
     // Update staff assignments
     for (int index = 0; index < 7; index++) {
       if (selectedDays[index] && selectedStaffPerDay[index] != null) {
-        _scheduleController.updateStaffForDay(
-          fullDays[index].toLowerCase(),
-          selectedStaffPerDay[index]!,
-        );
+        final dayName = fullDays[index].toLowerCase();
+        final staffIds = selectedStaffPerDay[index]!;
+        print("Updating staff for day $dayName: $staffIds");
+        _scheduleController.updateStaffForDay(dayName, staffIds);
       }
     }
+
+    print("Final controller.isValid: ${_scheduleController.isValid}");
+    print("============================");
 
     // For backward compatibility, also send the legacy format
     final legacyFormat = _scheduleController.getLegacyFormat();
@@ -421,11 +466,17 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
     Map<String, dynamic>? selectedStaffItem;
     if (selectedStaffId != null) {
       try {
-        selectedStaffItem = widget.staffMembers.firstWhere(
+        final foundStaff = widget.staffMembers.firstWhere(
           (staff) => staff['id']?.toString() == selectedStaffId,
         );
+        // Convert to dropdown format
+        selectedStaffItem = {
+          'id': foundStaff['id'].toString(),
+          'name': foundStaff['name'] ?? '',
+        };
       } catch (e) {
         debugPrint("Selected staff not found in current staff list: $selectedStaffId");
+        debugPrint("Available staff: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
       }
     }
     
@@ -437,8 +488,10 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
         Text('Select instructor for ${fullDays[dayIndex]}:'),
         const SizedBox(height: 8),
         DropDown(
+          key: ValueKey('staff_dropdown_${dayIndex}_${selectedStaffId ?? 'none'}'),
           items: _getStaffDropdownItems(),
-          hintText: selectedStaffItem != null ? selectedStaffItem['name'] : 'Select staff',
+          hintText: 'Select staff',
+          initialSelectedItem: selectedStaffItem,
           onChanged: (selectedStaffItem) {
             debugPrint("Staff selected for day $dayIndex: $selectedStaffItem");
             setState(() {

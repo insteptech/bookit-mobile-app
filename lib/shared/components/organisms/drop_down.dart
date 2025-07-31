@@ -5,12 +5,14 @@ class DropDown extends StatefulWidget {
   final List<Map<String, dynamic>> items;
   final String hintText;
   final Function(Map<String, dynamic>)? onChanged;
+  final Map<String, dynamic>? initialSelectedItem;
 
   const DropDown({
     super.key,
     required this.items,
     this.hintText = "Select service",
     this.onChanged,
+    this.initialSelectedItem,
   });
 
   @override
@@ -20,6 +22,21 @@ class DropDown extends StatefulWidget {
 class _DropDownState extends State<DropDown> {
   Map<String, dynamic>? selectedItem;
   bool isOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedItem = widget.initialSelectedItem;
+  }
+
+  @override
+  void didUpdateWidget(DropDown oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update selectedItem if initialSelectedItem changes
+    if (widget.initialSelectedItem != oldWidget.initialSelectedItem) {
+      selectedItem = widget.initialSelectedItem;
+    }
+  }
 
   void _selectItem(Map<String, dynamic> item) {
     setState(() {

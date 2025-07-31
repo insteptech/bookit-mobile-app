@@ -126,11 +126,137 @@
 //   }
 // }
 /// Represents a daily class schedule entry with multiple instructors support.
+// class DailyClassSchedule {
+//   String day;
+//   String startTime; // UTC format (HH:mm:ss)
+//   String endTime;   // UTC format (HH:mm:ss)
+//   List<String> instructors; // Support multiple instructors
+
+//   DailyClassSchedule({
+//     required this.day,
+//     required this.startTime,
+//     required this.endTime,
+//     List<String>? instructors,
+//   }) : instructors = instructors ?? [];
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'day': day[0].toUpperCase() + day.substring(1), // Capitalize first letter
+//       'start_time': startTime.length > 5 ? startTime.substring(0, 5) : startTime, // Remove seconds if present
+//       'end_time': endTime.length > 5 ? endTime.substring(0, 5) : endTime,
+//       'instructors': instructors,
+//     };
+//   }
+// }
+
+// /// Controller for managing class schedules with multiple staff assignments.
+// class ClassScheduleController {
+//   List<DailyClassSchedule> schedules = [];
+
+//   /// Updates the schedule for a specific day.
+//   void updateDaySchedule(List<Map<String, String>> daySchedules) {
+//     // Clear existing schedules
+//     schedules.clear();
+    
+//     // Add new schedules from daySchedules
+//     for (var schedule in daySchedules) {
+//       final day = schedule['day'];
+//       final from = schedule['from'];
+//       final to = schedule['to'];
+      
+//       if (day != null && from != null && to != null) {
+//         schedules.add(DailyClassSchedule(
+//           day: day,
+//           startTime: from,
+//           endTime: to,
+//           instructors: [], // Empty initially, will be populated later
+//         ));
+//       }
+//     }
+//   }
+
+//   /// Updates staff assignment for a specific day - supports multiple staff.
+//   void updateStaffForDay(String day, List<String> staffIds) {
+//     final schedule = schedules.firstWhere(
+//       (s) => s.day.toLowerCase() == day.toLowerCase(),
+//       orElse: () => throw Exception('Schedule not found for day: $day'),
+//     );
+//     schedule.instructors = List.from(staffIds);
+//   }
+
+//   /// Adds a single staff member to a specific day.
+//   void addStaffToDay(String day, String staffId) {
+//     final schedule = schedules.firstWhere(
+//       (s) => s.day.toLowerCase() == day.toLowerCase(),
+//       orElse: () => throw Exception('Schedule not found for day: $day'),
+//     );
+//     if (!schedule.instructors.contains(staffId)) {
+//       schedule.instructors.add(staffId);
+//     }
+//   }
+
+//   /// Removes a staff member from a specific day.
+//   void removeStaffFromDay(String day, String staffId) {
+//     final schedule = schedules.firstWhere(
+//       (s) => s.day.toLowerCase() == day.toLowerCase(),
+//       orElse: () => throw Exception('Schedule not found for day: $day'),
+//     );
+//     schedule.instructors.remove(staffId);
+//   }
+
+//   /// Builds the final payload for backend submission in the correct format.
+//   Map<String, dynamic> buildBackendPayload({
+//     required String businessId,
+//     required String classId,
+//     required String locationId,
+//     double? price,
+//     double? packageAmount,
+//     int? packagePerson,
+//   }) {
+//     return {
+//       'business_id': businessId,
+//       'class_id': classId,
+//       'location_schedules': [
+//         {
+//           'location_id': locationId,
+//           'price': price ?? 400,
+//           'package_amount': packageAmount ?? 3000,
+//           'package_person': packagePerson ?? 10,
+//           'schedule': schedules.map((schedule) => schedule.toJson()).toList(),
+//         }
+//       ]
+//     };
+//   }
+
+//   /// Gets staff IDs for a specific day.
+//   List<String> getStaffForDay(String day) {
+//     try {
+//       final schedule = schedules.firstWhere(
+//         (s) => s.day.toLowerCase() == day.toLowerCase(),
+//       );
+//       return List.from(schedule.instructors);
+//     } catch (e) {
+//       return [];
+//     }
+//   }
+
+//   /// Checks if all schedules have at least one instructor assigned.
+//   bool get isValid {
+//     return schedules.isNotEmpty && 
+//            schedules.every((schedule) => schedule.instructors.isNotEmpty);
+//   }
+
+//   /// Clears all schedules.
+//   void clear() {
+//     schedules.clear();
+//   }
+// }
+
 class DailyClassSchedule {
   String day;
-  String startTime; // UTC format (HH:mm:ss)
-  String endTime;   // UTC format (HH:mm:ss)
-  List<String> instructors; // Support multiple instructors
+  String startTime;
+  String endTime;
+  List<String> instructors;
 
   DailyClassSchedule({
     required this.day,
@@ -141,24 +267,20 @@ class DailyClassSchedule {
 
   Map<String, dynamic> toJson() {
     return {
-      'day': day[0].toUpperCase() + day.substring(1), // Capitalize first letter
-      'start_time': startTime.length > 5 ? startTime.substring(0, 5) : startTime, // Remove seconds if present
+      'day': day[0].toUpperCase() + day.substring(1),
+      'start_time': startTime.length > 5 ? startTime.substring(0, 5) : startTime,
       'end_time': endTime.length > 5 ? endTime.substring(0, 5) : endTime,
       'instructors': instructors,
     };
   }
 }
 
-/// Controller for managing class schedules with multiple staff assignments.
 class ClassScheduleController {
   List<DailyClassSchedule> schedules = [];
 
-  /// Updates the schedule for a specific day.
   void updateDaySchedule(List<Map<String, String>> daySchedules) {
-    // Clear existing schedules
     schedules.clear();
     
-    // Add new schedules from daySchedules
     for (var schedule in daySchedules) {
       final day = schedule['day'];
       final from = schedule['from'];
@@ -169,42 +291,91 @@ class ClassScheduleController {
           day: day,
           startTime: from,
           endTime: to,
-          instructors: [], // Empty initially, will be populated later
+          instructors: [],
         ));
       }
     }
   }
 
-  /// Updates staff assignment for a specific day - supports multiple staff.
-  void updateStaffForDay(String day, List<String> staffIds) {
-    final schedule = schedules.firstWhere(
-      (s) => s.day.toLowerCase() == day.toLowerCase(),
-      orElse: () => throw Exception('Schedule not found for day: $day'),
-    );
-    schedule.instructors = List.from(staffIds);
+  /// Initialize from existing data with instructor IDs
+  void initializeFromExistingData(List<Map<String, dynamic>> schedulesWithIds) {
+    schedules.clear();
+    
+    for (var scheduleData in schedulesWithIds) {
+      final day = scheduleData['day']?.toString().toLowerCase();
+      final startTime = scheduleData['start_time']?.toString();
+      final endTime = scheduleData['end_time']?.toString();
+      
+      // Handle instructor IDs - they might be in different formats
+      List<String> instructorIds = [];
+      
+      if (scheduleData['instructor_ids'] != null) {
+        final ids = scheduleData['instructor_ids'];
+        if (ids is List) {
+          instructorIds = ids.map((id) => id.toString()).toList();
+        } else if (ids is String) {
+          instructorIds = [ids];
+        }
+      } else if (scheduleData['instructors'] != null) {
+        // Extract IDs from instructor objects
+        final instructors = scheduleData['instructors'] as List<dynamic>? ?? [];
+        for (var instructor in instructors) {
+          if (instructor is Map<String, dynamic> && instructor['id'] != null) {
+            instructorIds.add(instructor['id'].toString());
+          } else if (instructor is String) {
+            instructorIds.add(instructor);
+          }
+        }
+      }
+      
+      if (day != null && startTime != null && endTime != null) {
+        schedules.add(DailyClassSchedule(
+          day: day,
+          startTime: startTime,
+          endTime: endTime,
+          instructors: instructorIds,
+        ));
+      }
+    }
+    
+    print("Controller initialized with schedules: ${schedules.map((s) => '${s.day}: ${s.instructors}').toList()}");
   }
 
-  /// Adds a single staff member to a specific day.
-  void addStaffToDay(String day, String staffId) {
-    final schedule = schedules.firstWhere(
-      (s) => s.day.toLowerCase() == day.toLowerCase(),
-      orElse: () => throw Exception('Schedule not found for day: $day'),
-    );
-    if (!schedule.instructors.contains(staffId)) {
-      schedule.instructors.add(staffId);
+  void updateStaffForDay(String day, List<String> staffIds) {
+    try {
+      final schedule = schedules.firstWhere(
+        (s) => s.day.toLowerCase() == day.toLowerCase(),
+      );
+      schedule.instructors = List.from(staffIds);
+    } catch (e) {
+      print("Schedule not found for day: $day");
     }
   }
 
-  /// Removes a staff member from a specific day.
-  void removeStaffFromDay(String day, String staffId) {
-    final schedule = schedules.firstWhere(
-      (s) => s.day.toLowerCase() == day.toLowerCase(),
-      orElse: () => throw Exception('Schedule not found for day: $day'),
-    );
-    schedule.instructors.remove(staffId);
+  void addStaffToDay(String day, String staffId) {
+    try {
+      final schedule = schedules.firstWhere(
+        (s) => s.day.toLowerCase() == day.toLowerCase(),
+      );
+      if (!schedule.instructors.contains(staffId)) {
+        schedule.instructors.add(staffId);
+      }
+    } catch (e) {
+      print("Schedule not found for day: $day");
+    }
   }
 
-  /// Builds the final payload for backend submission in the correct format.
+  void removeStaffFromDay(String day, String staffId) {
+    try {
+      final schedule = schedules.firstWhere(
+        (s) => s.day.toLowerCase() == day.toLowerCase(),
+      );
+      schedule.instructors.remove(staffId);
+    } catch (e) {
+      print("Schedule not found for day: $day");
+    }
+  }
+
   Map<String, dynamic> buildBackendPayload({
     required String businessId,
     required String classId,
@@ -213,22 +384,29 @@ class ClassScheduleController {
     double? packageAmount,
     int? packagePerson,
   }) {
+    final locationSchedule = <String, dynamic>{
+      'location_id': locationId,
+      'schedule': schedules.map((schedule) => schedule.toJson()).toList(),
+    };
+    
+    // Only include pricing fields if they have values (truly optional)
+    if (price != null) {
+      locationSchedule['price'] = price;
+    }
+    if (packageAmount != null) {
+      locationSchedule['package_amount'] = packageAmount;
+    }
+    if (packagePerson != null) {
+      locationSchedule['package_person'] = packagePerson;
+    }
+    
     return {
       'business_id': businessId,
       'class_id': classId,
-      'location_schedules': [
-        {
-          'location_id': locationId,
-          'price': price ?? 400,
-          'package_amount': packageAmount ?? 3000,
-          'package_person': packagePerson ?? 10,
-          'schedule': schedules.map((schedule) => schedule.toJson()).toList(),
-        }
-      ]
+      'location_schedules': [locationSchedule]
     };
   }
 
-  /// Gets staff IDs for a specific day.
   List<String> getStaffForDay(String day) {
     try {
       final schedule = schedules.firstWhere(
@@ -240,13 +418,11 @@ class ClassScheduleController {
     }
   }
 
-  /// Checks if all schedules have at least one instructor assigned.
   bool get isValid {
     return schedules.isNotEmpty && 
            schedules.every((schedule) => schedule.instructors.isNotEmpty);
   }
 
-  /// Clears all schedules.
   void clear() {
     schedules.clear();
   }

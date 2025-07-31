@@ -90,7 +90,7 @@ String postClassDetailsEndpoint = "$baseUrl/classes";
 
 //..........................Get class details...................................
 String getClassDetailsEndpoint(String classId) =>
-    "$baseUrl/classes/$classId";
+    "$baseUrl/classes/$classId/details";
 
 //,,...................Get all class schedules...................................
 String getAllClassesFromBusinessEndpoint(String businessId) =>
