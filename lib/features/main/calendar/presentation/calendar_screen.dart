@@ -142,7 +142,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  ClassScheduleCalendar(locationId: activeLocation, showCalendarHeader: true,)
+                  ClassScheduleCalendar(locationId: activeLocation, showCalendarHeader: true, numberOfClasses: 1,)
                 ],
               ),
             ),

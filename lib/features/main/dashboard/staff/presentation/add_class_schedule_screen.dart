@@ -56,10 +56,6 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
   }
 
   Future<void> _initialize() async {
-    print("=== _initialize called ===");
-    print("widget.classId: '${widget.classId}'");
-    print("widget.classId != null: ${widget.classId != null}");
-    
     await fetchBusinessId();
     await Future.wait([
       fetchLocations(),
@@ -67,33 +63,21 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
       fetchClasses(),
     ]);
     
-    print("After fetching data - classes.length: ${classes.length}");
-    
-    // Auto-select class logic
     String? classIdToSelect;
     
-    // First priority: use provided widget.classId if it exists and is not empty
     if (widget.classId != null && widget.classId!.trim().isNotEmpty) {
       classIdToSelect = widget.classId;
-      print("Using provided classId: $classIdToSelect");
     } 
-    // Second priority: auto-select first class if no classId provided
     else if (classes.isNotEmpty) {
       classIdToSelect = classes.first['id'];
-      print("Auto-selecting first class: $classIdToSelect (${classes.first['name']})");
     }
     
-    // If we have a class to select, set it and fetch its data
     if (classIdToSelect != null && mounted) {
       setState(() {
         selectedClassId = classIdToSelect;
       });
       await fetchClassData(classIdToSelect);
-    } else {
-      print("No class to auto-select - classIdToSelect: $classIdToSelect, mounted: $mounted");
     }
-    
-    print("=== End _initialize ===");
   }
 
   Future<void> fetchBusinessId() async {
@@ -110,58 +94,44 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
   }
 
   Future<void> fetchClassData(String classId) async {
-    print("=== fetchClassData called with classId: $classId ===");
     try {
       setState(() {
         isLoading = true;
       });
       
       final response = await APIRepository.getClassDetails(classId);
-
-      print("Fetch class data Response: $response");
       
       if (response['data'] != null) {
         final data = response['data']['data'];
-        print("Found class data, calling _prefillFormFromExistingData");
         
         setState(() {
           existingScheduleData = data;
           isLoading = false;
         });
         
-        // Call prefill outside setState to avoid nested setState calls
         _prefillFormFromExistingData(data);
       } else {
-        print("No class data found in response");
         setState(() {
           isLoading = false;
         });
       }
     } catch (e) {
-      print("Error fetching class data: $e");
       setState(() {
         isLoading = false;
       });
     }
-    print("=== End fetchClassData ===");
   }
 
 void _prefillFormFromExistingData(Map<String, dynamic> responseData) {
-  print("=== _prefillFormFromExistingData called ===");
   final data = responseData;
   
   final classId = data['class_id'] ?? data['id'];
   final businessIdFromData = data['business_id'];
   
-  print("Class ID from data: $classId");
-  print("Business ID from data: $businessIdFromData");
-  print("Schedules count: ${data['schedules']?.length ?? 0}");
-  
   selectedClassId = classId;
   businessId = businessIdFromData;
   
   if (data['schedules'] != null && data['schedules'].isNotEmpty) {
-    // Group schedules by location to handle multiple schedules per location
     final schedulesByLocation = <String, List<Map<String, dynamic>>>{};
     
     for (var schedule in data['schedules']) {
@@ -172,49 +142,28 @@ void _prefillFormFromExistingData(Map<String, dynamic> responseData) {
       }
     }
     
-    print("=== _prefillFormFromExistingData Debug ===");
-    print("Total schedules: ${data['schedules'].length}");
-    print("Grouped by locations: ${schedulesByLocation.keys.toList()}");
-    for (var locationId in schedulesByLocation.keys) {
-      print("Location $locationId has ${schedulesByLocation[locationId]!.length} schedules");
-    }
-    
-    // Store all schedule data for location switching
     existingScheduleData = {
       ...data,
       'schedulesByLocation': schedulesByLocation,
     };
     
-    // Auto-select the first location
     final firstLocationId = schedulesByLocation.keys.first;
     selectedLocationId = firstLocationId;
-    print("Auto-selected first location: $firstLocationId");
     
-    // Update form with first location's data
     _updateFormForLocation(firstLocationId);
-    print("=== End _prefillFormFromExistingData ===");
   }
 }
 
 void _updateFormForLocation(String locationId) {
-  print("=== _updateFormForLocation Debug ===");
-  print("locationId: $locationId");
-  print("existingScheduleData != null: ${existingScheduleData != null}");
-  
   if (existingScheduleData == null) {
-    print("No existingScheduleData available");
     return;
   }
   
   final schedulesByLocation = existingScheduleData!['schedulesByLocation'] as Map<String, List<Map<String, dynamic>>>;
-  print("Available location IDs: ${schedulesByLocation.keys.toList()}");
   
   final locationSchedules = schedulesByLocation[locationId];
-  print("Schedules for location $locationId: ${locationSchedules?.length ?? 0} schedules");
   
   if (locationSchedules == null || locationSchedules.isEmpty) {
-    print("No schedules found for location $locationId");
-    // Clear form for location without data
     setState(() {
       locationPricingEnabled = false;
       priceController.clear();
@@ -222,7 +171,6 @@ void _updateFormForLocation(String locationId) {
       packagePersonController.clear();
     });
     
-    // Clear schedule selector
     if (_scheduleSelectorKey.currentState != null) {
       _scheduleSelectorKey.currentState!.clearAll();
     }
@@ -230,10 +178,8 @@ void _updateFormForLocation(String locationId) {
   }
   
   final firstSchedule = locationSchedules.first;
-  print("First schedule pricing: price=${firstSchedule['price']}, package_amount=${firstSchedule['package_amount']}, package_person=${firstSchedule['package_person']}");
   
   setState(() {
-    // Handle pricing - check if any schedule has pricing information
     bool hasPricing = locationSchedules.any((schedule) => 
       schedule['price'] != null || 
       schedule['package_amount'] != null || 
@@ -242,36 +188,28 @@ void _updateFormForLocation(String locationId) {
     
     if (hasPricing) {
       locationPricingEnabled = true;
-      print("Enabling location pricing for location $locationId");
       
-      // Use the first schedule's pricing as default
       if (firstSchedule['price'] != null) {
         priceController.text = firstSchedule['price'].toString();
-        print("Set price to: ${firstSchedule['price']}");
       }
       if (firstSchedule['package_amount'] != null) {
         packageAmountController.text = firstSchedule['package_amount'].toString();
-        print("Set package amount to: ${firstSchedule['package_amount']}");
       }
       if (firstSchedule['package_person'] != null) {
         packagePersonController.text = firstSchedule['package_person'].toString();
-        print("Set package person to: ${firstSchedule['package_person']}");
       }
     } else {
       locationPricingEnabled = false;
       priceController.clear();
       packageAmountController.clear();
       packagePersonController.clear();
-      print("Cleared pricing for location $locationId (no pricing data)");
     }
   });
     
-    // Convert schedules to the expected format
     final convertedSchedules = <Map<String, String>>[];
     final originalSchedules = <Map<String, dynamic>>[];
     
   for (var schedule in locationSchedules) {
-      // Extract instructor IDs and names from the new API structure
       final instructors = schedule['instructors'] as List<dynamic>? ?? [];
       final instructorIds = <String>[];
       final instructorNames = <String>[];
@@ -286,22 +224,21 @@ void _updateFormForLocation(String locationId) {
       }
       
       convertedSchedules.add({
-      'id': schedule['id']?.toString() ?? '', // Include schedule ID
+      'id': schedule['id']?.toString() ?? '',
         'day': (schedule['day_of_week'] ?? '').toString().toLowerCase(),
         'from': schedule['start_time']?.toString() ?? '',
         'to': schedule['end_time']?.toString() ?? '',
-        'instructors': instructorNames.join(','), // For display
-        'instructor_ids': instructorIds.join(','), // Actual IDs
+        'instructors': instructorNames.join(','),
+        'instructor_ids': instructorIds.join(','),
       });
       
-      // Keep original schedule data for reference
       originalSchedules.add({
         'id': schedule['id'],
         'day': schedule['day_of_week'],
         'start_time': schedule['start_time'],
         'end_time': schedule['end_time'],
         'instructors': instructors,
-        'instructor_ids': instructorIds, // Pass as List<String>
+        'instructor_ids': instructorIds,
         'price': schedule['price'],
         'package_amount': schedule['package_amount'],
         'package_person': schedule['package_person'],
@@ -310,28 +247,19 @@ void _updateFormForLocation(String locationId) {
     
     _filterStaffByLocation();
   
-  print("Converting ${locationSchedules.length} schedules for location $locationId");
-  print("convertedSchedules: $convertedSchedules");
-  
-  // Clear the schedule selector first to ensure clean state
   if (_scheduleSelectorKey.currentState != null) {
-    print("Clearing schedule selector before updating");
     _scheduleSelectorKey.currentState!.clearAll();
   }
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    print("Initializing schedule selector with converted schedules");
       _initializeScheduleSelector(convertedSchedules, originalSchedules);
     });
-  
-  print("=== End _updateFormForLocation ===");
 }
 
   void _initializeScheduleSelector(List<Map<String, String>> schedules, List<dynamic> originalSchedules) {
     if (_scheduleSelectorKey.currentState != null) {
       _scheduleSelectorKey.currentState!.initializeWithExistingData(schedules, originalSchedules);
       
-      // Trigger setState to update the UI after initialization
       if (mounted) {
         setState(() {
           // This triggers a rebuild to reflect the initialized schedule data
@@ -343,7 +271,6 @@ void _updateFormForLocation(String locationId) {
   Future<void> fetchClasses() async {
     try {
       final response = await APIRepository.getAllClasses();
-      print("Fetch classes Response: $response");
 
       if (response['data'] != null) {
         final List<dynamic> dataList = response['data']['data'];
@@ -359,8 +286,6 @@ void _updateFormForLocation(String locationId) {
             final serviceName = detail['name'] ?? 'Unnamed Class';
             
             final durations = detail['durations'] as List<dynamic>;
-
-            //extracting first duration only
             final duration = durations.first['duration_minutes'];
 
             if (!addedServiceIds.contains(serviceId)) {
@@ -378,8 +303,6 @@ void _updateFormForLocation(String locationId) {
           setState(() {
             // Classes have been loaded
           });
-          print("Classes loaded: ${classes.length} classes available");
-          print("Classes: ${classes.map((c) => '${c['id']}: ${c['name']}').toList()}");
         }
       }
     } catch (e) {
@@ -395,8 +318,6 @@ void _updateFormForLocation(String locationId) {
     try {
       final response = await APIRepository.getAllStaffList();
       final rows = response.data['data']['rows'] as List<dynamic>;
-
-      print("Fetch staff members Response: $rows");
 
       if (mounted) {
         setState(() {
@@ -427,11 +348,8 @@ void _updateFormForLocation(String locationId) {
         locations = locationsData.map((loc) => {
           'id': loc['id'].toString(),
           'title': loc['title'].toString(),
-          // Store the actual location ID for matching
           'location_id': loc['id'].toString(),
         }).toList();
-
-        print("Fetch locations Response: $locations");
         
         if (locations.isNotEmpty && selectedLocationId == null && widget.classId == null) {
           selectedLocationId = locations[0]['id'].toString();
@@ -449,13 +367,8 @@ void _updateFormForLocation(String locationId) {
 }
 
   void _filterStaffByLocation() {
-    print("=== _filterStaffByLocation Debug ===");
-    print("selectedLocationId: $selectedLocationId");
-    print("allStaffMembers count: ${allStaffMembers.length}");
-    
     if (selectedLocationId == null) {
       filteredStaffMembers = [];
-      print("No location selected, cleared filtered staff");
       return;
     }
 
@@ -478,41 +391,25 @@ void _updateFormForLocation(String locationId) {
       
       return locationIdsList.contains(selectedLocationId.toString());
     }).toList();
-    
-    print("Filtered staff count: ${filteredStaffMembers.length}");
-    print("Filtered staff: ${filteredStaffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
-    print("=== End _filterStaffByLocation ===");
   }
 
   void _onLocationChanged(String? newLocationId) {
     final currentLocationStr = selectedLocationId?.toString();
     final newLocationStr = newLocationId?.toString();
     
-    print("=== _onLocationChanged Debug ===");
-    print("currentLocationStr: $currentLocationStr");
-    print("newLocationStr: $newLocationStr");
-    print("existingScheduleData != null: ${existingScheduleData != null}");
-    
     if (newLocationStr != currentLocationStr) {
       setState(() {
         selectedLocationId = newLocationStr;
         existingLocationScheduleId = null;
         
-        print("Location changed to: $selectedLocationId");
-        
-        // Update form data based on new location if we have existing schedule data
         if (existingScheduleData != null && newLocationStr != null) {
-          print("Updating form for existing location data");
-          // Note: _updateFormForLocation calls setState internally, so we don't need to wrap it here
+          // Update form data based on new location if we have existing schedule data
         } else {
-          print("No existing data, resetting form");
-          // Reset form if no existing data for this location
           locationPricingEnabled = false;
           priceController.clear();
           packageAmountController.clear();
           packagePersonController.clear();
           
-          // Clear schedule selector
           if (_scheduleSelectorKey.currentState != null) {
             _scheduleSelectorKey.currentState!.clearAll();
           }
@@ -521,12 +418,10 @@ void _updateFormForLocation(String locationId) {
         _filterStaffByLocation();
       });
       
-      // Call _updateFormForLocation outside setState since it has its own setState
       if (existingScheduleData != null && newLocationStr != null) {
         _updateFormForLocation(newLocationStr);
     }
     }
-    print("===============================");
   }
 
   ClassScheduleController? get _getScheduleController {
@@ -541,13 +436,11 @@ void _updateFormForLocation(String locationId) {
     final controller = _getScheduleController;
     
     if (controller != null && controller.isValid) {
-      // Only parse pricing values if pricing is enabled AND fields have valid values
       double? price;
       double? packageAmount;
       int? packagePerson;
       
       if (locationPricingEnabled) {
-        // Only include non-empty values
         if (priceController.text.trim().isNotEmpty) {
           price = double.tryParse(priceController.text.trim());
         }
@@ -558,13 +451,6 @@ void _updateFormForLocation(String locationId) {
           packagePerson = int.tryParse(packagePersonController.text.trim());
         }
       }
-      
-      print("=== Payload Generation Debug ===");
-      print("locationPricingEnabled: $locationPricingEnabled");
-      print("priceController.text: '${priceController.text}'");
-      print("packageAmountController.text: '${packageAmountController.text}'");
-      print("packagePersonController.text: '${packagePersonController.text}'");
-      print("Final pricing values - price: $price, packageAmount: $packageAmount, packagePerson: $packagePerson");
 
       final payload = controller.buildBackendPayload(
         businessId: businessId!,
@@ -578,16 +464,6 @@ void _updateFormForLocation(String locationId) {
       if (existingLocationScheduleId != null) {
         payload['location_schedules'][0]['id'] = existingLocationScheduleId;
       }
-
-      print("Final payload with schedule IDs: $payload");
-      print("Schedule IDs in payload:");
-      if (payload['location_schedules'] != null && payload['location_schedules'].isNotEmpty) {
-        final schedules = payload['location_schedules'][0]['schedule'] as List<dynamic>? ?? [];
-        for (var schedule in schedules) {
-          print("  Day: ${schedule['day']}, ID: '${schedule['id']}' ${schedule['id'] == '' ? '(NEW)' : '(EXISTING)'}");
-        }
-      }
-      print("=== End Payload Generation ===");
 
       return payload;
     } else {
@@ -606,7 +482,6 @@ void _updateFormForLocation(String locationId) {
 
     try {
       final backendPayload = _generateBackendPayload();
-      print("Submitting schedule with payload: $backendPayload");
       await APIRepository.postClassDetails(payload: backendPayload);
 
       if (mounted) {
@@ -641,26 +516,14 @@ void _updateFormForLocation(String locationId) {
   bool get _canSubmit {
     final controller = _getScheduleController;
     
-    bool canSubmit = false;
-    
     if (controller != null) {
-      canSubmit = selectedClassId != null &&
+      return selectedClassId != null &&
           selectedLocationId != null &&
           businessId != null &&
           controller.isValid;
-          
-      // Debug logging
-      print("=== _canSubmit Debug ===");
-      print("selectedClassId: $selectedClassId");
-      print("selectedLocationId: $selectedLocationId");
-      print("businessId: $businessId");
-      print("controller.isValid: ${controller.isValid}");
-      print("controller.schedules: ${controller.schedules.map((s) => '${s.day}: instructors=${s.instructors.length}')}");
-      print("canSubmit: $canSubmit");
-      print("=====================");
     }
     
-    return canSubmit;
+    return false;
   }
 
   @override
@@ -715,7 +578,6 @@ void _updateFormForLocation(String locationId) {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: GestureDetector(
                                 onTap: () async {
-                                  // Clear existing form data when selecting a new class
                                   setState(() {
                                     selectedClassId = classItem['id'];
                                     selectedLocationId = null;
@@ -725,10 +587,8 @@ void _updateFormForLocation(String locationId) {
                                     priceController.clear();
                                     packageAmountController.clear();
                                     packagePersonController.clear();
-                                    print("Selected class id: $selectedClassId");
                                   });
                                   
-                                  // Clear schedule selector
                                   if (_scheduleSelectorKey.currentState != null) {
                                     _scheduleSelectorKey.currentState!.clearAll();
                                   }
@@ -776,21 +636,6 @@ void _updateFormForLocation(String locationId) {
                           }).toList(),
                         ),
 
-                        const SizedBox(height: 24),
-                        
-                        // GestureDetector(
-                        //   onTap: () {
-                        //     // Navigate to 'See all classes' screen
-                        //   },
-                        //   child: Text(
-                        //     'See all',
-                        //     style: AppTypography.bodyMedium.copyWith(
-                        //       color: Theme.of(context).colorScheme.primary,
-                        //       fontWeight: FontWeight.w500,
-                        //     ),
-                        //   ),
-                        // ),
-
                         const SizedBox(height: 32),
 
                         Text(
@@ -806,7 +651,6 @@ void _updateFormForLocation(String locationId) {
                               padding: const EdgeInsets.only(bottom: 12.0),
                               child: GestureDetector(
                                 onTap: () {
-                                  print("Location tapped: ${location['id']} (${location['title']})");
                                   _onLocationChanged(location['id']);
                                 },
                                 child: Row(

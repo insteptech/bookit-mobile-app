@@ -107,6 +107,9 @@ String getClassesByBusinessAndDayEndpoint(String businessId, String day) =>
 String getClassesByBusinessLocationAndDayEndpoint(String businessId, String locationId, String day) =>
     "$baseUrl/classes/$businessId?locationId=$locationId&day=$day";
 
+    String getPaginatedClassesByBusinessLocationAndDayEndpoint(String businessId, String locationId, String day, int page, int limit) =>
+    "$baseUrl/classes/$businessId?locationId=$locationId&day=$day&page=$page&limit=$limit";
+
 //...........Get paginated classes by Get paginated class schedules (page & limit)......................
 String getPaginatedClassesByBusinessEndpoint(String businessId, int page, int limit) =>
     "$baseUrl/classes/$businessId?page=$page&limit=$limit";

@@ -399,6 +399,23 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     }
   }
 
+  static Future<Map<String, dynamic>> getClassScheduleByPaginationAndLocationAndDay(
+    int page,
+    int limit,
+    String locationId,
+    String day,
+  ) async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getPaginatedClassesByBusinessLocationAndDayEndpoint(businessId, locationId, day, page, limit);
+      final response = await _dio.get(url);
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to fetch class schedules: ${e.toString()}");
+    }
+  }
+
   static Future<Map<String, dynamic>> getClassScheduleByPagination(
     int page,
     int limit,

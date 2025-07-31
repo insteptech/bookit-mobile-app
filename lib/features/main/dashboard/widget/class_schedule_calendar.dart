@@ -39,18 +39,51 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
       
       String dayName = DateFormat('EEEE').format(date);
       
-      if (widget.locationId.isNotEmpty) {
-        final response = await APIRepository.getClassSchedulesByLocationAndDay(
-          widget.locationId, 
-          dayName
-        );
-        _processClassesForDate(response, dayName);
+      // Use pagination if numberOfClasses is provided
+      if (widget.numberOfClasses != null) {
+        await _fetchClassesForPagination(date);
       } else {
-        final response = await APIRepository.getClassScheduleByPagination(1, 10);
-        _processClassesForDate(response, dayName);
+        // Fetch all classes
+        if (widget.locationId.isNotEmpty) {
+          final response = await APIRepository.getClassSchedulesByLocationAndDay(
+            widget.locationId, 
+            dayName
+          );
+          _processClassesForDate(response, dayName);
+        } else {
+          final response = await APIRepository.getClassScheduleByPagination(1, 10);
+          _processClassesForDate(response, dayName);
+        }
       }
     } catch (e) {
       print("Error fetching classes: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _fetchClassesForPagination(DateTime date) async {
+    try {
+      setState(() => isLoading = true);
+
+      String dayName = DateFormat('EEEE').format(date);
+      int page = 1;
+      int limit = widget.numberOfClasses ?? 10;
+
+      if (widget.locationId.isNotEmpty) {
+        final response = await APIRepository.getClassScheduleByPaginationAndLocationAndDay(
+          page,
+          limit,
+          widget.locationId,
+          dayName,
+        );
+        _processClassesForDate(response, dayName);
+      } else {
+        final response = await APIRepository.getClassScheduleByPagination(page, limit);
+        _processClassesForDate(response, dayName);
+      }
+    } catch (e) {
+      print("Error fetching classes with pagination: $e");
     } finally {
       setState(() => isLoading = false);
     }
@@ -78,6 +111,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
       allClasses.sort((a, b) => a['schedule']['start_time'].compareTo(b['schedule']['start_time']));
       
       setState(() {
+        // If numberOfClasses is provided, limit the results, otherwise show all
         selectedDayClasses = widget.numberOfClasses != null 
           ? allClasses.take(widget.numberOfClasses!).toList()
           : allClasses;
@@ -311,6 +345,33 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
     );
   }
 
+  Widget _buildViewAllButton() {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(top: 16),
+      child: TextButton(
+        onPressed: () {
+          // Navigate to view all classes or handle the action
+          // You can implement the specific navigation logic here
+          context.push("/all_classes"); // Example route
+        },
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: Text(
+          'View all classes',
+          style: AppTypography.bodyMedium.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -334,7 +395,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
               ),
             ),
           )
-        else
+        else ...[
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -343,6 +404,9 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
               return _buildClassCard(selectedDayClasses[index]);
             },
           ),
+          // Show "View all classes" button only when numberOfClasses is provided
+          if (widget.numberOfClasses != null) _buildViewAllButton(),
+        ],
       ],
     );
   }

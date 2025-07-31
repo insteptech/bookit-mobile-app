@@ -473,28 +473,28 @@ Future<void> _fetchFreshLocations() async {
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.push("/add_staff?isClass=true");
-                                    },
-                                    child: Container(
-                                      height: 400, // Expanded height for class-only view
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.lightGrayBoxColor,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
-                                        textAlign: TextAlign.center,
-                                        style: AppTypography.bodyMedium.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  // GestureDetector(
+                                  //   onTap: () {
+                                  //     context.push("/add_staff?isClass=true");
+                                  //   },
+                                  //   child: Container(
+                                  //     height: 400, // Expanded height for class-only view
+                                  //     alignment: Alignment.center,
+                                  //     padding: const EdgeInsets.symmetric(horizontal: 32),
+                                  //     decoration: BoxDecoration(
+                                  //       color: AppColors.lightGrayBoxColor,
+                                  //       borderRadius: BorderRadius.circular(12),
+                                  //     ),
+                                  //     child: Text(
+                                  //       AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
+                                  //       textAlign: TextAlign.center,
+                                  //       style: AppTypography.bodyMedium.copyWith(
+                                  //         fontWeight: FontWeight.w500,
+                                  //         color: theme.colorScheme.primary,
+                                  //       ),
+                                  //     ),
+                                  //   ),
+                                  // ),
                                   ClassScheduleCalendar(locationId: activeLocation, showCalendarHeader: false,)
                                 ];
                               }
