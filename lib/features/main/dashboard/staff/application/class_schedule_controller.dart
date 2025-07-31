@@ -253,12 +253,14 @@
 // }
 
 class DailyClassSchedule {
+  String? id; // Can be null for new schedules
   String day;
   String startTime;
   String endTime;
   List<String> instructors;
 
   DailyClassSchedule({
+    this.id,
     required this.day,
     required this.startTime,
     required this.endTime,
@@ -267,6 +269,7 @@ class DailyClassSchedule {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id ?? '', // Empty string for new schedules, actual ID for existing ones
       'day': day[0].toUpperCase() + day.substring(1),
       'start_time': startTime.length > 5 ? startTime.substring(0, 5) : startTime,
       'end_time': endTime.length > 5 ? endTime.substring(0, 5) : endTime,
@@ -285,9 +288,11 @@ class ClassScheduleController {
       final day = schedule['day'];
       final from = schedule['from'];
       final to = schedule['to'];
+      final id = schedule['id']; // Get ID if it exists
       
       if (day != null && from != null && to != null) {
         schedules.add(DailyClassSchedule(
+          id: id, // Will be null for new schedules
           day: day,
           startTime: from,
           endTime: to,
@@ -302,6 +307,7 @@ class ClassScheduleController {
     schedules.clear();
     
     for (var scheduleData in schedulesWithIds) {
+      final id = scheduleData['id']?.toString(); // Get schedule ID
       final day = scheduleData['day']?.toString().toLowerCase();
       final startTime = scheduleData['start_time']?.toString();
       final endTime = scheduleData['end_time']?.toString();
@@ -330,6 +336,7 @@ class ClassScheduleController {
       
       if (day != null && startTime != null && endTime != null) {
         schedules.add(DailyClassSchedule(
+          id: id, // Include the schedule ID
           day: day,
           startTime: startTime,
           endTime: endTime,
@@ -338,7 +345,7 @@ class ClassScheduleController {
       }
     }
     
-    print("Controller initialized with schedules: ${schedules.map((s) => '${s.day}: ${s.instructors}').toList()}");
+    print("Controller initialized with schedules: ${schedules.map((s) => 'ID:${s.id} ${s.day}: ${s.instructors}').toList()}");
   }
 
   void updateStaffForDay(String day, List<String> staffIds) {

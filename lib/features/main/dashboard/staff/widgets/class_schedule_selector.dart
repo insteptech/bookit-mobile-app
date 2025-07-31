@@ -7,12 +7,14 @@ import 'dropdown_time_picker.dart';
 
 /// Represents a daily class schedule entry with multiple instructors support.
 class DailyClassSchedule {
+  String? id; // Can be null for new schedules
   String day;
   String startTime; // UTC format (HH:mm:ss)
   String endTime;   // UTC format (HH:mm:ss)
   List<String> instructors; // Support multiple instructors
 
   DailyClassSchedule({
+    this.id,
     required this.day,
     required this.startTime,
     required this.endTime,
@@ -21,6 +23,7 @@ class DailyClassSchedule {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id ?? '', // Empty string for new schedules, actual ID for existing ones
       'day': day[0].toUpperCase() + day.substring(1), // Capitalize first letter
       'start_time': startTime.length > 5 ? startTime.substring(0, 5) : startTime, // Remove seconds if present
       'end_time': endTime.length > 5 ? endTime.substring(0, 5) : endTime,
@@ -53,9 +56,11 @@ class ClassScheduleController {
       final day = schedule['day'];
       final from = schedule['from'];
       final to = schedule['to'];
+      final id = schedule['id']; // Get ID if it exists
       
       if (day != null && from != null && to != null) {
         schedules.add(DailyClassSchedule(
+          id: id, // Will be null for new schedules
           day: day,
           startTime: from,
           endTime: to,
@@ -208,6 +213,7 @@ class ClassScheduleSelectorState extends State<ClassScheduleSelector> {
   List<bool> selectedDays = List.generate(7, (_) => false);
   Map<int, TimeRange> timeRanges = {};
   Map<int, List<String>> selectedStaffPerDay = {}; // Support multiple staff per day
+  Map<int, String?> scheduleIdsPerDay = {}; // Track schedule IDs for existing schedules
 
   final List<String> allTimeOptions = List.generate(48, (index) {
     final hour = index ~/ 2;
@@ -270,6 +276,7 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
   selectedDays = List.generate(7, (_) => false);
   timeRanges.clear();
   selectedStaffPerDay.clear();
+  scheduleIdsPerDay.clear();
   
   debugPrint("Available staff members: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
   
@@ -301,6 +308,10 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
               end: endTime,
             );
             
+            // Track schedule ID for this day
+            scheduleIdsPerDay[dayIndex] = schedule['id'];
+            debugPrint("Set schedule ID for day $day (index $dayIndex): ${schedule['id']}");
+            
             // Set instructors - extract IDs from instructor objects
             if (originalSchedule['instructors'] != null) {
               final instructors = originalSchedule['instructors'] as List<dynamic>;
@@ -331,7 +342,8 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
   debugPrint("Final selectedDays: $selectedDays");
   debugPrint("Final timeRanges: ${timeRanges.map((k, v) => MapEntry(fullDays[k], '${v.startStr(context)} - ${v.endStr(context)}'))}");
   debugPrint("Final selectedStaffPerDay: $selectedStaffPerDay");
-  debugPrint("Controller schedules after init: ${_scheduleController.schedules.map((s) => '${s.day}: instructors=${s.instructors}')}");
+  debugPrint("Final scheduleIdsPerDay: $scheduleIdsPerDay");
+  debugPrint("Controller schedules after init: ${_scheduleController.schedules.map((s) => 'ID:${s.id} ${s.day}: instructors=${s.instructors}')}");
   debugPrint("=== End initializeWithExistingData ===");
 }
 
@@ -342,6 +354,7 @@ void clearAll() {
     selectedDays = List.generate(7, (_) => false);
     timeRanges.clear();
     selectedStaffPerDay.clear();
+    scheduleIdsPerDay.clear();
     _scheduleController.clear();
   });
   debugPrint("Schedule selector state cleared");
@@ -384,6 +397,7 @@ void clearAll() {
       if (selectedDays[index] && timeRanges[index] != null) {
         final range = timeRanges[index]!;
         daySchedules.add({
+          "id": scheduleIdsPerDay[index] ?? '', // Include existing schedule ID or empty string for new
           "day": fullDays[index].toLowerCase(),
           "from": timeOfDayToUtcFormatWithTimezone(range.start),
           "to": timeOfDayToUtcFormatWithTimezone(range.end),

@@ -265,49 +265,50 @@ void _updateFormForLocation(String locationId) {
       print("Cleared pricing for location $locationId (no pricing data)");
     }
   });
-  
-  // Convert schedules to the expected format
-  final convertedSchedules = <Map<String, String>>[];
-  final originalSchedules = <Map<String, dynamic>>[];
-  
-  for (var schedule in locationSchedules) {
-    // Extract instructor IDs and names from the new API structure
-    final instructors = schedule['instructors'] as List<dynamic>? ?? [];
-    final instructorIds = <String>[];
-    final instructorNames = <String>[];
     
-    for (var instructor in instructors) {
-      if (instructor['id'] != null) {
-        instructorIds.add(instructor['id'].toString());
+    // Convert schedules to the expected format
+    final convertedSchedules = <Map<String, String>>[];
+    final originalSchedules = <Map<String, dynamic>>[];
+    
+  for (var schedule in locationSchedules) {
+      // Extract instructor IDs and names from the new API structure
+      final instructors = schedule['instructors'] as List<dynamic>? ?? [];
+      final instructorIds = <String>[];
+      final instructorNames = <String>[];
+      
+      for (var instructor in instructors) {
+        if (instructor['id'] != null) {
+          instructorIds.add(instructor['id'].toString());
+        }
+        if (instructor['name'] != null) {
+          instructorNames.add(instructor['name'].toString());
+        }
       }
-      if (instructor['name'] != null) {
-        instructorNames.add(instructor['name'].toString());
-      }
+      
+      convertedSchedules.add({
+      'id': schedule['id']?.toString() ?? '', // Include schedule ID
+        'day': (schedule['day_of_week'] ?? '').toString().toLowerCase(),
+        'from': schedule['start_time']?.toString() ?? '',
+        'to': schedule['end_time']?.toString() ?? '',
+        'instructors': instructorNames.join(','), // For display
+        'instructor_ids': instructorIds.join(','), // Actual IDs
+      });
+      
+      // Keep original schedule data for reference
+      originalSchedules.add({
+        'id': schedule['id'],
+        'day': schedule['day_of_week'],
+        'start_time': schedule['start_time'],
+        'end_time': schedule['end_time'],
+        'instructors': instructors,
+        'instructor_ids': instructorIds, // Pass as List<String>
+        'price': schedule['price'],
+        'package_amount': schedule['package_amount'],
+        'package_person': schedule['package_person'],
+      });
     }
     
-    convertedSchedules.add({
-      'day': (schedule['day_of_week'] ?? '').toString().toLowerCase(),
-      'from': schedule['start_time']?.toString() ?? '',
-      'to': schedule['end_time']?.toString() ?? '',
-      'instructors': instructorNames.join(','), // For display
-      'instructor_ids': instructorIds.join(','), // Actual IDs
-    });
-    
-    // Keep original schedule data for reference
-    originalSchedules.add({
-      'id': schedule['id'],
-      'day': schedule['day_of_week'],
-      'start_time': schedule['start_time'],
-      'end_time': schedule['end_time'],
-      'instructors': instructors,
-      'instructor_ids': instructorIds, // Pass as List<String>
-      'price': schedule['price'],
-      'package_amount': schedule['package_amount'],
-      'package_person': schedule['package_person'],
-    });
-  }
-  
-  _filterStaffByLocation();
+    _filterStaffByLocation();
   
   print("Converting ${locationSchedules.length} schedules for location $locationId");
   print("convertedSchedules: $convertedSchedules");
@@ -317,11 +318,11 @@ void _updateFormForLocation(String locationId) {
     print("Clearing schedule selector before updating");
     _scheduleSelectorKey.currentState!.clearAll();
   }
-  
-  WidgetsBinding.instance.addPostFrameCallback((_) {
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     print("Initializing schedule selector with converted schedules");
-    _initializeScheduleSelector(convertedSchedules, originalSchedules);
-  });
+      _initializeScheduleSelector(convertedSchedules, originalSchedules);
+    });
   
   print("=== End _updateFormForLocation ===");
 }
@@ -523,7 +524,7 @@ void _updateFormForLocation(String locationId) {
       // Call _updateFormForLocation outside setState since it has its own setState
       if (existingScheduleData != null && newLocationStr != null) {
         _updateFormForLocation(newLocationStr);
-      }
+    }
     }
     print("===============================");
   }
@@ -578,7 +579,14 @@ void _updateFormForLocation(String locationId) {
         payload['location_schedules'][0]['id'] = existingLocationScheduleId;
       }
 
-      print("Final payload: $payload");
+      print("Final payload with schedule IDs: $payload");
+      print("Schedule IDs in payload:");
+      if (payload['location_schedules'] != null && payload['location_schedules'].isNotEmpty) {
+        final schedules = payload['location_schedules'][0]['schedule'] as List<dynamic>? ?? [];
+        for (var schedule in schedules) {
+          print("  Day: ${schedule['day']}, ID: '${schedule['id']}' ${schedule['id'] == '' ? '(NEW)' : '(EXISTING)'}");
+        }
+      }
       print("=== End Payload Generation ===");
 
       return payload;
