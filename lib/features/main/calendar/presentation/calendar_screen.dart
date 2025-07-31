@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/calendar/widgets/upcoming_appointments.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widget/class_schedule_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,6 +18,7 @@ class CalendarScreen extends ConsumerStatefulWidget {
 class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   List<Map<String, dynamic>> appointments = [];
   bool isLoading = true;
+  String activeLocation = '';
 
   Future<void> fetchAppointments(String locationId) async {
     final data = await APIRepository.getAppointments(locationId);
@@ -38,7 +40,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     }
     final locations = ref.read(locationsProvider);
     if (locations.isNotEmpty) {
-      final activeLocation = ref.read(activeLocationProvider);
+      setState(() {
+       activeLocation = ref.read(activeLocationProvider);
+      });
       final locationId = activeLocation.isNotEmpty ? activeLocation : locations[0]['id'];
       ref.read(activeLocationProvider.notifier).state = locationId;
       setState(() {
@@ -138,6 +142,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
+                  ClassScheduleCalendar(locationId: activeLocation, showCalendarHeader: true,)
                 ],
               ),
             ),

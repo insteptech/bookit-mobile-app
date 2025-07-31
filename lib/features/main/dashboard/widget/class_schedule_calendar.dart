@@ -3,126 +3,346 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class ClassScheduleCalendar extends StatefulWidget {
   final bool? showCalendarHeader;
-  final bool? showOnlyTodaysClasses;
   final String locationId;
   final int? numberOfClasses;
-  const ClassScheduleCalendar({super.key, this.showCalendarHeader, this.showOnlyTodaysClasses, required this.locationId, this.numberOfClasses});
+  
+  const ClassScheduleCalendar({
+    super.key, 
+    this.showCalendarHeader, 
+    required this.locationId, 
+    this.numberOfClasses
+  });
 
   @override
   State<ClassScheduleCalendar> createState() => _ClassScheduleCalendarState();
 }
 
 class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
-  Future<void> _fetchClassesBasedOnDayAndLocation(String dayName, String locationId) async {
-    await APIRepository.getClassSchedulesByLocationAndDay(locationId, dayName);
-  }
-  Future<void> _fetchAllClassesOnDayBases(String locationId) async {
-    // Fetch all locations classes
-  }
-  Future<void> _fetchAllClassesPagination(int page, int count) async {
-    // Fetch all classes based on the day
-    await APIRepository.getClassScheduleByPagination(page, count);
-  }
+  List<dynamic> selectedDayClasses = [];
+  bool isLoading = true;
+  DateTime currentDate = DateTime.now();
+  DateTime selectedDate = DateTime.now();
+  
   @override
   void initState() {
     super.initState();
-    // Fetch today's classes when the widget is initialized
-    if(widget.locationId.isNotEmpty) {
-      _fetchClassesBasedOnDayAndLocation("Sunday", widget.locationId);
-    } else {
-      // Handle the case where locationId is null
-      print("Location ID is null, cannot fetch classes.");
-    }
-    _fetchAllClassesOnDayBases("Sunday");
+    _fetchClassesForDate(selectedDate);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            context.push("/add_staff?isClass=true");
-          },
-          child: Container(
-            height: 88,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.lightGrayBoxColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Future<void> _fetchClassesForDate(DateTime date) async {
+    try {
+      setState(() => isLoading = true);
+      
+      String dayName = DateFormat('EEEE').format(date);
+      
+      if (widget.locationId.isNotEmpty) {
+        final response = await APIRepository.getClassSchedulesByLocationAndDay(
+          widget.locationId, 
+          dayName
+        );
+        _processClassesForDate(response, dayName);
+      } else {
+        final response = await APIRepository.getClassScheduleByPagination(1, 10);
+        _processClassesForDate(response, dayName);
+      }
+    } catch (e) {
+      print("Error fetching classes: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  void _processClassesForDate(dynamic response, String dayName) {
+    if (response != null && response['data'] != null) {
+      List<dynamic> allClasses = [];
+      
+      for (var classData in response['data']['data']) {
+        if (classData['full_data'] != null && classData['full_data']['schedules'] != null) {
+          for (var schedule in classData['full_data']['schedules']) {
+            if (schedule['day_of_week'] == dayName) {
+              allClasses.add({
+                'service_name': classData['service_name'],
+                'schedule': schedule,
+                'full_data': classData['full_data'],
+              });
+            }
+          }
+        }
+      }
+      
+      // Sort by start time
+      allClasses.sort((a, b) => a['schedule']['start_time'].compareTo(b['schedule']['start_time']));
+      
+      setState(() {
+        selectedDayClasses = widget.numberOfClasses != null 
+          ? allClasses.take(widget.numberOfClasses!).toList()
+          : allClasses;
+      });
+    }
+  }
+
+  void _onDaySelected(DateTime date) {
+    setState(() {
+      selectedDate = date;
+    });
+    _fetchClassesForDate(date);
+  }
+
+  String _formatTime(String timeString) {
+    try {
+      final time = DateFormat('HH:mm:ss').parse(timeString);
+      return DateFormat('h:mma').format(time).toLowerCase();
+    } catch (e) {
+      return timeString;
+    }
+  }
+
+  int _calculateDuration(String startTime, String endTime) {
+    try {
+      final start = DateFormat('HH:mm:ss').parse(startTime);
+      final end = DateFormat('HH:mm:ss').parse(endTime);
+      return end.difference(start).inMinutes;
+    } catch (e) {
+      return 60; // Default duration
+    }
+  }
+
+  Widget _buildWeekCalendar() {
+    if (widget.showCalendarHeader != true) return SizedBox.shrink();
+    
+    List<Widget> dayWidgets = [];
+    DateTime startOfWeek = currentDate.subtract(Duration(days: currentDate.weekday % 7));
+    
+    for (int i = 0; i < 7; i++) {
+      DateTime day = startOfWeek.add(Duration(days: i));
+      bool isToday = day.day == currentDate.day && 
+                    day.month == currentDate.month && 
+                    day.year == currentDate.year;
+      bool isSelected = day.day == selectedDate.day && 
+                       day.month == selectedDate.month && 
+                       day.year == selectedDate.year;
+      
+      dayWidgets.add(
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _onDaySelected(day),
+            child: Column(
               children: [
-                // Left column - Time and Duration
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      "7:30am",
-                      style: AppTypography.bodySmall.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color:
-                            AppColors
-                                .secondaryFontColor, // Assuming you want the blue color
-                      ),
-                    ),
-                    Text(
-                      "60min",
-                      style: AppTypography.bodySmall.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color:
-                            AppColors
-                                .secondaryFontColor, // Assuming you want the blue color
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 24), // Increased spacing
-                // Right column - Class details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Advanced Animal F...",
-                        style: AppTypography.appBarHeading.copyWith(
-                          color:
-                              AppColors
-                                  .secondaryFontColor, // Assuming you want the blue color
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        "Green room",
-                        style: AppTypography.bodySmall.copyWith(
-                          color:
-                              AppColors
-                                  .secondaryFontColor, // Assuming you want the blue color
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Aicha Niazy",
-                        style: AppTypography.bodySmall.copyWith(
-                          color:
-                              Colors.grey, 
-                        ),
-                      ),
-                    ],
+                Text(
+                  DateFormat('E').format(day).substring(0, 1).toUpperCase(),
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black,
                   ),
                 ),
+                SizedBox(height: 8),
+                Container(
+                  width: 27,
+                  height: 27,
+                  decoration: BoxDecoration(
+                    color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${day.day}',
+                      style: AppTypography.bodySmall.copyWith(
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                if (isToday && !isSelected)
+                  Container(
+                    margin: EdgeInsets.only(top: 4),
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
               ],
             ),
           ),
         ),
+      );
+    }
+
+    return Column(
+      children: [
+        Text(
+          _getHeaderText(),
+          style: AppTypography.bodySmall.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        SizedBox(height: 16),
+        Row(children: dayWidgets),
+        SizedBox(height: 24),
+      ],
+    );
+  }
+
+  String _getHeaderText() {
+    bool isToday = selectedDate.day == currentDate.day && 
+                  selectedDate.month == currentDate.month && 
+                  selectedDate.year == currentDate.year;
+    
+    if (isToday) {
+      return 'Today';
+    } else {
+      return DateFormat('EEEE, MMMM d').format(selectedDate);
+    }
+  }
+
+  Widget _buildClassCard(dynamic classData) {
+    final schedule = classData['schedule'];
+    final serviceName = classData['service_name'] ?? 'Class';
+    final location = schedule['Location']?['title'] ?? 'Location';
+    final instructor = schedule['instructors']?.isNotEmpty == true 
+      ? schedule['instructors'][0]['instructor']['name'] 
+      : 'Instructor';
+    
+    final startTime = _formatTime(schedule['start_time']);
+    final duration = _calculateDuration(schedule['start_time'], schedule['end_time']);
+    
+    // Mock status logic - you can implement based on your business logic
+    String? status;
+    Color? statusColor;
+    if (schedule['package_person'] != null && schedule['package_person'] <= 10) {
+      status = 'Full';
+      statusColor = Colors.blue;
+    }
+    // Add more status logic as needed
+
+    return GestureDetector(
+      onTap: () {
+        context.push("/add_class_schedule");
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.lightGrayBoxColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Time and Duration Column
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  startTime,
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.secondaryFontColor,
+                  ),
+                ),
+                Text(
+                  '${duration}min',
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.secondaryFontColor,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(width: 24),
+            
+            // Class Details Column
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    serviceName.length > 20 
+                      ? '${serviceName.substring(0, 17)}...' 
+                      : serviceName,
+                    style: AppTypography.appBarHeading.copyWith(
+                      color: AppColors.secondaryFontColor,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    location,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.secondaryFontColor,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    instructor,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Status Badge
+            if (status != null)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  status,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildWeekCalendar(),
+        
+        if (isLoading)
+          Center(
+            child: CircularProgressIndicator(),
+          )
+        else if (selectedDayClasses.isEmpty)
+          Container(
+            padding: EdgeInsets.all(24),
+            child: Center(
+              child: Text(
+                'No classes scheduled for ${_getHeaderText().toLowerCase()}',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: selectedDayClasses.length,
+            itemBuilder: (context, index) {
+              return _buildClassCard(selectedDayClasses[index]);
+            },
+          ),
       ],
     );
   }
