@@ -112,7 +112,6 @@ class APIRepository {
     try {
       final url = "$staffScheduleEndpoint/$id/schedule";
       final response = await _dio.get(url);
-      print(response.data);
       return response;
     } catch (e) {
       throw Exception("Failed to fetch staff data: ${e.toString()}");
@@ -274,6 +273,7 @@ class APIRepository {
   static Future<Response> getAllStaffList() async {
     try {
       final response = await _dio.get(getStaffListEndpoint);
+      print("Response from getAllStaffList: ${response.data}");
         return response;
     }
     catch (e) {
@@ -361,9 +361,9 @@ static Future<Map<String, dynamic>> getAllClassesDetails() async {
     final response = await _dio.get(url);
 
     // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
 
     return response.data;
   } catch (e, stacktrace) {
@@ -377,11 +377,32 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     String day
   ) async {
     try {
-      final url = getClassesByBusinessAndDayEndpoint(locationId, day);
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getClassesByBusinessLocationAndDayEndpoint(businessId, locationId, day);
       final response = await _dio.get(url);
+      print("Response from getClassSchedulesByLocationAndDay: ${response.data}");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch class schedules: ${e.toString()}");
+    }
+  }
+
+  static Future<Map<String, dynamic>> getClassScheduleByPagination(
+    int page,
+    int limit,
+  ) async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getPaginatedClassesByBusinessEndpoint(businessId, page, limit);
+      final response = await _dio.get(
+        url,
+      );
+      print("Response from getClassScheduleByPagination: ${response.data}");
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to fetch class schedules by pagination: ${e.toString()}");
     }
   }
 }

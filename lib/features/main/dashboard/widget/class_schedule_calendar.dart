@@ -1,18 +1,44 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ClassScheduleCalendar extends StatefulWidget {
   final bool? showCalendarHeader;
   final bool? showOnlyTodaysClasses;
-  const ClassScheduleCalendar({super.key, this.showCalendarHeader, this.showOnlyTodaysClasses});
+  final String locationId;
+  final int? numberOfClasses;
+  const ClassScheduleCalendar({super.key, this.showCalendarHeader, this.showOnlyTodaysClasses, required this.locationId, this.numberOfClasses});
 
   @override
   State<ClassScheduleCalendar> createState() => _ClassScheduleCalendarState();
 }
 
 class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
+  Future<void> _fetchClassesBasedOnDayAndLocation(String dayName, String locationId) async {
+    await APIRepository.getClassSchedulesByLocationAndDay(locationId, dayName);
+  }
+  Future<void> _fetchAllClassesOnDayBases(String locationId) async {
+    // Fetch all locations classes
+  }
+  Future<void> _fetchAllClassesPagination(int page, int count) async {
+    // Fetch all classes based on the day
+    await APIRepository.getClassScheduleByPagination(page, count);
+  }
+  @override
+  void initState() {
+    super.initState();
+    // Fetch today's classes when the widget is initialized
+    if(widget.locationId.isNotEmpty) {
+      _fetchClassesBasedOnDayAndLocation("Sunday", widget.locationId);
+    } else {
+      // Handle the case where locationId is null
+      print("Location ID is null, cannot fetch classes.");
+    }
+    _fetchAllClassesOnDayBases("Sunday");
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

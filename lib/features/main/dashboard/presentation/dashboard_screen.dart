@@ -495,7 +495,7 @@ Future<void> _fetchFreshLocations() async {
                                   //     ),
                                   //   ),
                                   // ),
-                                  ClassScheduleCalendar()
+                                  ClassScheduleCalendar(locationId: activeLocation,)
                                 ];
                               }
                               
