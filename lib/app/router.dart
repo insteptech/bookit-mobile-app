@@ -176,9 +176,17 @@ final GoRouter router = GoRouter(
 
     //..................Add Class Schedule Screen...........
     GoRoute(
-      path: "/add_class_schedule",
-      builder: (context, state) => const AddClassScheduleScreen(),
-    ),
+  path: "/add_class_schedule",
+  builder: (context, state) {
+    final extras = state.extra as Map<String, dynamic>?;
+
+    return AddClassScheduleScreen(
+      classId: extras?['classId'],
+      className: extras?['className'],
+    );
+  },
+),
+
 
     //..................Add offering service details.............
 GoRoute(

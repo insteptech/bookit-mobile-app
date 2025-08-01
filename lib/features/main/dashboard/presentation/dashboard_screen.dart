@@ -6,6 +6,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/api_prov
 import 'package:bookit_mobile_app/features/main/dashboard/widget/add_staff_and_availability_box.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/my_calender_widget.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widget/no_classes_box.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/no_upcoming_appointments_box.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/models/business_category_model.dart';
 import 'package:flutter/material.dart';
@@ -242,7 +243,7 @@ Future<void> _fetchFreshLocations() async {
     if (isLoading) {
        return Center(
           child: Column(
-            children: [
+            children:  [
               SizedBox(height: 16,),
               SizedBox(height: isFullScreen ? 400 : 250,),
               SizedBox(height: 24,)
@@ -298,6 +299,15 @@ Future<void> _fetchFreshLocations() async {
   }
 
   Widget _buildClassScheduleSection() {
+    if (allStaffAppointments.isEmpty) {
+      return Column(
+        children: [
+          const SizedBox(height: 16),
+          AddStaffAndAvailabilityBox(),
+          const SizedBox(height: 24),
+        ],
+      );
+    }
     return Column(
       children: [
         Row(
@@ -313,29 +323,8 @@ Future<void> _fetchFreshLocations() async {
           ],
         ),
         const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () {
-            // context.push("/staff_list");
-            context.push("/add_staff?isClass=true");
-          },
-          child: Container(
-            height: 160,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            decoration: BoxDecoration(
-              color: AppColors.lightGrayBoxColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ),
-        ),
+      ClassScheduleCalendar(locationId: ref.watch(activeLocationProvider), showCalendarHeader: false,)
+        
       ],
     );
   }
@@ -459,44 +448,44 @@ Future<void> _fetchFreshLocations() async {
                               
                               // If only classes, show only class schedule with expanded height
                               if (businessType == BusinessType.classOnly) {
-                                return [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        AppTranslationsDelegate.of(context).text("todays_class_schedule"),
-                                        style: AppTypography.headingMd.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const Icon(Icons.arrow_forward),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // GestureDetector(
-                                  //   onTap: () {
-                                  //     context.push("/add_staff?isClass=true");
-                                  //   },
-                                  //   child: Container(
-                                  //     height: 400, // Expanded height for class-only view
-                                  //     alignment: Alignment.center,
-                                  //     padding: const EdgeInsets.symmetric(horizontal: 32),
-                                  //     decoration: BoxDecoration(
-                                  //       color: AppColors.lightGrayBoxColor,
-                                  //       borderRadius: BorderRadius.circular(12),
-                                  //     ),
-                                  //     child: Text(
-                                  //       AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
-                                  //       textAlign: TextAlign.center,
-                                  //       style: AppTypography.bodyMedium.copyWith(
-                                  //         fontWeight: FontWeight.w500,
-                                  //         color: theme.colorScheme.primary,
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                  ClassScheduleCalendar(locationId: activeLocation, showCalendarHeader: false,)
-                                ];
+                                // return [
+                                //   Row(
+                                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                //     children: [
+                                //       Text(
+                                //         AppTranslationsDelegate.of(context).text("todays_class_schedule"),
+                                //         style: AppTypography.headingMd.copyWith(
+                                //           fontWeight: FontWeight.w500,
+                                //         ),
+                                //       ),
+                                //       const Icon(Icons.arrow_forward),
+                                //     ],
+                                //   ),
+                                //   const SizedBox(height: 12),
+                                //   GestureDetector(
+                                //     onTap: () {
+                                //       context.push("/add_staff?isClass=true");
+                                //     },
+                                //     child: Container(
+                                //       height: 400, // Expanded height for class-only view
+                                //       alignment: Alignment.center,
+                                //       padding: const EdgeInsets.symmetric(horizontal: 32),
+                                //       decoration: BoxDecoration(
+                                //         color: AppColors.lightGrayBoxColor,
+                                //         borderRadius: BorderRadius.circular(12),
+                                //       ),
+                                //       child: Text(
+                                //         AppTranslationsDelegate.of(context).text("click_to_add_staff_and_class_schedules"),
+                                //         textAlign: TextAlign.center,
+                                //         style: AppTypography.bodyMedium.copyWith(
+                                //           fontWeight: FontWeight.w500,
+                                //           color: theme.colorScheme.primary,
+                                //         ),
+                                //       ),
+                                //     ),
+                                //   ),
+                                //   ClassScheduleCalendar(locationId: activeLocation, showCalendarHeader: false,)
+                                // ];
                               }
                               
                               return widgets;

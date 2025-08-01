@@ -9,10 +9,12 @@ import 'package:flutter/material.dart';
 
 class AddClassScheduleScreen extends StatefulWidget {
   final String? classId;
+  final String? className;
   
   const AddClassScheduleScreen({
     super.key,
     this.classId,
+    this.className
   });
 
   @override
@@ -558,20 +560,22 @@ void _updateFormForLocation(String locationId) {
                           style: AppTypography.headingLg,
                         ),
                         const SizedBox(height: 8),
+                        if ((widget.classId?.isEmpty ?? true) && (widget.className?.isEmpty ?? true))
                         Text(
                           AppTranslationsDelegate.of(context).text("class_schedule_description"),
                           style: AppTypography.bodyMedium,
                         ),
                         
                         const SizedBox(height: 40),
-
+                        if ((widget.classId?.isEmpty ?? true) && (widget.className?.isEmpty ?? true))
                         Text(
                           'Select class',
                           style: AppTypography.headingSm
                         ),
+                        if ((widget.classId?.isEmpty ?? true) && (widget.className?.isEmpty ?? true))
                         const SizedBox(height: 16),
-                        
-                        Column(
+                        if ((widget.classId?.isEmpty ?? true) && (widget.className?.isEmpty ?? true))                        
+                        Column( 
                           children: classes.map((classItem) {
                             final isSelected = selectedClassId == classItem['id'];
                             return Padding(
@@ -635,6 +639,9 @@ void _updateFormForLocation(String locationId) {
                             );
                           }).toList(),
                         ),
+
+                        if ((widget.classId?.isNotEmpty ?? true) && (widget.className?.isNotEmpty ?? true))
+                        Text("${widget.className}", style: AppTypography.headingMd.copyWith(fontWeight: FontWeight.w400),),
 
                         const SizedBox(height: 32),
 

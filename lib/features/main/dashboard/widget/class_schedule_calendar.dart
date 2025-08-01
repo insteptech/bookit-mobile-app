@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widget/no_classes_box.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -99,6 +100,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
             if (schedule['day_of_week'] == dayName) {
               allClasses.add({
                 'service_name': classData['service_name'],
+                'category_id': schedule['class_id'],
                 'schedule': schedule,
                 'full_data': classData['full_data'],
               });
@@ -238,7 +240,8 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
   Widget _buildClassCard(dynamic classData) {
     final schedule = classData['schedule'];
-    final serviceName = classData['service_name'] ?? 'Class';
+    final serviceName = classData['service_name'] ?? '';
+    final serviceId = schedule['class_id'] ?? '';
     final location = schedule['Location']?['title'] ?? 'Location';
     final instructor = schedule['instructors']?.isNotEmpty == true 
       ? schedule['instructors'][0]['instructor']['name'] 
@@ -258,7 +261,13 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
     return GestureDetector(
       onTap: () {
-        context.push("/add_class_schedule");
+        if(serviceId == null || serviceName.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Service details are not available.'))
+          );
+          return;
+        }
+        context.push("/add_class_schedule", extra: {'className': serviceName, 'classId': serviceId});
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 16),
@@ -346,31 +355,32 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
   }
 
   Widget _buildViewAllButton() {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.only(top: 16),
-      child: TextButton(
-        onPressed: () {
-          // Navigate to view all classes or handle the action
-          // You can implement the specific navigation logic here
-          context.push("/all_classes"); // Example route
-        },
-        style: TextButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        child: Text(
-          'View all classes',
+  return GestureDetector(
+    onTap: () {
+      context.push("/all_classes");
+    },
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center, // Vertically center
+      mainAxisAlignment: MainAxisAlignment.start,    // Align to left
+      children: [
+        Text(
+          'View all',
           style: AppTypography.bodyMedium.copyWith(
             color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      ),
-    );
-  }
+        const SizedBox(width: 4),
+        Icon(
+          Icons.arrow_forward,
+          size: 16,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -384,17 +394,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
             child: CircularProgressIndicator(),
           )
         else if (selectedDayClasses.isEmpty)
-          Container(
-            padding: EdgeInsets.all(24),
-            child: Center(
-              child: Text(
-                'No classes scheduled for ${_getHeaderText().toLowerCase()}',
-                style: AppTypography.bodyMedium.copyWith(
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-          )
+          NoClassesBox(message: _getHeaderText().toLowerCase())
         else ...[
           ListView.builder(
             shrinkWrap: true,
@@ -404,7 +404,6 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
               return _buildClassCard(selectedDayClasses[index]);
             },
           ),
-          // Show "View all classes" button only when numberOfClasses is provided
           if (widget.numberOfClasses != null) _buildViewAllButton(),
         ],
       ],
