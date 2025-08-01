@@ -6,9 +6,9 @@ import 'package:dio/dio.dart';
 // 4. Modified CategorySelector to expose selected data
 class CategorySelector extends StatefulWidget {
   final VoidCallback? onSelectionChanged;
-  final bool isClass;
+  final bool? isClass; // Made optional
   
-  const CategorySelector({super.key, this.onSelectionChanged, required this.isClass});
+  const CategorySelector({super.key, this.onSelectionChanged, this.isClass}); // isClass is now optional
 
   @override
   State<CategorySelector> createState() => CategorySelectorState();
@@ -28,15 +28,8 @@ class CategorySelectorState extends State<CategorySelector> {
     try {
       final Response response = await APIRepository.getUserDataForStaffRegistration();
       final data = response.data;
-      print(".  ");
-      print("/ ");
-      print("categroies: $data");
-      print("/");
-      print("/");
-
       if (data['status'] == 200 && data['success'] == true) {
         final List<dynamic> categoryData = data['data']['categories'];
-        
         setState(() {
           categories = categoryData
               .map((cat) => {
@@ -45,23 +38,12 @@ class CategorySelectorState extends State<CategorySelector> {
                     'isClass': cat['is_class'] ?? false,
                   })
               .toList();
-          print("/");
-          print("/");
-          print("/");
-          print("/");
-          print("/");
-print(categories);
-     print("/");
-          print("/");
-          print("/");
-          print("/");
-          print("/");
         });
       } else {
-        print('Failed to load categories');
+        print('=== API Error: Failed to load categories - Status: ${data['status']}, Success: ${data['success']} ===');
       }
     } catch (e) {
-      print('Error fetching categories: $e');
+      print('=== Error fetching categories: $e ===');
     }
   }
 
@@ -72,17 +54,19 @@ print(categories);
       children: [
         const Text("Select their categories", style: AppTypography.headingSm),
         const SizedBox(height: 8),
-
+        
         if (categories.isEmpty)
           const Center(child: CircularProgressIndicator())
         else
-          ...categories.map(
+          ...categories.where((category) {
+            // If isClass is null, show all categories
+            // If isClass is not null, filter by matching isClass value
+            return widget.isClass == null || category['isClass'] == widget.isClass;
+          }).map(
             (category) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: Row(
                 children: [
-                  Text("${widget.isClass?"class":"no class"}"),
-                  if(category['isClass'] == widget.isClass)
                   Checkbox(
                     value: selectedCategoryIds.contains(category['id']),
                     shape: RoundedRectangleBorder(
@@ -102,7 +86,6 @@ print(categories);
                     },
                   ),
                   const SizedBox(width: 8),
-                  if(category['isClass'] == widget.isClass)
                   Expanded(
                     child: Text(
                       category['name'] ?? '',

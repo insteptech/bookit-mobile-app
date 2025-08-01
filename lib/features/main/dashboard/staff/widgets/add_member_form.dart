@@ -11,7 +11,7 @@ import 'gender_selector.dart'; // <- Import the GenderSelector
 class AddMemberForm extends StatefulWidget {
   final VoidCallback? onAdd;
   final VoidCallback? onDelete;
-  final bool isClass;
+  final bool? isClass; // Made optional
   final Function(StaffProfile)? onDataChanged;
 
   const AddMemberForm({
@@ -19,7 +19,7 @@ class AddMemberForm extends StatefulWidget {
     this.onAdd,
     this.onDelete,
     this.onDataChanged,
-    required this.isClass
+    this.isClass, // Optional parameter
   });
 
   @override
@@ -118,7 +118,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
         CategorySelector(
           key: _categorySelectorKey,
           onSelectionChanged: _onDataChanged,
-          isClass: widget.isClass,
+          isClass: widget.isClass, // Pass the optional isClass directly
         ),
         const SizedBox(height: 16),
 

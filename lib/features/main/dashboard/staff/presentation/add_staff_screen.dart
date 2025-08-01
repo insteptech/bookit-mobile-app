@@ -7,10 +7,20 @@ import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import '../widgets/add_member_form.dart';
 
+enum StaffScreenButtonMode {
+  continueToSchedule, // Shows "Continue to Schedule" + "Save and Exit"
+  saveOnly,          // Shows only "Save" button
+}
+
 class AddStaffScreen extends StatefulWidget {
-  final bool isClass;
+  final bool? isClass; 
+  final StaffScreenButtonMode buttonMode;
   
-  const AddStaffScreen({super.key, this.isClass = false});
+  const AddStaffScreen({
+    super.key, 
+    this.isClass, // Optional parameter
+    this.buttonMode = StaffScreenButtonMode.continueToSchedule, // Default mode
+  });
 
   @override
   State<AddStaffScreen> createState() => _AddStaffScreenState();
@@ -73,11 +83,17 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           )),
         );
         
-        // Navigate based on whether this is for a class or regular staff
-        if (widget.isClass) {
-          NavigationService.push("/add_class_schedule");
+        // Handle navigation based on button mode
+        if (widget.buttonMode == StaffScreenButtonMode.continueToSchedule) {
+          // Navigate based on whether this is for a class or regular staff
+          if (widget.isClass == true) {
+            NavigationService.push("/add_class_schedule");
+          } else {
+            NavigationService.pushStaffList();
+          }
         } else {
-          NavigationService.pushStaffList();
+          // For saveOnly mode, just go back
+          Navigator.pop(context);
         }
       } else {
         throw Exception('Failed to add staff members');
@@ -114,7 +130,6 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 style: AppTypography.headingLg
               ),
               const SizedBox(height: 48),
-              Text("${widget.isClass?"true":"false"}"),
 
               // Render all member forms
               ...memberForms.map(
@@ -122,7 +137,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   padding: const EdgeInsets.only(bottom: 32),
                   child: AddMemberForm(
                     key: ValueKey(id),
-                    isClass: widget.isClass,
+                    isClass: widget.isClass, // Pass the optional isClass parameter directly
                     onAdd: addMemberForm,
                     onDelete:
                         memberForms.length > 1
@@ -143,30 +158,48 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
               // Action buttons
               const SizedBox(height: 24),
-              PrimaryButton(
-                text: isLoading 
-                  ? 
-                   AppTranslationsDelegate.of(context).text("adding_staff")
-                  : AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
-                onPressed: isLoading ? null : submitStaffProfiles,
-                isDisabled: !canSubmit || isLoading,
-              ),
-              const SizedBox(height: 10),
-              Center(
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    AppTranslationsDelegate.of(context).text("save_and_exit"),
-                    style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
+              _buildActionButtons(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildActionButtons() {
+    switch (widget.buttonMode) {
+      case StaffScreenButtonMode.continueToSchedule:
+        return Column(
+          children: [
+            PrimaryButton(
+              text: isLoading 
+                ? AppTranslationsDelegate.of(context).text("adding_staff")
+                : AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
+              onPressed: isLoading ? null : submitStaffProfiles,
+              isDisabled: !canSubmit || isLoading,
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  AppTranslationsDelegate.of(context).text("save_and_exit"),
+                  style: AppTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      case StaffScreenButtonMode.saveOnly:
+        return PrimaryButton(
+          text: isLoading 
+            ? AppTranslationsDelegate.of(context).text("adding_staff")
+            : "Save",
+          onPressed: isLoading ? null : submitStaffProfiles,
+          isDisabled: !canSubmit || isLoading,
+        );
+    }
   }
 }

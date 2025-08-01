@@ -109,8 +109,23 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: "/add_staff", 
       builder: (context, state) {
-        final isClass = state.uri.queryParameters['isClass'] == 'true';
-        return AddStaffScreen(isClass: isClass);
+        final isClassParam = state.uri.queryParameters['isClass'];
+        final buttonModeParam = state.uri.queryParameters['buttonMode'];
+        // Handle isClass parameter - null if not provided, bool if provided
+        bool? isClass;
+        if (isClassParam != null) {
+          isClass = isClassParam == 'true';
+        }
+        // Handle buttonMode parameter
+        StaffScreenButtonMode buttonMode = StaffScreenButtonMode.continueToSchedule;
+        if (buttonModeParam == 'saveOnly') {
+          buttonMode = StaffScreenButtonMode.saveOnly;
+        }
+        
+        return AddStaffScreen(
+          isClass: isClass, 
+          buttonMode: buttonMode,
+        );
       }
     ),
 

@@ -31,7 +31,7 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
       ),
       buttonText: "Add Member",
       onButtonPressed: () {
-        context.push("/add_staff");
+        context.push("/add_staff/?buttonMode=saveOnly");
       },
     );
 
