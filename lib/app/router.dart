@@ -7,6 +7,7 @@ import 'package:bookit_mobile_app/features/main/calendar/presentation/add_new_cl
 import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen_2.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/view_all_appointments_screen.dart';
+import 'package:bookit_mobile_app/features/main/calendar/presentation/view_all_schedule_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/home_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_schedule_screen.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/presentation/add_staff_screen.dart';
@@ -228,5 +229,8 @@ GoRoute(
 
 //..................Terms and Conditions screen..............
     GoRoute(path: "/terms_conditions", builder: (context, state) => const TermsAndConditionsScreen()),
+
+//.....................all classees screen.................
+  GoRoute(path: "/all_classes_screen", builder: (context, state) => const ViewAllScheduleScreen(),)
   ],
 );

@@ -114,6 +114,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 style: AppTypography.headingLg
               ),
               const SizedBox(height: 48),
+              Text("${widget.isClass?"true":"false"}"),
 
               // Render all member forms
               ...memberForms.map(

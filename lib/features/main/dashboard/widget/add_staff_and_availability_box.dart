@@ -5,31 +5,43 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AddStaffAndAvailabilityBox extends StatelessWidget {
-  const AddStaffAndAvailabilityBox({super.key});
+  final bool isClass;
+  
+  const AddStaffAndAvailabilityBox({
+    super.key,
+    this.isClass = false,
+  });
 
   @override
-Widget build(BuildContext context) {
-  final theme = Theme.of(context);
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
-  return GestureDetector(
-    onTap: (){
-      context.push("/add_staff");
-    },
-    child: Container(
-    height: 160,
-    color: AppColors.lightGrayBoxColor,
-    alignment: Alignment.center,
-    padding: const EdgeInsets.symmetric(horizontal: 32),
-    child: Text(
-      AppTranslationsDelegate.of(context).text("click_to_add_staff_and_their_availability"),
-      textAlign: TextAlign.center,
-      style: AppTypography.bodyMedium.copyWith(
-        fontWeight: FontWeight.w500,
-        color: theme.colorScheme.primary,
+    return GestureDetector(
+      onTap: () {
+        if (isClass) {
+          context.push("/add_staff?isClass=true");
+        } else {
+          context.push("/add_staff");
+        }
+      },
+      child: Container(
+        height: 160,
+        color: AppColors.lightGrayBoxColor,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Text(
+          AppTranslationsDelegate.of(context).text(
+            isClass 
+              ? "click_to_add_staff_and_class_schedules"
+              : "click_to_add_staff_and_their_availability"
+          ),
+          textAlign: TextAlign.center,
+          style: AppTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w500,
+            color: theme.colorScheme.primary,
+          ),
+        ),
       ),
-    ),
-  )
-  );
-}
-
+    );
+  }
 }

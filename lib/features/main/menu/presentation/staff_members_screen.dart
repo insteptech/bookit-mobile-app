@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/main/menu/widgets/menu_screens_scaffold.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class StaffMembersScreen extends StatefulWidget {
   const StaffMembersScreen({super.key});
@@ -27,7 +28,12 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
         child: Text(
           "Staff Members Screen",
         ),
-      )
+      ),
+      buttonText: "Add Member",
+      onButtonPressed: () {
+        context.push("/add_staff");
+      },
     );
+
   }
 }

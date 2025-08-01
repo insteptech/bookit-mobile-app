@@ -8,13 +8,13 @@ import 'package:intl/intl.dart';
 
 class ClassScheduleCalendar extends StatefulWidget {
   final bool? showCalendarHeader;
-  final String locationId;
+  final String? locationId;
   final int? numberOfClasses;
   
   const ClassScheduleCalendar({
     super.key, 
     this.showCalendarHeader, 
-    required this.locationId, 
+    this.locationId, 
     this.numberOfClasses
   });
 
@@ -45,15 +45,15 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
         await _fetchClassesForPagination(date);
       } else {
         // Fetch all classes
-        if (widget.locationId.isNotEmpty) {
+        if (widget.locationId != null && widget.locationId!.isNotEmpty) {
           final response = await APIRepository.getClassSchedulesByLocationAndDay(
-            widget.locationId, 
+            widget.locationId!, 
             dayName
           );
           _processClassesForDate(response, dayName);
         } else {
-          final response = await APIRepository.getClassScheduleByPagination(1, 10);
-          _processClassesForDate(response, dayName);
+          // Fetch all classes regardless of location when locationId is not provided
+          await _fetchAllClassesOfTheDay(date);
         }
       }
     } catch (e) {
@@ -71,20 +71,36 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
       int page = 1;
       int limit = widget.numberOfClasses ?? 10;
 
-      if (widget.locationId.isNotEmpty) {
+      if (widget.locationId != null && widget.locationId!.isNotEmpty) {
         final response = await APIRepository.getClassScheduleByPaginationAndLocationAndDay(
           page,
           limit,
-          widget.locationId,
+          widget.locationId!,
           dayName,
         );
         _processClassesForDate(response, dayName);
       } else {
-        final response = await APIRepository.getClassScheduleByPagination(page, limit);
-        _processClassesForDate(response, dayName);
+        // When no location ID is provided, fetch all classes for the day
+        await _fetchAllClassesOfTheDay(date);
       }
     } catch (e) {
       print("Error fetching classes with pagination: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  //fetch all classes despite locaion
+  Future<void> _fetchAllClassesOfTheDay(DateTime date) async {
+    try {
+      setState(() => isLoading = true);
+      String dayName = DateFormat('EEEE').format(date);
+      final response = await APIRepository.getClassesByBusinessAndDay(
+        dayName
+      );
+      _processClassesForDate(response, dayName);
+    } catch (e) {
+      print("Error fetching all classes: $e");
     } finally {
       setState(() => isLoading = false);
     }
@@ -357,7 +373,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
   Widget _buildViewAllButton() {
   return GestureDetector(
     onTap: () {
-      context.push("/all_classes");
+      context.push("/all_classes_screen");
     },
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center, // Vertically center

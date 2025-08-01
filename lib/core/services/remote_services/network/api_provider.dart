@@ -368,11 +368,6 @@ static Future<Map<String, dynamic>> getAllClassesDetails() async {
     final url = getAllClassesFromBusinessEndpoint(businessId);
     final response = await _dio.get(url);
 
-    // Pretty print JSON
-    // final encoder = const JsonEncoder.withIndent('  ');
-    // final prettyJson = encoder.convert(response.data);
-    // debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
-
     return response.data;
   } catch (e, stacktrace) {
     debugPrint("Error in getAllClassesDetails: $e");
@@ -414,6 +409,20 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch class schedules: ${e.toString()}");
+    }
+  }
+
+  static Future<Map<String, dynamic>> getClassesByBusinessAndDay(
+    String day,
+  ) async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getClassesByBusinessAndDayEndpoint(businessId, day);
+      final response = await _dio.get(url);
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to fetch classes by business and location: ${e.toString()}");
     }
   }
 

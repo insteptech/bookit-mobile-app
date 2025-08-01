@@ -28,7 +28,11 @@ class CategorySelectorState extends State<CategorySelector> {
     try {
       final Response response = await APIRepository.getUserDataForStaffRegistration();
       final data = response.data;
+      print(".  ");
+      print("/ ");
       print("categroies: $data");
+      print("/");
+      print("/");
 
       if (data['status'] == 200 && data['success'] == true) {
         final List<dynamic> categoryData = data['data']['categories'];
@@ -41,6 +45,17 @@ class CategorySelectorState extends State<CategorySelector> {
                     'isClass': cat['is_class'] ?? false,
                   })
               .toList();
+          print("/");
+          print("/");
+          print("/");
+          print("/");
+          print("/");
+print(categories);
+     print("/");
+          print("/");
+          print("/");
+          print("/");
+          print("/");
         });
       } else {
         print('Failed to load categories');
@@ -66,7 +81,8 @@ class CategorySelectorState extends State<CategorySelector> {
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: Row(
                 children: [
-                  // if(category['isClass'] == widget.isClass)
+                  Text("${widget.isClass?"class":"no class"}"),
+                  if(category['isClass'] == widget.isClass)
                   Checkbox(
                     value: selectedCategoryIds.contains(category['id']),
                     shape: RoundedRectangleBorder(
