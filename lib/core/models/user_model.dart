@@ -7,6 +7,8 @@ class UserModel {
   final bool isVerified;
   final bool isActive;
   final List<String> businessIds;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   UserModel({
     required this.id,
@@ -17,6 +19,8 @@ class UserModel {
     required this.isVerified,
     required this.isActive,
     required this.businessIds,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +33,8 @@ class UserModel {
       isVerified: json['is_verified'],
       isActive: json['is_active'],
       businessIds: List<String>.from(json['business_ids']),
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
     );
   }
 
@@ -42,6 +48,8 @@ class UserModel {
       'is_verified': isVerified,
       'is_active': isActive,
       'business_ids': businessIds,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 }

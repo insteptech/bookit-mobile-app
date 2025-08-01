@@ -32,6 +32,7 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
   
   Map<String, dynamic>? existingScheduleData;
   String? existingLocationScheduleId;
+  int? classDurationMinutes;
   
   final GlobalKey<ClassScheduleSelectorState> _scheduleSelectorKey = GlobalKey<ClassScheduleSelectorState>();
 
@@ -75,8 +76,17 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
     }
     
     if (classIdToSelect != null && mounted) {
+      // Find the selected class to get its duration
+      final selectedClass = classes.firstWhere(
+        (cls) => cls['id'] == classIdToSelect,
+        orElse: () => {},
+      );
+      
       setState(() {
         selectedClassId = classIdToSelect;
+        if (selectedClass.isNotEmpty) {
+          classDurationMinutes = selectedClass['duration'];
+        }
       });
       await fetchClassData(classIdToSelect);
     }
@@ -106,10 +116,22 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
       if (response['data'] != null) {
         final data = response['data']['data'];
         
+        // Extract class duration from service_details
+        int? duration;
+        if (data['service_details'] != null && data['service_details'].isNotEmpty) {
+          final serviceDetails = data['service_details'][0];
+          if (serviceDetails['durations'] != null && serviceDetails['durations'].isNotEmpty) {
+            duration = serviceDetails['durations'][0]['duration_minutes'];
+          }
+        }
+        
         setState(() {
           existingScheduleData = data;
+          classDurationMinutes = duration;
           isLoading = false;
         });
+        
+        debugPrint('Fetched class data - Duration: $duration minutes');
         
         _prefillFormFromExistingData(data);
       } else {
@@ -304,6 +326,16 @@ void _updateFormForLocation(String locationId) {
         if (mounted) {
           setState(() {
             // Classes have been loaded
+            // If we already have a selected class, update its duration
+            if (selectedClassId != null) {
+              final selectedClass = classes.firstWhere(
+                (cls) => cls['id'] == selectedClassId,
+                orElse: () => {},
+              );
+              if (selectedClass.isNotEmpty) {
+                classDurationMinutes = selectedClass['duration'];
+              }
+            }
           });
         }
       }
@@ -591,6 +623,8 @@ void _updateFormForLocation(String locationId) {
                                     priceController.clear();
                                     packageAmountController.clear();
                                     packagePersonController.clear();
+                                    // Update duration for the selected class
+                                    classDurationMinutes = classItem['duration'];
                                   });
                                   
                                   if (_scheduleSelectorKey.currentState != null) {
@@ -802,7 +836,9 @@ void _updateFormForLocation(String locationId) {
                           ClassScheduleSelector(
                             key: _scheduleSelectorKey,
                             staffMembers: filteredStaffMembers,
+                            classDurationMinutes: classDurationMinutes,
                             onScheduleUpdate: (schedules) {
+                              debugPrint('Schedule updated with duration: ${classDurationMinutes} minutes');
                               // Handle schedule updates if needed
                             },
                           ),

@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/utils/time_utils.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widget/no_classes_box.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -146,8 +147,20 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
   String _formatTime(String timeString) {
     try {
-      final time = DateFormat('HH:mm:ss').parse(timeString);
-      return DateFormat('h:mma').format(time).toLowerCase();
+      // Convert UTC time to local time first
+      final localTime = parseUtcTimeFormatToLocal(timeString);
+      
+      // Create a DateTime object for formatting
+      final now = DateTime.now();
+      final dateTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        localTime.hour,
+        localTime.minute,
+      );
+      
+      return DateFormat('h:mma').format(dateTime).toLowerCase();
     } catch (e) {
       return timeString;
     }
@@ -155,8 +168,27 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
   int _calculateDuration(String startTime, String endTime) {
     try {
-      final start = DateFormat('HH:mm:ss').parse(startTime);
-      final end = DateFormat('HH:mm:ss').parse(endTime);
+      // Convert UTC times to local times first
+      final localStartTime = parseUtcTimeFormatToLocal(startTime);
+      final localEndTime = parseUtcTimeFormatToLocal(endTime);
+      
+      // Create DateTime objects for calculation
+      final now = DateTime.now();
+      final start = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        localStartTime.hour,
+        localStartTime.minute,
+      );
+      final end = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        localEndTime.hour,
+        localEndTime.minute,
+      );
+      
       return end.difference(start).inMinutes;
     } catch (e) {
       return 60; // Default duration

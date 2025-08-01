@@ -21,6 +21,7 @@ import 'package:bookit_mobile_app/features/main/menu/presentation/businessInform
 import 'package:bookit_mobile_app/features/main/menu/presentation/businessInformation/name_email_phone_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/business_information_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/client_web_app_screen.dart';
+import 'package:bookit_mobile_app/features/main/menu/presentation/membership_status_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/staff_members_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/terms_and_conditions_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_details.dart';
@@ -245,6 +246,9 @@ GoRoute(
 //..................Terms and Conditions screen..............
     GoRoute(path: "/terms_conditions", builder: (context, state) => const TermsAndConditionsScreen()),
 
+//..................Membership status screen..............
+    GoRoute(path: "/membership_status", builder: (context, state) => const MembershipStatusScreen()),
+    
 //.....................all classees screen.................
   GoRoute(path: "/all_classes_screen", builder: (context, state) => const ViewAllScheduleScreen(),)
   ],

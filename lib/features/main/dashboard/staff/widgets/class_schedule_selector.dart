@@ -183,6 +183,7 @@ class ClassScheduleSelector extends StatefulWidget {
   final Function(List<Map<String, dynamic>>) onScheduleUpdate; // Keep legacy callback for now
   final List<Map<String, String>>? initialSchedules;
   final bool enableMultipleStaff; // Feature flag for multiple staff support
+  final int? classDurationMinutes; // Duration of the class in minutes
 
   const ClassScheduleSelector({
     Key? key,
@@ -190,6 +191,7 @@ class ClassScheduleSelector extends StatefulWidget {
     required this.onScheduleUpdate,
     this.initialSchedules,
     this.enableMultipleStaff = false, // Default to single staff for now
+    this.classDurationMinutes,
   }) : super(key: key);
 
   @override
@@ -389,6 +391,45 @@ void clearAll() {
     }
   }
 
+  /// Calculates end time by adding class duration to start time
+  TimeOfDay? _calculateEndTime(TimeOfDay startTime) {
+    if (widget.classDurationMinutes == null) return null;
+    
+    final totalMinutes = startTime.hour * 60 + startTime.minute + widget.classDurationMinutes!;
+    final endHour = (totalMinutes ~/ 60) % 24; // Handle overflow past midnight
+    final endMinute = totalMinutes % 60;
+    
+    debugPrint('Duration calculation: Start ${startTime.format(context)}, Duration ${widget.classDurationMinutes} mins, End ${TimeOfDay(hour: endHour, minute: endMinute).format(context)}');
+    
+    return TimeOfDay(hour: endHour, minute: endMinute);
+  }
+
+  /// Calculates start time by subtracting class duration from end time
+  TimeOfDay? _calculateStartTime(TimeOfDay endTime) {
+    if (widget.classDurationMinutes == null) return null;
+    
+    final totalMinutes = endTime.hour * 60 + endTime.minute - widget.classDurationMinutes!;
+    
+    // Handle negative time (previous day)
+    if (totalMinutes < 0) {
+      final adjustedMinutes = totalMinutes + (24 * 60); // Add 24 hours
+      final startHour = (adjustedMinutes ~/ 60) % 24;
+      final startMinute = adjustedMinutes % 60;
+      final calculatedStartTime = TimeOfDay(hour: startHour, minute: startMinute);
+      
+      debugPrint('Duration calculation (previous day): End ${endTime.format(context)}, Duration ${widget.classDurationMinutes} mins, Start ${calculatedStartTime.format(context)}');
+      return calculatedStartTime;
+    }
+    
+    final startHour = totalMinutes ~/ 60;
+    final startMinute = totalMinutes % 60;
+    final calculatedStartTime = TimeOfDay(hour: startHour, minute: startMinute);
+    
+    debugPrint('Duration calculation: End ${endTime.format(context)}, Duration ${widget.classDurationMinutes} mins, Start ${calculatedStartTime.format(context)}');
+    
+    return calculatedStartTime;
+  }
+
   void _updateSchedule() {
     // Update the internal controller with current UI state
     final List<Map<String, String>> daySchedules = [];
@@ -530,11 +571,26 @@ void clearAll() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12.0),
-          child: Text(
-            'Schedule',
-            style: AppTypography.headingSm,
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Schedule',
+                style: AppTypography.headingSm,
+              ),
+              if (widget.classDurationMinutes != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    'Class duration: ${widget.classDurationMinutes} minutes',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         // Day selector
@@ -609,19 +665,26 @@ void clearAll() {
                         onSelected: (val) {
                           final parsed = parseTime(val);
                           setState(() {
-                            final currentEnd = timeRanges[index]?.end;
-                            if (currentEnd != null &&
-                                !isValidRange(parsed, currentEnd)) {
-                              timeRanges[index] = TimeRange(
-                                start: parsed,
-                                end: parsed,
-                              );
+                            TimeOfDay endTime;
+                            
+                            // If we have class duration, calculate end time automatically
+                            final calculatedEndTime = _calculateEndTime(parsed);
+                            if (calculatedEndTime != null) {
+                              endTime = calculatedEndTime;
                             } else {
-                              timeRanges[index] =
-                                  timeRanges[index] == null
-                                      ? TimeRange(start: parsed, end: parsed)
-                                      : timeRanges[index]!.copyWith(start: parsed);
+                              // Fallback to existing logic if no duration
+                              final currentEnd = timeRanges[index]?.end;
+                              if (currentEnd != null && isValidRange(parsed, currentEnd)) {
+                                endTime = currentEnd;
+                              } else {
+                                endTime = parsed;
+                              }
                             }
+                            
+                            timeRanges[index] = TimeRange(
+                              start: parsed,
+                              end: endTime,
+                            );
                             _updateSchedule();
                           });
                         },
@@ -640,10 +703,21 @@ void clearAll() {
                         onSelected: (val) {
                           final parsed = parseTime(val);
                           setState(() {
-                            timeRanges[index] =
-                                timeRanges[index] == null
-                                    ? TimeRange(start: parsed, end: parsed)
-                                    : timeRanges[index]!.copyWith(end: parsed);
+                            TimeOfDay startTime;
+                            
+                            // If we have class duration, calculate start time automatically
+                            final calculatedStartTime = _calculateStartTime(parsed);
+                            if (calculatedStartTime != null) {
+                              startTime = calculatedStartTime;
+                            } else {
+                              // Fallback to existing logic if no duration
+                              startTime = timeRanges[index]?.start ?? parsed;
+                            }
+                            
+                            timeRanges[index] = TimeRange(
+                              start: startTime,
+                              end: parsed,
+                            );
                             _updateSchedule();
                           });
                         },

@@ -32,7 +32,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   final prefs = ref.read(sharedPreferencesProvider);
 
   await Future.delayed(const Duration(seconds: 2));
-
+ 
   if (!mounted) return; 
 
   final token = prefs.getString('auth_token');

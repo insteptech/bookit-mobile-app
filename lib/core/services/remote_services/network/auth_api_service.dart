@@ -207,6 +207,4 @@ Future<UserModel> fetchUserDetails() async {
       );
     }
   }
-
-
 }

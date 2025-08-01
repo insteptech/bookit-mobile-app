@@ -72,8 +72,7 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to membership status
   void navigateToMembershipStatus() {
-    // TODO: Implement membership status screen and add route
-    debugPrint('Navigate to Membership Status - Screen not implemented yet');
+    NavigationService.push('/membership_status');
   }
 
   /// Navigate to notifications
