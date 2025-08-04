@@ -18,7 +18,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     fontFamily: 'Campton'
   );
-
+ 
   static const headingSm = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w500,
