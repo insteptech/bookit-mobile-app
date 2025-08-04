@@ -26,8 +26,12 @@ String getStaffListByBusinessIdEndpoint(String businessId) =>
 //Get and post staff user details
 final staffScheduleEndpoint = "$baseUrl/profile/staff"; //'staffUserId'/schedule' 
 
+//........................get business level 0 categories...............................
+String getBusinessLevel0CategoriesEndpoint(String businessId) =>
+    "$baseUrl/business/$businessId/level0-categories";
 
-//.................................Appointments.......................................]
+
+//.................................Appointments.......................................
 String getBusinessLocationsEndpoint(String businessId) =>
     "$baseUrl/business/businesses/$businessId/locations";
 
@@ -75,8 +79,12 @@ String getBusinessCategoriesEndpoint(String businessId) =>
     "$baseUrl/business/businesses/$businessId/categories";
 
 //..........................Get business services...................................
-String getBusinessOfferingsEndpoint(String businessId) =>
+String getBusinessServicesEndpoint(String businessId) =>
     "$baseUrl/business/$businessId/services/details";
+
+//..........................Get business offerings...................................
+String getBusinessOfferingsEndpoint(String businessId) =>
+    "$baseUrl/business/$businessId/offerings";
 
 //.........................Post offerings........................................
 String postBusinessOfferingsEndpoint = "$baseUrl/business/offering";

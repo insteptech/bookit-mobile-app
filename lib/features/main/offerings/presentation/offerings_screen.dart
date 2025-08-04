@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/features/main/offerings/controllers/offerings_controller.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/category_selection_screen.dart';
@@ -15,10 +16,12 @@ class OfferingsScreen extends StatefulWidget {
 
 class _OfferingsScreenState extends State<OfferingsScreen> {
   late OfferingsController _controller;
+  late Map<String,dynamic> offerings = {};
 
   @override
   void initState() {
     super.initState();
+    _fetchOfferings();
     _controller = OfferingsController();
   }
 
@@ -26,6 +29,15 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchOfferings() async {
+    try {
+      final data = await APIRepository.getBusinessOfferings();
+      offerings = data;
+    } catch (e) {
+      print("Error fetching offerings: $e");
+    }
   }
 
   Future<void> _handleAddService() async {
@@ -80,6 +92,9 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
                         Text("Offerings", style: AppTypography.headingLg),
                       ],
                     ),
+                    const SizedBox(height: 24),
+                    // Display the fetched offerings
+                   
                   ],
                 ),
               ),

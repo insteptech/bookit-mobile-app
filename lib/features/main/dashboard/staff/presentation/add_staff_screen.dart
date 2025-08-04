@@ -130,7 +130,9 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 style: AppTypography.headingLg
               ),
               const SizedBox(height: 48),
-
+               Text("${widget.isClass == true ? "class true" : "class false"} Categories", 
+                style: AppTypography.headingSm
+              ),
               // Render all member forms
               ...memberForms.map(
                 (id) => Padding(
@@ -147,7 +149,6 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   ),
                 ),
               ),
-              
               TextButton.icon(
                 onPressed: addMemberForm,
                 icon: const Icon(Icons.add_circle_outline, size: 22),

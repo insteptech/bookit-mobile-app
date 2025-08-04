@@ -273,7 +273,7 @@ class OfferingsController extends ChangeNotifier {
     _offeringsError = null;
 
     try {
-      final response = await APIRepository.getBusinessOfferings();
+      final response = await APIRepository.getBusinessServiceCategories();
       _businessOfferings = BusinessOfferingsResponse.fromJson(response);
       
       // Initialize category keys for scrolling

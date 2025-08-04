@@ -82,11 +82,17 @@ class APIRepository {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = userDetails.id;
+            String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
 
-      final String fetchUrl =
-          "$getUserRegisteredCategoriesEndpoint/$userId/summary";
+      // final String fetchUrl =
+      //     "$getUserRegisteredCategoriesEndpoint/$userId/summary";
+       final String fetchUrl =
+          getBusinessLevel0CategoriesEndpoint(businessId);
       final response = await _dio.get(fetchUrl); 
-      print(response.data);
+                final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from get staff list:\n$prettyJson");
       return response;
     } catch (e) {
       throw Exception("Failed to fetch staff list: ${e.toString()}");
@@ -149,9 +155,9 @@ class APIRepository {
 
       final response = await _dio.get(url);
           //        // Pretty print JSON
-    // final encoder = const JsonEncoder.withIndent('  ');
-    // final prettyJson = encoder.convert(response.data);
-    // debugPrint("Full response from getBusinessLocations:\n$prettyJson");
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from getBusinessLocations:\n$prettyJson");
       return response.data['data'];
     } catch (e) {
       throw Exception("failed to fetch locations ${e.toString()}");
@@ -268,17 +274,35 @@ class APIRepository {
   }
 
 
-  //............................Get business offerings..................................
+  //............................Get business services..................................
+  static Future<Map<String, dynamic>> getBusinessServiceCategories() async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getBusinessServicesEndpoint(businessId);
+      final response = await _dio.get(url);
+          //        // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to fetch business offerings: ${e.toString()}");
+    }
+  }
+
+  //............................Get business offerings (offering screen)..................................
   static Future<Map<String, dynamic>> getBusinessOfferings() async {
+    print("Fetching business offerings...");
     try {
       String businessId =
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
           //        // Pretty print JSON
-    // final encoder = const JsonEncoder.withIndent('  ');
-    // final prettyJson = encoder.convert(response.data);
-    // debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business offerings: ${e.toString()}");

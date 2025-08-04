@@ -3,12 +3,11 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:dio/dio.dart';
 
-// 4. Modified CategorySelector to expose selected data
 class CategorySelector extends StatefulWidget {
   final VoidCallback? onSelectionChanged;
-  final bool? isClass; // Made optional
+  final bool? isClass; 
   
-  const CategorySelector({super.key, this.onSelectionChanged, this.isClass}); // isClass is now optional
+  const CategorySelector({super.key, this.onSelectionChanged, this.isClass}); 
 
   @override
   State<CategorySelector> createState() => CategorySelectorState();
@@ -28,8 +27,10 @@ class CategorySelectorState extends State<CategorySelector> {
     try {
       final Response response = await APIRepository.getUserDataForStaffRegistration();
       final data = response.data;
-      if (data['status'] == 200 && data['success'] == true) {
-        final List<dynamic> categoryData = data['data']['categories'];
+      if (data['success'] == true) {
+        final List<dynamic> categoryData = data['data']['level0_categories'];
+        print("");
+        print("");
         print("categoryData: $categoryData");
         setState(() {
           categories = categoryData

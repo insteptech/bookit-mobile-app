@@ -47,7 +47,7 @@ class BusinessController extends StateNotifier<BusinessState> {
     
     try {
       // Add timeout to prevent indefinite loading
-      final data = await APIRepository.getBusinessOfferings()
+      final data = await APIRepository.getBusinessServiceCategories()
           .timeout(const Duration(seconds: 10));
       
       // Extract business_services from the nested structure

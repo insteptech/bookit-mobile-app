@@ -24,11 +24,10 @@ class LocationSelectorState extends State<LocationSelector> {
 
   Future<void> fetchLocations() async {
     try {
-      final Response response = await APIRepository.getUserDataForStaffRegistration();
-      final data = response.data;
-
-      if (data['status'] == 200 && data['success'] == true) {
-        final List<dynamic> locationData = data['data']['locations'];
+      // final Response response = await APIRepository.getUserDataForStaffRegistration();
+      final response = await APIRepository.getBusinessLocations();
+      final data = response;
+        final List<dynamic> locationData = data['rows'];
         setState(() {
           locations = locationData
               .map((loc) => {
@@ -37,9 +36,6 @@ class LocationSelectorState extends State<LocationSelector> {
                   })
               .toList();
         });
-      } else {
-        print('Failed to load locations');
-      }
     } catch (e) {
       print('Error fetching locations: $e');
     }
