@@ -40,28 +40,30 @@ class BusinessController extends StateNotifier<BusinessState> {
   BusinessController() : super(const BusinessState());
 
   Future<void> fetchBusinessCategories() async {
-    if (state.isLoaded) return; // Don't fetch if already loaded
+    //Todo: refine this logic, its not making the fresh calls
+    // if (state.isLoaded) return; // Don't fetch if already loaded
 
     state = state.copyWith(isLoading: true, error: null);
     
     try {
       // Add timeout to prevent indefinite loading
-      final data = await APIRepository.getBusinessCategories()
+      final data = await APIRepository.getBusinessOfferings()
           .timeout(const Duration(seconds: 10));
       
-      final categories = data['data'] ?? [];
-      final businessType = _determineBusinessType(categories);
+      // Extract business_services from the nested structure
+      final businessServices = data['data']?['data']?['business_services'] ?? [];
+      final businessType = _determineBusinessType(businessServices);
       
       state = state.copyWith(
-        businessCategories: categories,
+        businessCategories: businessServices,
         businessType: businessType,
         isLoading: false,
         isLoaded: true,
       );
       
-      print("Business categories fetched: ${categories.length} categories");
-      for (var category in categories) {
-        print("Category: ${category['category']['name']}, is_class: ${category['category']['is_class']}");
+      print("Business categories fetched: ${businessServices.length} categories");
+      for (var service in businessServices) {
+        print("Category: ${service['category']['name']}, is_class: ${service['is_class']}");
       }
     } catch (e) {
       state = state.copyWith(
@@ -73,18 +75,20 @@ class BusinessController extends StateNotifier<BusinessState> {
     }
   }
 
-  BusinessType _determineBusinessType(List<dynamic> categories) {
-    if (categories.isEmpty) {
+  BusinessType _determineBusinessType(List<dynamic> businessServices) {
+    if (businessServices.isEmpty) {
       return BusinessType.both; // Default fallback
     }
 
     bool hasClassCategory = false;
     bool hasNonClassCategory = false;
 
-    for (final categoryData in categories) {
-      final category = categoryData['category'];
+    for (final serviceData in businessServices) {
+      final category = serviceData['category'];
+      final isClass = serviceData['is_class'];
+      
       if (category != null) {
-        if (category['is_class'] == true) {
+        if (isClass == true) {
           hasClassCategory = true;
           print("Found class category: ${category['name']}");
         } else {

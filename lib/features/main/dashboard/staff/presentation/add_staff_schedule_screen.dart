@@ -29,6 +29,7 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
 
   Future<void> getDetails() async {
     final data = await APIRepository.getStaffUserDetails(widget.staffId);
+    
     final List<dynamic> categoriesJson =
         data.data['data']['schedule']['data']['category'];
     final List<dynamic> locationJson =

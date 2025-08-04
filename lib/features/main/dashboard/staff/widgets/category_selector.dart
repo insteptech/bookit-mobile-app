@@ -30,6 +30,7 @@ class CategorySelectorState extends State<CategorySelector> {
       final data = response.data;
       if (data['status'] == 200 && data['success'] == true) {
         final List<dynamic> categoryData = data['data']['categories'];
+        print("categoryData: $categoryData");
         setState(() {
           categories = categoryData
               .map((cat) => {

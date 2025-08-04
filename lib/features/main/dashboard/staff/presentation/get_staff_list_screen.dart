@@ -20,16 +20,16 @@ class _GetStaffListScreen extends State<GetStaffListScreen> {
   @override
   void initState() {
     super.initState();
-    fetchStaffMembers();
+    _fetchStaffMembers();
   }
 
-  Future<void> fetchStaffMembers() async {
+  Future<void> _fetchStaffMembers() async {
     setState(() {
       isLoading = true;
     });
-
     try {
       final response = await APIRepository.getStaffList();
+      
       final profiles = response.data['data']['profiles'] as List<dynamic>;
 
       if (mounted) {

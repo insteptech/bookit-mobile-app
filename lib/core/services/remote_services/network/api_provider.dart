@@ -101,6 +101,7 @@ class APIRepository {
 
       final String fetchUrl = "$getStaffListByUserIdEndpoint/$userId";
       final response = await _dio.get(fetchUrl);
+
       return response;
     } catch (e) {
       throw Exception("Failed to fetch staff list: ${e.toString()}");
@@ -248,6 +249,7 @@ class APIRepository {
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getBusinessCategoriesEndpoint(businessId);
       final response = await _dio.get(url);
+
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business categories: ${e.toString()}");
@@ -262,6 +264,10 @@ class APIRepository {
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
+          //        // Pretty print JSON
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business offerings: ${e.toString()}");

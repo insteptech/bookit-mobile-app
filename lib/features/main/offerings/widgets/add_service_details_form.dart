@@ -45,7 +45,7 @@ class EnhancedServiceFormData {
     return locationPriceControllers[key]!;
   }
 
-  Map<String, dynamic>? toJson(String businessId) {
+  Map<String, dynamic>? toJson(String businessId, Map<String, dynamic> serviceData) {
     final durationList = durationAndCosts
         .where((item) {
           return item['duration'].toString().isNotEmpty &&
@@ -90,7 +90,9 @@ class EnhancedServiceFormData {
 
     return {
       'business_id': businessId,
-      'service_id': serviceId,
+      'category_level_0_id': serviceData['category_level_0_id'] ?? '',
+      'category_level_1_id': serviceData['category_level_1_id'] ?? '',
+      'category_level_2_id': serviceData['category_level_2_id'], // Can be null for level 1 services
       'name': titleController.text.trim(),
       'description': descriptionController.text.trim(),
       'is_class': isClass,
@@ -189,7 +191,7 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
   Map<String, dynamic>? getServiceDetails() {
     List<Map<String, dynamic>> allDetails = [];
     for (var form in forms) {
-      final details = form.toJson(widget.serviceData['business_id'] ?? '');
+      final details = form.toJson(widget.serviceData['business_id'] ?? '', widget.serviceData);
       if (details != null) {
         allDetails.add(details);
       }

@@ -209,39 +209,4 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
       formKeys.remove(serviceId);
     });
   }
-
-  void _addNewService(Map<String, dynamic> templateService) {
-    setState(() {
-      final newService = Map<String, dynamic>.from(templateService);
-      // Generate a unique ID for the new service
-      newService['category_id'] = '${templateService['category_id']}_${DateTime.now().millisecondsSinceEpoch}';
-      newService['title'] = ''; // Clear title for new service
-      services.add(newService);
-    });
-  }
-
-  Widget _buildAddNewServiceButton(Map<String, dynamic> serviceData) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: () => _addNewService(serviceData),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.add_circle_outline,
-            color: theme.colorScheme.primary,
-            size: 20,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            "Add new ${serviceData['title'] ?? 'service'}",
-            style: AppTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w500,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

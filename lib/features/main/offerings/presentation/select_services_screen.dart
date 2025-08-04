@@ -86,7 +86,10 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
               "parent_id": e.parentId,
               "is_active": true,
               "category_level": e.level,
-              "is_class": e.isClass
+              "is_class": e.isClass,
+              "category_level_0_id": widget.categoryId, // Level 0 category
+              "category_level_1_id": e.level == 1 ? e.id : (e.parentId ?? ''), // Level 1 category
+              "category_level_2_id": e.level == 2 ? e.id : null, // Level 2 category (optional)
             },
           )
           .toList();

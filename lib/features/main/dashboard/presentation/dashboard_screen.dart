@@ -34,6 +34,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     // Start fetching business categories immediately
     final businessController = ref.read(businessControllerProvider.notifier);
     final categoriesFuture = businessController.fetchBusinessCategories();
+
+    print("Locations: $locations");
+    print("categoriesFuture: $categoriesFuture");
     
     if (locations.isNotEmpty) {
       final activeLocation = ref.read(activeLocationProvider);
