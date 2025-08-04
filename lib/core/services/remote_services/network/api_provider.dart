@@ -101,6 +101,9 @@ class APIRepository {
 
       final String fetchUrl = "$getStaffListByUserIdEndpoint/$userId";
       final response = await _dio.get(fetchUrl);
+    //       final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from get staff list:\n$prettyJson");
 
       return response;
     } catch (e) {
@@ -145,7 +148,10 @@ class APIRepository {
       String url = getBusinessLocationsEndpoint(businessId);
 
       final response = await _dio.get(url);
-
+          //        // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getBusinessLocations:\n$prettyJson");
       return response.data['data'];
     } catch (e) {
       throw Exception("failed to fetch locations ${e.toString()}");
@@ -188,6 +194,11 @@ class APIRepository {
       final url = getServiceListListFromBusiness(businessId);
 
       final response = await _dio.get(url);
+
+      //        // Pretty print JSON
+      final encoder = const JsonEncoder.withIndent('  ');
+      final prettyJson = encoder.convert(response.data);
+      debugPrint("Full response from getServiceList:\n$prettyJson");
 
       return response.data;
     } catch (e) {
@@ -265,9 +276,9 @@ class APIRepository {
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
           //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business offerings: ${e.toString()}");
@@ -278,7 +289,32 @@ class APIRepository {
   static Future<Response> getAllStaffList() async {
     try {
       final response = await _dio.get(getStaffListEndpoint);
+
+                 // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getAllStaffList:\n$prettyJson");
         return response;
+
+    }
+    catch (e) {
+      throw Exception("Failed to fetch staff list: ${e.toString()}");
+    }
+  }
+
+    //............................Get staff list........................................
+  static Future<Response> getStaffListByBusinessId() async {
+    try {
+       String businessId =
+        await ActiveBusinessService().getActiveBusiness() as String;
+      final response = await _dio.get(getStaffListByBusinessIdEndpoint(businessId));
+
+                 // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getStaffListByBusinessId:\n$prettyJson");
+        return response;
+
     }
     catch (e) {
       throw Exception("Failed to fetch staff list: ${e.toString()}");
@@ -311,7 +347,7 @@ static Future<Map<String, dynamic>> getAllClasses() async {
     //        // Pretty print JSON
     // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
-    // debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
+    // debugPrint("Full response from getAllClasses:\n$prettyJson");
     return response.data;
   } catch (e) {
     throw Exception("Failed to fetch classes: ${e.toString()}");
@@ -365,7 +401,10 @@ static Future<Map<String, dynamic>> getAllClassesDetails() async {
 
     final url = getAllClassesFromBusinessEndpoint(businessId);
     final response = await _dio.get(url);
-
+              //        // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
     return response.data;
   } catch (e, stacktrace) {
     debugPrint("Error in getAllClassesDetails: $e");

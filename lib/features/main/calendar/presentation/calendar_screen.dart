@@ -24,7 +24,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    // Delay the initialization to avoid modifying providers during build
+    Future(() => _initializeData());
   }
 
   Future<void> _initializeData() async {

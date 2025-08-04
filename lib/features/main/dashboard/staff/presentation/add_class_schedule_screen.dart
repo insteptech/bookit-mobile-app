@@ -148,6 +148,8 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
 
 void _prefillFormFromExistingData(Map<String, dynamic> responseData) {
   final data = responseData;
+
+  print("Prefilling form with existing data: $data");
   
   final classId = data['class_id'] ?? data['id'];
   final businessIdFromData = data['business_id'];
@@ -350,8 +352,10 @@ void _updateFormForLocation(String locationId) {
     });
 
     try {
-      final response = await APIRepository.getAllStaffList();
-      final rows = response.data['data']['rows'] as List<dynamic>;
+      final response = await APIRepository.getStaffListByBusinessId();
+      // final rows = response.data['data']['rows'] as List<dynamic>;
+      final rows = response.data['data']['profiles'] as List<dynamic>;
+
 
       if (mounted) {
         setState(() {
@@ -405,6 +409,16 @@ void _updateFormForLocation(String locationId) {
       filteredStaffMembers = [];
       return;
     }
+    print("");
+    print("");
+    print("");
+    print("");
+
+    print("all staff members $allStaffMembers");
+    print("");
+    print("");
+    print("");
+    print("");
 
     filteredStaffMembers = allStaffMembers.where((staff) {
       final locationIds = staff['location_id'];

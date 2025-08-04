@@ -35,9 +35,12 @@ class AppointmentsState {
 class AppointmentsController extends StateNotifier<AppointmentsState> {
   AppointmentsController() : super(const AppointmentsState());
 
+
   Future<void> fetchAppointments(String locationId) async {
+    await APIRepository.getStaffList();
     state = state.copyWith(isLoading: true, error: null);
 
+    await APIRepository.getAllClassesDetails();
     try {
       final data = await APIRepository.getAppointments(locationId);
       final List<Map<String, dynamic>> appointmentsList =

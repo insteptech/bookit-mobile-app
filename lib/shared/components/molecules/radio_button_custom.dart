@@ -23,7 +23,38 @@ class _RadioButtonCustomState extends State<RadioButtonCustom> {
   @override
   void initState() {
     super.initState();
-    selected = widget.initialValue ?? (widget.options.isNotEmpty ? widget.options[0] : null);
+    selected = widget.initialValue;
+  }
+
+  // Helper function to compare list contents
+  bool _listsEqual(List<String> list1, List<String> list2) {
+    if (list1.length != list2.length) return false;
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i] != list2[i]) return false;
+    }
+    return true;
+  }
+
+  @override
+  void didUpdateWidget(RadioButtonCustom oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    bool optionsChanged = !_listsEqual(widget.options, oldWidget.options);
+    
+    // Always update selected value when initialValue prop changes
+    if (widget.initialValue != oldWidget.initialValue) {
+      selected = widget.initialValue;
+    }
+    
+    // Reset selection if options change completely (different service selected)
+    if (optionsChanged) {
+      // If we have an initialValue, use it; otherwise clear selection
+      if (widget.initialValue != null && widget.initialValue!.isNotEmpty && widget.options.contains(widget.initialValue)) {
+        selected = widget.initialValue;
+      } else {
+        selected = null; // Clear selection when options change
+      }
+    }
   }
 
   @override

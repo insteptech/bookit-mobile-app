@@ -20,6 +20,8 @@ final addStaffEndpoint = "$baseUrl/profile/staff/add";
 final getUserRegisteredCategoriesEndpoint = "$baseUrl/auth"; //'id'/summary
 final getStaffListByUserIdEndpoint = "$baseUrl/profile/staff/user";
 final getStaffListEndpoint = "$baseUrl/profile/staff/list";
+String getStaffListByBusinessIdEndpoint(String businessId) =>
+    "$baseUrl/profile/staff/$businessId";
 
 //Get and post staff user details
 final staffScheduleEndpoint = "$baseUrl/profile/staff"; //'staffUserId'/schedule' 

@@ -44,11 +44,15 @@ class _BookNewAppointmentScreenState
     final data = await APIRepository.getServiceList();
     final List<dynamic> rawList = data['business_services_details'];
     final List<Map<String, dynamic>> extractedList =
-        rawList.map<Map<String, dynamic>>((item) {
+        rawList.asMap().entries.map<Map<String, dynamic>>((entry) {
+          final index = entry.key;
+          final item = entry.value;
           return {
             "name": item['name'],
             "description": item['description'],
-            "id": item['business_service']['id'],
+            "id": "${item['business_service']['id']}_$index", // Create unique ID using business service ID + index
+            "business_service_id": item['business_service']['id'], // Keep original business service ID
+            "is_class": item['business_service']['is_class'],
             "durations":
                 (item['durations'] as List)
                     .map(
@@ -62,7 +66,12 @@ class _BookNewAppointmentScreenState
           };
         }).toList();
     setState(() {
-      serviceList = extractedList;
+      //filter only services that are not classes
+      serviceList = extractedList.where((service) => service['is_class'] == false).toList();
+      print('Extracted services:');
+      for (final service in serviceList) {
+        print('  - ${service['name']}: ID=${service['id']}, Duration=${service['durations'][0]['duration_minutes']}');
+      }
     });
   }
 
@@ -253,7 +262,7 @@ class _BookNewAppointmentScreenState
           "practitioner_id" : practitioner['id'],
           'practitioner_name': practitioner['name'],
           'service_name': selectedServiceData['name'],
-          'business_service_id': selectedService,
+          'business_service_id': selectedServiceData['business_service_id'], // Use original business service ID
           'slots': allSlots,
         });
       }
@@ -389,6 +398,9 @@ class _BookNewAppointmentScreenState
                             onTap: () async {
                               ref.read(activeLocationProvider.notifier).state =
                                   location['id'];
+                              setState(() {
+                                selectedPractitioner = ""; // Reset practitioner when location changes
+                              });
                               await fetchData(location['id']);
                             },
                             child: Container(
@@ -503,8 +515,9 @@ class _BookNewAppointmentScreenState
                     onChanged: (item) {
                       setState(() {
                         selectedService = item['id'];
-                        selectedDuration =
-                            ""; // Reset duration when service changes
+                        selectedDuration = ""; // Reset duration when service changes
+                        durationOptions = []; // Clear duration options first
+                        
                         if (selectedService.isNotEmpty) {
                           final selected = serviceList.firstWhere(
                             (item) => item['id'] == selectedService,
@@ -529,17 +542,12 @@ class _BookNewAppointmentScreenState
                     const SizedBox(height: 8),
                     if (durationOptions.isNotEmpty)
                       RadioButtonCustom(
-                        options:
-                            durationOptions
-                                .map((duration) => '$duration')
-                                .toList(),
-                        initialValue:
-                            selectedDuration.isNotEmpty
-                                ? '$selectedDuration min'
-                                : '',
+                        key: ValueKey('duration-$selectedService'), 
+                        options: durationOptions, 
+                        initialValue: selectedDuration.isNotEmpty ? selectedDuration : null,
                         onChanged: (value) {
                           setState(() {
-                            selectedDuration = value.replaceAll(' min', '');
+                            selectedDuration = value; 
                           });
                         },
                       ),
