@@ -14,11 +14,17 @@ class OfferingsScreen extends StatefulWidget {
   State<OfferingsScreen> createState() => _OfferingsScreenState();
 }
 
-class _OfferingsScreenState extends State<OfferingsScreen> {
+class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProviderStateMixin {
   late OfferingsController _controller;
   Map<String, dynamic>? _offeringsData;
   bool _isLoadingOfferings = false;
   final Set<String> _expandedCategories = {};
+  
+  // Tab and scroll controller for category navigation
+  TabController? _tabController;
+  final ScrollController _scrollController = ScrollController();
+  final Map<String, GlobalKey> _categoryKeys = {};
+  List<String> _rootCategoryNames = [];
 
   @override
   void initState() {
@@ -30,6 +36,8 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    _tabController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -124,20 +132,101 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
       groupedOfferings[rootKey]!.add(offering);
     }
 
+    // Update root category names and initialize tab controller
+    _rootCategoryNames = groupedOfferings.keys.map((key) => key.split('|')[1]).toList();
+    
+    // Initialize tab controller if not already done or if categories changed
+    if (_tabController == null || _tabController!.length != _rootCategoryNames.length) {
+      _tabController?.dispose();
+      _tabController = TabController(length: _rootCategoryNames.length, vsync: this);
+    }
+
+    // Create global keys for each category section
+    _categoryKeys.clear();
+    for (final key in groupedOfferings.keys) {
+      _categoryKeys[key] = GlobalKey();
+    }
+
     return Column(
-      children: groupedOfferings.entries.map<Widget>((entry) {
-        final rootKey = entry.key;
-        final rootParentName = rootKey.split('|')[1];
-        final rootParentId = rootKey.split('|')[0];
-        final offeringsInCategory = entry.value;
-        
-        return _buildRootCategorySection(
-          rootParentId: rootParentId,
-          rootParentName: rootParentName,
-          offerings: offeringsInCategory,
-        );
-      }).toList(),
+      children: [
+        // Tab bar for category navigation - only show when there are multiple root categories
+        if (_rootCategoryNames.length > 1) ...[
+  Container(
+    width: double.infinity,
+    decoration: const BoxDecoration(
+      border: Border(
+        bottom: BorderSide.none, // Remove any bottom border
+      ),
+    ),
+    child: TabBar(
+      controller: _tabController,
+      isScrollable: true,
+      tabAlignment: TabAlignment.start,
+      indicatorColor: Theme.of(context).primaryColor,
+      labelColor: Theme.of(context).primaryColor,
+      // unselectedLabelColor: Colors.grey[600],
+      indicatorWeight: 2,
+      indicatorSize: TabBarIndicatorSize.label,
+      labelPadding: const EdgeInsets.fromLTRB(0, 0, 32, 0),
+      dividerColor: Colors.transparent, 
+      overlayColor: WidgetStateProperty.all(Colors.transparent), 
+      splashFactory: NoSplash.splashFactory,
+      labelStyle: const TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 16,
+      ),
+      unselectedLabelStyle: const TextStyle(
+        fontWeight: FontWeight.w400,
+        fontSize: 16,
+      ),
+      onTap: (index) {
+        _scrollToCategoryAtIndex(index, groupedOfferings);
+      },
+      tabs: _rootCategoryNames.map((name) => Tab(text: name)).toList(),
+    ),
+  ),
+  const SizedBox(height: 24),
+],
+        // Category sections
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              children: groupedOfferings.entries.map<Widget>((entry) {
+                final rootKey = entry.key;
+                final rootParentName = rootKey.split('|')[1];
+                final rootParentId = rootKey.split('|')[0];
+                final offeringsInCategory = entry.value;
+                
+                return Container(
+                  key: _categoryKeys[rootKey],
+                  child: _buildRootCategorySection(
+                    rootParentId: rootParentId,
+                    rootParentName: rootParentName,
+                    offerings: offeringsInCategory,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  void _scrollToCategoryAtIndex(int index, Map<String, List<Map<String, dynamic>>> groupedOfferings) {
+    final keys = groupedOfferings.keys.toList();
+    if (index < keys.length) {
+      final targetKey = keys[index];
+      final targetContext = _categoryKeys[targetKey]?.currentContext;
+      if (targetContext != null) {
+        Scrollable.ensureVisible(
+          targetContext,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
   }
 
   Widget _buildRootCategorySection({
@@ -145,7 +234,11 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
     required String rootParentName,
     required List<Map<String, dynamic>> offerings,
   }) {
-    final isExpanded = _expandedCategories.contains(rootParentId);
+    // Check if any subcategories under this root category are expanded
+    final anySubcategoryExpanded = offerings.any((offering) {
+      final serviceDetails = offering['service_details'] as List<dynamic>? ?? [];
+      return serviceDetails.isNotEmpty && _expandedCategories.contains(offering['id'] ?? '');
+    });
     
     // Group offerings by their immediate category (level 1, 2, etc.)
     final Map<String, List<Map<String, dynamic>>> groupedByCategory = {};
@@ -181,15 +274,24 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  if (isExpanded) {
-                    _expandedCategories.remove(rootParentId);
+                  if (anySubcategoryExpanded) {
+                    // Collapse all subcategories under this root category
+                    for (final offering in offerings) {
+                      _expandedCategories.remove(offering['id'] ?? '');
+                    }
                   } else {
-                    _expandedCategories.add(rootParentId);
+                    // Expand all subcategories under this root category that have services
+                    for (final offering in offerings) {
+                      final serviceDetails = offering['service_details'] as List<dynamic>? ?? [];
+                      if (serviceDetails.isNotEmpty) {
+                        _expandedCategories.add(offering['id'] ?? '');
+                      }
+                    }
                   }
                 });
               },
               child: Text(
-                isExpanded ? 'Collapse' : 'Expand',
+                anySubcategoryExpanded ? 'Collapse' : 'Expand',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontWeight: FontWeight.w500,
@@ -198,25 +300,23 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
             ),
           ],
         ),
-        if (isExpanded) ...[
-          const SizedBox(height: 16),
-          ...groupedByCategory.entries.map<Widget>((entry) {
-            final categoryInfo = entry.key.split('|');
-            final categoryId = categoryInfo[0];
-            final categoryName = categoryInfo[1];
-            final categoryLevel = int.parse(categoryInfo[2]);
-            final categoryOfferings = entry.value;
-            
-            return _buildCategoryGroup(
-              categoryId: categoryId,
-              categoryName: categoryName,
-              categoryLevel: categoryLevel,
-              offerings: categoryOfferings,
-            );
-          }),
-          const SizedBox(height: 24),
-        ] else
-          const SizedBox(height: 16),
+        const SizedBox(height: 16),
+        // Always show subcategories, but expand/collapse affects individual services
+        ...groupedByCategory.entries.map<Widget>((entry) {
+          final categoryInfo = entry.key.split('|');
+          final categoryId = categoryInfo[0];
+          final categoryName = categoryInfo[1];
+          final categoryLevel = int.parse(categoryInfo[2]);
+          final categoryOfferings = entry.value;
+          
+          return _buildCategoryGroup(
+            categoryId: categoryId,
+            categoryName: categoryName,
+            categoryLevel: categoryLevel,
+            offerings: categoryOfferings,
+          );
+        }),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -227,19 +327,34 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
     required int categoryLevel,
     required List<Map<String, dynamic>> offerings,
   }) {
-    // Only show categories that have services
+    // Always show categories, but only show expandable content if they have services
     final hasServices = offerings.any((offering) => 
       (offering['service_details'] as List<dynamic>? ?? []).isNotEmpty
     );
     
     if (hasServices) {
-      // Show as expandable subcategories
+      // Show as expandable subcategories with services
       return Column(
         children: offerings.map<Widget>((offering) => _buildOfferingItem(offering)).toList(),
       );
     } else {
-      // Don't show empty categories
-      return const SizedBox.shrink();
+      // Show just the category name without expand/collapse functionality
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              categoryName,
+              style: AppTypography.headingSm,
+            ),
+            Icon(
+              Icons.keyboard_arrow_right,
+              color: Colors.grey[600],
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -250,84 +365,61 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
     final isExpanded = _expandedCategories.contains(offeringId);
     final isClass = offering['is_class'] == true;
 
-    // If no service details, don't show anything
+    // If no service details, show just the category name (non-expandable)
     if (serviceDetails.isEmpty) {
-      return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              categoryName,
+              style: AppTypography.headingSm,
+            ),
+            Icon(
+              Icons.keyboard_arrow_right,
+              color: Colors.grey[600],
+            ),
+          ],
+        ),
+      );
     }
 
-    if (isClass) {
-      // For classes - show as expandable section with different styling
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                if (isExpanded) {
-                  _expandedCategories.remove(offeringId);
-                } else {
-                  _expandedCategories.add(offeringId);
-                }
-              });
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  categoryName,
-                  style: AppTypography.headingSm,
-                ),
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
-                  color: Colors.grey[600],
-                ),
-              ],
-            ),
+    // Always show the category name, but services are shown/hidden based on expansion
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              if (isExpanded) {
+                _expandedCategories.remove(offeringId);
+              } else {
+                _expandedCategories.add(offeringId);
+              }
+            });
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                categoryName,
+                style: AppTypography.headingSm,
+              ),
+              Icon(
+                isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+                color: Colors.grey[600],
+              ),
+            ],
           ),
-          if (isExpanded) ...[
-            const SizedBox(height: 12),
-            ...serviceDetails.map<Widget>((service) => _buildServiceCard(service, isClass, categoryName)),
-          ],
-          const SizedBox(height: 16),
+        ),
+        if (isExpanded) ...[
+          const SizedBox(height: 12),
+          ...serviceDetails.map<Widget>((service) => _buildServiceCard(service, isClass, categoryName)),
         ],
-      );
-    } else {
-      // For services - show as expandable section
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                if (isExpanded) {
-                  _expandedCategories.remove(offeringId);
-                } else {
-                  _expandedCategories.add(offeringId);
-                }
-              });
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  categoryName,
-                  style: AppTypography.headingSm
-                ),
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
-                  color: Colors.grey[600],
-                ),
-              ],
-            ),
-          ),
-          if (isExpanded) ...[
-            const SizedBox(height: 12),
-            ...serviceDetails.map<Widget>((service) => _buildServiceCard(service, isClass, categoryName)),
-          ],
-          const SizedBox(height: 16),
-        ],
-      );
-    }
+        const SizedBox(height: 16),
+      ],
+    );
   }
 
   Widget _buildServiceCard(Map<String, dynamic> service, bool isClass, String categoryName) {
@@ -539,42 +631,46 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
         body: SafeArea(
           child: Column(
             children: [
+              // Fixed header content
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 34,
+                  vertical: 24,
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 70),
+                    Row(
+                      children: [
+                        Text("Offerings", style: AppTypography.headingLg),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Search bar
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search here',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                      ),
+                    ),
+                    // const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+              // Scrollable content with tabs and offerings
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 34,
-                    vertical: 24,
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 70),
-                      Row(
-                        children: [
-                          Text("Offerings", style: AppTypography.headingLg),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      // Search bar
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Search here',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            prefixIcon: Icon(Icons.search, color: Colors.grey),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Display the fetched offerings
-                      _buildOfferingsContent(),
-                    ],
-                  ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 34),
+                  child: _buildOfferingsContent(),
                 ),
               ),
               // Add Service Button
