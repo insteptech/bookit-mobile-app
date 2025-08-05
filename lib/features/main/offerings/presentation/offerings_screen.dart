@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
@@ -240,21 +241,44 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
       return serviceDetails.isNotEmpty && _expandedCategories.contains(offering['id'] ?? '');
     });
     
-    // Group offerings by their immediate category (level 1, 2, etc.)
-    final Map<String, List<Map<String, dynamic>>> groupedByCategory = {};
+    // Create a hierarchical structure to properly handle nesting
+    final Map<String, Map<String, dynamic>> categoryHierarchy = {};
     
+    // First, organize all categories in the hierarchy
     for (final offering in offerings) {
       final category = offering['category'];
       final categoryId = category?['id'] ?? 'unknown';
       final categoryName = category?['name'] ?? 'Unknown';
       final categoryLevel = category?['level'] ?? 0;
+      final parentCategory = category?['parent'];
       
       final categoryKey = '$categoryId|$categoryName|$categoryLevel';
       
-      if (!groupedByCategory.containsKey(categoryKey)) {
-        groupedByCategory[categoryKey] = [];
+      if (!categoryHierarchy.containsKey(categoryKey)) {
+        categoryHierarchy[categoryKey] = {
+          'id': categoryId,
+          'name': categoryName,
+          'level': categoryLevel,
+          'parent': parentCategory,
+          'offerings': <Map<String, dynamic>>[],
+          'children': <String>[],
+        };
       }
-      groupedByCategory[categoryKey]!.add(offering);
+      
+      categoryHierarchy[categoryKey]!['offerings'].add(offering);
+    }
+    
+    // Build parent-child relationships
+    for (final entry in categoryHierarchy.entries) {
+      final categoryData = entry.value;
+      final parentCategory = categoryData['parent'];
+      
+      if (parentCategory != null) {
+        final parentKey = '${parentCategory['id']}|${parentCategory['name']}|${parentCategory['level']}';
+        if (categoryHierarchy.containsKey(parentKey)) {
+          (categoryHierarchy[parentKey]!['children'] as List<String>).add(entry.key);
+        }
+      }
     }
     
     return Column(
@@ -265,10 +289,8 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
           children: [
             Text(
               rootParentName,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
+              style: AppTypography.headingMd.copyWith(
+                fontWeight: FontWeight.w500,
               ),
             ),
             TextButton(
@@ -301,69 +323,140 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
           ],
         ),
         const SizedBox(height: 16),
-        // Always show subcategories, but expand/collapse affects individual services
-        ...groupedByCategory.entries.map<Widget>((entry) {
-          final categoryInfo = entry.key.split('|');
-          final categoryId = categoryInfo[0];
-          final categoryName = categoryInfo[1];
-          final categoryLevel = int.parse(categoryInfo[2]);
-          final categoryOfferings = entry.value;
-          
-          return _buildCategoryGroup(
-            categoryId: categoryId,
-            categoryName: categoryName,
-            categoryLevel: categoryLevel,
-            offerings: categoryOfferings,
-          );
-        }),
+        // Render hierarchical categories starting from level 1 (direct children of root)
+        ..._buildCategoryHierarchy(categoryHierarchy, 1, context),
+        
+        // Add service button for each category when multiple level 0 categories exist
+        if (_rootCategoryNames.length > 1) ...[
+          const SizedBox(height: 16),
+          _buildAddServiceButton(rootParentId, rootParentName, offerings),
+        ],
+        
         const SizedBox(height: 24),
       ],
     );
   }
 
-  Widget _buildCategoryGroup({
+  List<Widget> _buildCategoryHierarchy(Map<String, Map<String, dynamic>> categoryHierarchy, int targetLevel, BuildContext context) {
+    final List<Widget> widgets = [];
+    
+    // Find categories at the target level
+    final categoriesAtLevel = categoryHierarchy.entries
+        .where((entry) => entry.value['level'] == targetLevel)
+        .toList();
+    
+    for (final entry in categoriesAtLevel) {
+      final categoryData = entry.value;
+      final categoryId = categoryData['id'] as String;
+      final categoryName = categoryData['name'] as String;
+      final categoryLevel = categoryData['level'] as int;
+      final offerings = categoryData['offerings'] as List<Map<String, dynamic>>;
+      final children = categoryData['children'] as List<String>;
+      
+      // Add the current category
+      widgets.add(_buildCategoryItem(
+        categoryId: categoryId,
+        categoryName: categoryName,
+        categoryLevel: categoryLevel,
+        offerings: offerings,
+        hasChildren: children.isNotEmpty,
+        context: context, // Pass context for theme access
+      ));
+      
+      // Add children recursively without indentation
+      if (children.isNotEmpty) {
+        final childHierarchy = Map<String, Map<String, dynamic>>.fromEntries(
+          children.map((childKey) => MapEntry(childKey, categoryHierarchy[childKey]!))
+        );
+        
+        final childWidgets = _buildCategoryHierarchy(childHierarchy, targetLevel + 1, context);
+        widgets.addAll(childWidgets); // Add directly without padding
+      }
+    }
+    
+    return widgets;
+  }
+
+  Widget _buildCategoryItem({
     required String categoryId,
     required String categoryName,
     required int categoryLevel,
     required List<Map<String, dynamic>> offerings,
+    required bool hasChildren,
+    required BuildContext context,
   }) {
-    // Always show categories, but only show expandable content if they have services
-    final hasServices = offerings.any((offering) => 
-      (offering['service_details'] as List<dynamic>? ?? []).isNotEmpty
-    );
+    // If this category has direct offerings (services), show them expandable
+    final directOfferings = offerings.where((offering) {
+      final offeringCategory = offering['category'];
+      return offeringCategory?['id'] == categoryId;
+    }).toList();
     
-    if (hasServices) {
-      // Show as expandable subcategories with services
+    if (directOfferings.isNotEmpty) {
+      // This category has services - make it expandable
       return Column(
-        children: offerings.map<Widget>((offering) => _buildOfferingItem(offering)).toList(),
+        children: directOfferings.map<Widget>((offering) => _buildOfferingItem(offering)).toList(),
       );
-    } else {
-      // Show just the category name without expand/collapse functionality
+    } else if (hasChildren) {
+      // This is a parent category with only subcategories - show as header without arrow
       return Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              categoryName,
-              style: AppTypography.headingSm,
+              hasChildren ? categoryName : categoryName,
+              style: AppTypography.headingSm.copyWith(
+                fontWeight: categoryLevel == 1 ? FontWeight.w600 : FontWeight.w500,
+                // Make text blue only if it has children (multiple nestings)
+                color: hasChildren ? AppColors.secondaryFontColor : Colors.black,
+              ),
             ),
-            Icon(
-              Icons.keyboard_arrow_right,
-              color: Colors.grey[600],
-            ),
+            // No arrow icon for parent categories with children
           ],
         ),
       );
+    } else {
+      // Empty category - don't show it
+      return const SizedBox.shrink();
     }
+  }
+
+  Widget _buildAddServiceButton(String categoryId, String categoryName, List<Map<String, dynamic>> offerings) {
+    // Determine if this category contains classes or services
+    final bool isClass = offerings.isNotEmpty && offerings.first['is_class'] == true;
+    final String buttonText = isClass ? "Add class" : "Add service";
+    
+    return Consumer<OfferingsController>(
+      builder: (context, controller, child) {
+        return PrimaryButton(
+          onPressed: controller.isLoading ? null : () => _handleAddServiceForCategory(categoryId, categoryName, isClass),
+          isDisabled: controller.isLoading,
+          text: controller.isLoading ? "Loading..." : buttonText,
+          isHollow: true,
+        );
+      },
+    );
+  }
+
+  Future<void> _handleAddServiceForCategory(String categoryId, String categoryName, bool isClass) async {
+    // Navigate directly to add service with the specific level 0 category and is_class parameter
+    context.push(
+      '/add_service_categories?categoryId=$categoryId&categoryName=$categoryName&isClass=$isClass',
+    );
   }
 
   Widget _buildOfferingItem(Map<String, dynamic> offering) {
     final categoryName = offering['category']?['name'] ?? 'Unknown Category';
+    final categoryLevel = offering['category']?['level'] ?? 0;
     final serviceDetails = offering['service_details'] as List<dynamic>? ?? [];
     final offeringId = offering['id'] ?? '';
     final isExpanded = _expandedCategories.contains(offeringId);
     final isClass = offering['is_class'] == true;
+
+    // We need to determine if this category has children by checking the hierarchy
+    // For now, we'll use a simpler approach: only make it blue if it's level 1 AND has no services
+    // (indicating it's a parent category that only exists to group subcategories)
+    final isParentWithChildren = categoryLevel == 1 && serviceDetails.isEmpty;
 
     // If no service details, show just the category name (non-expandable)
     if (serviceDetails.isEmpty) {
@@ -373,13 +466,19 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              categoryName,
-              style: AppTypography.headingSm,
+              isParentWithChildren ? categoryName.toString().toUpperCase() : categoryName,
+              style: AppTypography.headingSm.copyWith(
+                // Make parent categories blue only if they're level 1 AND have no services (indicating they have subcategories)
+                color: isParentWithChildren ? AppColors.secondaryFontColor : Colors.black,
+                fontWeight: isParentWithChildren ? FontWeight.w600 : FontWeight.w500,
+              ),
             ),
-            Icon(
-              Icons.keyboard_arrow_right,
-              color: Colors.grey[600],
-            ),
+            // Show icon for all categories except parent categories with children
+            if (!isParentWithChildren)
+              Icon(
+                Icons.keyboard_arrow_right,
+                color: Colors.grey[600],
+              ),
           ],
         ),
       );
@@ -404,8 +503,12 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
             children: [
               Text(
                 categoryName,
-                style: AppTypography.headingSm,
+                style: AppTypography.headingSm.copyWith(
+                  // Keep default black color for categories with services
+                  color: Colors.black,
+                ),
               ),
+              // Show expand/collapse icon for all categories with services
               Icon(
                 isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
                 color: Colors.grey[600],
@@ -598,13 +701,22 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
     
     if (!mounted) return;
     
+    // Determine if category contains classes
+    bool isClass = false;
+    if (_offeringsData != null && _offeringsData!['data'] != null) {
+      final offerings = _offeringsData!['data']['offerings'] as List<dynamic>? ?? [];
+      if (offerings.isNotEmpty && offerings.first['is_class'] == true) {
+        isClass = true;
+      }
+    }
+    
     // Check if we should navigate directly or show category selection
     final directCategory = _controller.shouldNavigateDirectly();
     
     if (directCategory != null) {
-      // Navigate directly to add service with the single category
+      // Navigate directly to add service with the single category and is_class parameter
       context.push(
-        '/add_service?categoryId=${directCategory.id}&categoryName=${directCategory.name}',
+        '/add_service_categories?categoryId=${directCategory.id}&categoryName=${directCategory.name}&isClass=$isClass',
       );
     } else {
       // Navigate to category selection screen with the controller
@@ -673,20 +785,30 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                   child: _buildOfferingsContent(),
                 ),
               ),
-              // Add Service Button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
-                child: Consumer<OfferingsController>(
-                  builder: (context, controller, child) {
-                    return PrimaryButton(
-                      onPressed: controller.isLoading ? null : _handleAddService,
-                      isDisabled: controller.isLoading,
-                      text: controller.isLoading ? "Loading..." : "Add service",
-                      isHollow: true,
-                    );
-                  },
+              // Add Service Button - only show when single level 0 category
+              if (_rootCategoryNames.length == 1)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
+                  child: Consumer<OfferingsController>(
+                    builder: (context, controller, child) {
+                      // Determine button text based on offerings data
+                      String buttonText = "Add service";
+                      if (_offeringsData != null && _offeringsData!['data'] != null) {
+                        final offerings = _offeringsData!['data']['offerings'] as List<dynamic>? ?? [];
+                        if (offerings.isNotEmpty && offerings.first['is_class'] == true) {
+                          buttonText = "Add class";
+                        }
+                      }
+                      
+                      return PrimaryButton(
+                        onPressed: controller.isLoading ? null : _handleAddService,
+                        isDisabled: controller.isLoading,
+                        text: controller.isLoading ? "Loading..." : buttonText,
+                        isHollow: true,
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),
