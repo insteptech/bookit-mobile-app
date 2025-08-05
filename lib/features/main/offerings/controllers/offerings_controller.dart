@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/features/main/offerings/models/business_offerings_model.dart';
 
 /// Category model to represent the API response structure
 class CategoryData {
@@ -110,6 +111,7 @@ class RelatedCategoryInfo {
       name: json['name'] ?? '',
       slug: json['slug'] ?? '',
       description: json['description'] ?? '',
+      isClass: json['is_class'],
     );
   }
 }
@@ -144,15 +146,147 @@ class UniqueCategory {
   String toString() => 'UniqueCategory(id: $id, name: $name)';
 }
 
+/// Grouped offerings data structure for UI
+class GroupedOfferings {
+  final String rootParentId;
+  final String rootParentName;
+  final List<OfferingItem> offerings;
+
+  GroupedOfferings({
+    required this.rootParentId,
+    required this.rootParentName,
+    required this.offerings,
+  });
+}
+
 class OfferingsController extends ChangeNotifier {
   bool _isLoading = false;
+  bool _isLoadingOfferings = false;
   String? _error;
   List<CategoryData> _businessCategories = [];
   final Set<UniqueCategory> _uniqueCategories = {};
+  
+  // Offerings data
+  BusinessOfferingsResponse? _offeringsResponse;
+  List<GroupedOfferings> _groupedOfferings = [];
+  List<String> _rootCategoryNames = [];
 
+  // Getters
   bool get isLoading => _isLoading;
+  bool get isLoadingOfferings => _isLoadingOfferings;
   String? get error => _error;
   List<CategoryData> get businessCategories => _businessCategories;
+  BusinessOfferingsResponse? get offeringsResponse => _offeringsResponse;
+  List<GroupedOfferings> get groupedOfferings => _groupedOfferings;
+  List<String> get rootCategoryNames => _rootCategoryNames;
+  
+  bool get hasOfferings => _offeringsResponse?.data.offerings.isNotEmpty ?? false;
+  bool get isOfferingsSuccess => _offeringsResponse?.success ?? false;
+
+  /// Fetch business offerings from API
+  Future<void> fetchOfferings() async {
+    _setLoadingOfferings(true);
+    _error = null;
+
+    try {
+      final data = await APIRepository.getBusinessOfferings();
+      final response = BusinessOfferingsResponse.fromJson(data);
+      _offeringsResponse = response;
+      
+      if (response.success) {
+        _processGroupedOfferings();
+      }
+    } catch (e) {
+      _error = 'Error fetching business offerings: ${e.toString()}';
+    } finally {
+      _setLoadingOfferings(false);
+    }
+  }
+
+  /// Process offerings and group them by root parent category
+  void _processGroupedOfferings() {
+    if (_offeringsResponse == null || !_offeringsResponse!.success) {
+      _groupedOfferings = [];
+      _rootCategoryNames = [];
+      return;
+    }
+
+    final offerings = _offeringsResponse!.data.offerings;
+    final Map<String, List<OfferingItem>> groupedOfferingsMap = {};
+    
+    for (final offering in offerings) {
+      final category = offering.category;
+      final rootParent = category.rootParent;
+      
+      // Use root_parent if available, otherwise find level 0 parent or use current category
+      String rootParentId;
+      String rootParentName;
+      
+      if (rootParent != null) {
+        rootParentId = rootParent.id;
+        rootParentName = rootParent.name;
+      } else if (category.level == 0) {
+        // Current category is level 0
+        rootParentId = category.id;
+        rootParentName = category.name;
+      } else {
+        // Find level 0 parent by traversing up the parent chain
+        CategoryDetails? currentCategory = category.parent;
+        while (currentCategory != null && currentCategory.level != 0) {
+          currentCategory = currentCategory.parent;
+        }
+        if (currentCategory != null) {
+          rootParentId = currentCategory.id;
+          rootParentName = currentCategory.name;
+        } else {
+          rootParentId = 'other';
+          rootParentName = 'Other';
+        }
+      }
+      
+      final rootKey = '$rootParentId|$rootParentName';
+      
+      if (!groupedOfferingsMap.containsKey(rootKey)) {
+        groupedOfferingsMap[rootKey] = [];
+      }
+      groupedOfferingsMap[rootKey]!.add(offering);
+    }
+
+    // Convert to GroupedOfferings list
+    _groupedOfferings = groupedOfferingsMap.entries.map((entry) {
+      final parts = entry.key.split('|');
+      return GroupedOfferings(
+        rootParentId: parts[0],
+        rootParentName: parts[1],
+        offerings: entry.value,
+      );
+    }).toList();
+
+    // Update root category names
+    _rootCategoryNames = _groupedOfferings.map((group) => group.rootParentName).toList();
+  }
+
+  /// Get button text based on offerings data
+  String getAddServiceButtonText() {
+    if (_offeringsResponse != null && _offeringsResponse!.success) {
+      final offerings = _offeringsResponse!.data.offerings;
+      if (offerings.isNotEmpty && offerings.first.isClass) {
+        return "Add class";
+      }
+    }
+    return "Add service";
+  }
+
+  /// Check if category contains classes
+  bool getCategoryIsClass() {
+    if (_offeringsResponse != null && _offeringsResponse!.success) {
+      final offerings = _offeringsResponse!.data.offerings;
+      if (offerings.isNotEmpty && offerings.first.isClass) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /// Fetch business categories from API
   Future<void> fetchBusinessCategories() async {
@@ -201,6 +335,7 @@ class OfferingsController extends ChangeNotifier {
           id: related.relatedCategory.id,
           name: related.relatedCategory.name,
           description: related.relatedCategory.description,
+          isClass: related.relatedCategory.isClass,
         );
         _uniqueCategories.add(relatedCategory);
       }
@@ -230,6 +365,11 @@ class OfferingsController extends ChangeNotifier {
 
   void _setLoading(bool loading) {
     _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setLoadingOfferings(bool loading) {
+    _isLoadingOfferings = loading;
     notifyListeners();
   }
 }
