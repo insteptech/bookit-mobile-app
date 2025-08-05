@@ -511,4 +511,19 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     }
   }
 
+  //............................Put class/service details by ID..............................
+  static Future<Map<String, dynamic>> updateServiceDetails(String serviceId, Map<String, dynamic> data) async {
+    try {
+      final url = getServiceDetailsByIdEndpoint(serviceId);
+      final response = await _dio.put(url, data: data);
+      //        // Pretty print JSON
+      final encoder = const JsonEncoder.withIndent('  ');
+      final prettyJson = encoder.convert(response.data);
+      debugPrint("Full response from updateServiceDetails:\n$prettyJson");
+      return response.data;
+    } catch (e) {
+      throw Exception("Failed to update service details: ${e.toString()}");
+    }
+  }
+
 }

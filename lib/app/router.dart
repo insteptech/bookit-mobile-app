@@ -25,6 +25,7 @@ import 'package:bookit_mobile_app/features/main/menu/presentation/membership_sta
 import 'package:bookit_mobile_app/features/main/menu/presentation/staff_members_screen.dart';
 import 'package:bookit_mobile_app/features/main/menu/presentation/terms_and_conditions_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/add_service_details.dart';
+import 'package:bookit_mobile_app/features/main/offerings/presentation/edit_offerings_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/category_selection_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/select_services_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_about_screen.dart';
@@ -213,6 +214,16 @@ GoRoute(
     return AddServiceDetailsScreen(servicePayload: payload);
   }
 ),
+
+//..................Edit offerings screen..............
+GoRoute(
+  path: "/edit_offerings",
+  builder: (context, state) {
+    final serviceDetailId = state.uri.queryParameters['serviceDetailId'] ?? '';
+    return EditOfferingsScreen(serviceDetailId: serviceDetailId);
+  }
+),
+
 //..................Menu business information screen..............
     GoRoute(
       path: "/menu_business_information",

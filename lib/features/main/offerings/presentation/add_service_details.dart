@@ -31,8 +31,6 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
       services = servicesData.cast<Map<String, dynamic>>();
     }
     categoryName = widget.servicePayload?['categoryName'] as String? ?? '';
-    print('Services: $services');
-    print('Category Name: $categoryName');
   }
 
   Future<void> _fetchAllStaff() async {
@@ -43,8 +41,6 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
         setState(() {
           allStaff = staffData.cast<Map<String, dynamic>>();
         });
-        debugPrint('Fetched all staff members: ${allStaff.length} items');
-        debugPrint('First staff member: ${allStaff.isNotEmpty ? allStaff.first : 'None'}');
       }
     } catch (e) {
       debugPrint('Error fetching all staff members: $e');
@@ -59,8 +55,6 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
         setState(() {
           allLocations = locationsData.cast<Map<String, dynamic>>();
         });
-        debugPrint('Fetched all locations: ${allLocations.length} items');
-        debugPrint('First location: ${allLocations.isNotEmpty ? allLocations.first : 'None'}');
       }
     } catch (e) {
       debugPrint('Error fetching all locations: $e');
@@ -93,10 +87,6 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
             "details": allDetails
         };
 
-
-        
-        // Call your API service here
-        debugPrint('Submitting service details payload: $payload');
         await APIRepository.postBusinessOfferings(payload: payload);
         // Navigator.of(context).pop();
       }

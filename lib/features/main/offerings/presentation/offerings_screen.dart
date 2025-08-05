@@ -490,7 +490,13 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
 
     if (isClass) {
       // Class card design - with image placeholder and expandable content
-     return Container(
+     return GestureDetector(
+       onTap: () {
+         // Navigate to edit screen with service detail ID
+         final serviceDetailId = service.id;
+         context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+       },
+       child: Container(
   margin: const EdgeInsets.only(bottom: 8),
   child: Card(
     elevation: 0,
@@ -571,7 +577,8 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
       ),
     ),
   ),
-);
+       ),
+     );
     } else {
       // Service card design - rounded border, simple layout
       return Container(
