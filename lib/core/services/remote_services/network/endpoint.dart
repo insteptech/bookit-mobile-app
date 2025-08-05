@@ -23,6 +23,10 @@ final getStaffListEndpoint = "$baseUrl/profile/staff/list";
 String getStaffListByBusinessIdEndpoint(String businessId) =>
     "$baseUrl/profile/staff/$businessId";
 
+//..........................get staff in categories........................................
+String getStaffListUnderCategoriesByBusinessIdEndpoint(String businessId) =>
+    "$baseUrl/profile/staff/categories/$businessId";
+
 //Get and post staff user details
 final staffScheduleEndpoint = "$baseUrl/profile/staff"; //'staffUserId'/schedule' 
 

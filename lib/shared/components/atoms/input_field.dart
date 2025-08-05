@@ -8,6 +8,8 @@ class InputField extends StatelessWidget {
   final TextEditingController? controller;
   final String? initialValue;
   final void Function(String)? onChanged;
+  final int? maxLines;
+  final TextInputType? keyboardType;
 
   const InputField({
     super.key,
@@ -17,14 +19,17 @@ class InputField extends StatelessWidget {
     this.onChanged,
     this.obscureText = false,
     this.isDisabled = false,
+    this.maxLines = 1,
+    this.keyboardType,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isMultiline = maxLines != null && maxLines! > 1;
 
     return Container(
-      height: 44,
+      height: isMultiline ? null : 44,
       decoration: BoxDecoration(
         color: isDisabled == true 
             ? theme.scaffoldBackgroundColor.withOpacity(0.6)
@@ -50,6 +55,8 @@ class InputField extends StatelessWidget {
               onChanged: isDisabled == true ? null : onChanged,
               enabled: isDisabled != true,
               readOnly: isDisabled == true,
+              maxLines: maxLines,
+              keyboardType: keyboardType,
               decoration: _inputDecoration(theme),
             )
           : TextFormField(
@@ -58,6 +65,8 @@ class InputField extends StatelessWidget {
               onChanged: isDisabled == true ? null : onChanged,
               enabled: isDisabled != true,
               readOnly: isDisabled == true,
+              maxLines: maxLines,
+              keyboardType: keyboardType,
               decoration: _inputDecoration(theme),
             ),
     );

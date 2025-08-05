@@ -309,12 +309,15 @@ class APIRepository {
   //............................Get staff list........................................
   static Future<Response> getAllStaffList() async {
     try {
-      final response = await _dio.get(getStaffListEndpoint);
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getStaffListUnderCategoriesByBusinessIdEndpoint(businessId);
+      final response = await _dio.get(url);
 
                  // Pretty print JSON
-    // final encoder = const JsonEncoder.withIndent('  ');
-    // final prettyJson = encoder.convert(response.data);
-    // debugPrint("Full response from getAllStaffList:\n$prettyJson");
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from getAllStaffList:\n$prettyJson");
         return response;
 
     }

@@ -6,6 +6,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
 import 'package:bookit_mobile_app/features/main/offerings/controllers/edit_offerings_controller.dart';
+import 'package:bookit_mobile_app/features/main/offerings/widgets/offerings_add_service_scaffold.dart';
 import 'package:go_router/go_router.dart';
 
 class EditOfferingsScreen extends StatefulWidget {
@@ -44,19 +45,22 @@ class _EditOfferingsScreenState extends State<EditOfferingsScreen> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _controller,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Consumer<EditOfferingsController>(
-            builder: (context, controller, child) {
-              if (controller.isLoading) {
-                return const Center(
+      child: Consumer<EditOfferingsController>(
+        builder: (context, controller, child) {
+          if (controller.isLoading) {
+            return Scaffold(
+              body: SafeArea(
+                child: Center(
                   child: CircularProgressIndicator(),
-                );
-              }
+                ),
+              ),
+            );
+          }
 
-              if (controller.errorMessage != null) {
-                return Center(
+          if (controller.errorMessage != null) {
+            return Scaffold(
+              body: SafeArea(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -74,260 +78,177 @@ class _EditOfferingsScreenState extends State<EditOfferingsScreen> {
                       ),
                     ],
                   ),
-                );
-              }
+                ),
+              ),
+            );
+          }
 
-              return Column(
-                children: [
-                  // Header
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => context.pop(),
-                          child: const Icon(
-                            Icons.arrow_back,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Text(
-                          controller.isClass ? 'Edit class' : 'Edit service',
-                          style: AppTypography.headingMd.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Form Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Service Image (for classes)
-                          if (controller.isClass) ...[
-                            Container(
-                              width: double.infinity,
-                              height: 200,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: Colors.grey[200],
-                                image: const DecorationImage(
-                                  image: NetworkImage(
-                                    "https://dims.apnews.com/dims4/default/e40c94b/2147483647/strip/true/crop/7773x5182+0+0/resize/599x399!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F16%2Fc9%2F0eecec78d44f016ffae1915e26c3%2F304c692a6f0b431aa8f954a4fdb5d7b5",
-                                  ),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                          ],
+          return OfferingsAddServiceScaffold(
+            title: controller.isClass ? 'Edit class' : 'Edit service',
+            onBackPressed: () => context.pop(),
+            body: _buildFormContent(controller),
+            bottomButton: PrimaryButton(
+              onPressed: controller.isSubmitting ? null : _handleSave,
+              isDisabled: controller.isSubmitting,
+              text: controller.isSubmitting ? 'Saving...' : 'Save',
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-                          // Class/Service Title
-                          Text(
-                            controller.isClass ? 'Class title' : 'Service title',
-                            style: AppTypography.headingSm.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          InputField(
-                            hintText: controller.isClass 
-                                ? 'Enter class title' 
-                                : 'Enter service title',
-                            controller: controller.titleController,
-                          ),
-                          const SizedBox(height: 16),
+  Widget _buildFormContent(EditOfferingsController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Service Image (for classes)
+        if (controller.isClass) ...[
+          Container(
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey[200],
+              image: const DecorationImage(
+                image: NetworkImage(
+                  "https://dims.apnews.com/dims4/default/e40c94b/2147483647/strip/true/crop/7773x5182+0+0/resize/599x399!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F16%2Fc9%2F0eecec78d44f016ffae1915e26c3%2F304c692a6f0b431aa8f954a4fdb5d7b5",
+                ),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
 
-                          // Description
-                          Text(
-                            'Write a short description',
-                            style: AppTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x14212529),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                ),
-                                BoxShadow(
-                                  color: Color(0x10212529),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: TextField(
-                              controller: controller.descriptionController,
-                              maxLines: 4,
-                              decoration: InputDecoration(
-                                hintText: 'Enter description',
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintStyle: const TextStyle(
-                                  color: Color(0xFF6C757D),
-                                  fontFamily: 'Campton',
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFCED4DA),
-                                    width: 1,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFF007BFF),
-                                    width: 2,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFCED4DA),
-                                    width: 1,
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Duration Section
-                          Text(
-                            'Duration',
-                            style: AppTypography.headingSm.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          
-                          // Duration inputs
-                          Column(
-                            children: List.generate(
-                              controller.durations.length,
-                              (index) => _buildDurationRow(controller, index),
-                            ),
-                          ),
-                          
-                          // Add duration button
-                          GestureDetector(
-                            onTap: controller.addDuration,
-                            child: Text(
-                              "Add new duration",
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Cost Section
-                          Text(
-                            'Cost',
-                            style: AppTypography.headingSm.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Price per session',
-                            style: AppTypography.bodyMedium.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-
-                          // Cost inputs
-                          Column(
-                            children: controller.durations
-                                .asMap()
-                                .entries
-                                .where((entry) => entry.value.durationController.text.isNotEmpty)
-                                .map((entry) => _buildCostRow(controller, entry.key))
-                                .toList(),
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Spots Available (for classes)
-                          if (controller.isClass) ...[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Spots Available',
-                                  style: AppTypography.headingSm.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Switch(
-                                  value: controller.spotsLimitEnabled,
-                                  onChanged: (value) {
-                                    controller.setSpotsLimitEnabled(value);
-                                  },
-                                  activeColor: Theme.of(context).primaryColor,
-                                ),
-                              ],
-                            ),
-                            if (controller.spotsLimitEnabled) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                'Set a limit on available spots',
-                                style: AppTypography.bodyMedium,
-                              ),
-                              const SizedBox(height: 8),
-                              SizedBox(
-                                width: 80,
-                                child: NumericInputBox(
-                                  controller: controller.spotsController,
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 24),
-                          ],
-
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Save Button
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: PrimaryButton(
-                      onPressed: controller.isSubmitting ? null : _handleSave,
-                      isDisabled: controller.isSubmitting,
-                      text: controller.isSubmitting ? 'Saving...' : 'Save',
-                    ),
-                  ),
-                ],
-              );
-            },
+        // Class/Service Title
+        Text(
+          controller.isClass ? 'Class title' : 'Service title',
+          style: AppTypography.headingSm.copyWith(
+            fontWeight: FontWeight.w600,
           ),
         ),
-      ),
+        const SizedBox(height: 8),
+        InputField(
+          hintText: controller.isClass 
+              ? 'Enter class title' 
+              : 'Enter service title',
+          controller: controller.titleController,
+        ),
+        const SizedBox(height: 16),
+
+        // Description
+        Text(
+          'Write a short description',
+          style: AppTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InputField(
+          hintText: 'Enter description',
+          controller: controller.descriptionController,
+          maxLines: 4,
+        ),
+        const SizedBox(height: 24),
+
+        // Duration Section
+        Text(
+          'Duration',
+          style: AppTypography.headingSm.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        
+        // Duration inputs
+        Column(
+          children: List.generate(
+            controller.durations.length,
+            (index) => _buildDurationRow(controller, index),
+          ),
+        ),
+        
+        // Add duration button
+        if(!controller.isClass)
+        GestureDetector(
+          onTap: controller.addDuration,
+          child: Text(
+            "Add new duration",
+            style: AppTypography.bodyMedium.copyWith(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Cost Section
+        Text(
+          'Cost',
+          style: AppTypography.headingSm.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Price per session',
+          style: AppTypography.bodyMedium.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Cost inputs
+        Column(
+          children: controller.durations
+              .asMap()
+              .entries
+              .where((entry) => entry.value.durationController.text.isNotEmpty)
+              .map((entry) => _buildCostRow(controller, entry.key))
+              .toList(),
+        ),
+        const SizedBox(height: 24),
+
+        // Spots Available (for classes)
+        if (controller.isClass) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Spots Available',
+                style: AppTypography.headingSm.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Switch(
+                value: controller.spotsLimitEnabled,
+                onChanged: (value) {
+                  controller.setSpotsLimitEnabled(value);
+                },
+                activeColor: Theme.of(context).primaryColor,
+              ),
+            ],
+          ),
+          if (controller.spotsLimitEnabled) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Set a limit on available spots',
+              style: AppTypography.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: 80,
+              child: NumericInputBox(
+                controller: controller.spotsController,
+              ),
+            ),
+          ],
+          const SizedBox(height: 24),
+        ],
+
+        const SizedBox(height: 40),
+      ],
     );
   }
 
