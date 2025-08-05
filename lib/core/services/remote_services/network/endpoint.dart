@@ -128,3 +128,6 @@ String getPaginatedClassesByBusinessEndpoint(String businessId, int page, int li
 String getSortedClassesByBusinessEndpoint(String businessId, String sortBy, String sortOrder) =>
     "$baseUrl/classes/$businessId?sortBy=$sortBy&sortOrder=$sortOrder";
 
+//...........Get specific class/service details
+String getServiceDetailsByIdEndpoint(String serviceId) => 
+    "$baseUrl/business/service-detail/$serviceId";

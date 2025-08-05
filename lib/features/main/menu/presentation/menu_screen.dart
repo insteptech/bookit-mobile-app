@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/core/services/navigation_service.dart';
 import 'package:bookit_mobile_app/features/main/menu/widgets/menu_item.dart';
