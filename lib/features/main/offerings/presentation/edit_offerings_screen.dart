@@ -212,14 +212,19 @@ class _EditOfferingsScreenState extends State<EditOfferingsScreen> {
 
         // Spots Available (for classes)
         if (controller.isClass) ...[
+          Text(
+            'Spots Available',
+            style: AppTypography.headingSm.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Spots Available',
-                style: AppTypography.headingSm.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                'Set a limit on available spots',
+                style: AppTypography.bodyMedium,
               ),
               Switch(
                 value: controller.spotsLimitEnabled,
@@ -232,11 +237,6 @@ class _EditOfferingsScreenState extends State<EditOfferingsScreen> {
           ),
           if (controller.spotsLimitEnabled) ...[
             const SizedBox(height: 8),
-            Text(
-              'Set a limit on available spots',
-              style: AppTypography.bodyMedium,
-            ),
-            const SizedBox(height: 8),
             SizedBox(
               width: 80,
               child: NumericInputBox(
@@ -244,10 +244,8 @@ class _EditOfferingsScreenState extends State<EditOfferingsScreen> {
               ),
             ),
           ],
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
         ],
-
-        const SizedBox(height: 40),
       ],
     );
   }

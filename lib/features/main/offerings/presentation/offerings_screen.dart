@@ -581,66 +581,73 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
      );
     } else {
       // Service card design - rounded border, simple layout
-      return Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).primaryColor, width: 1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            // Service header
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          categoryName,
-                          style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w500)
+      return GestureDetector(
+        onTap: () {
+          // Navigate to edit screen with service detail ID
+          final serviceDetailId = service.id;
+          context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).primaryColor, width: 1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              // Service header
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            categoryName,
+                            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w500)
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            serviceName,
+                            style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500)
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (serviceDescription.isNotEmpty) ...[
+                      Text(
+                        serviceDescription,
+                        style: AppTypography.bodyMedium,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    if (durationText.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        durationText,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
                         ),
                       ),
                     ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          serviceName,
-                          style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500)
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (serviceDescription.isNotEmpty) ...[
-                    Text(
-                      serviceDescription,
-                      style: AppTypography.bodyMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
                   ],
-                  if (durationText.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      durationText,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ),
-            
-          ],
+              
+            ],
+          ),
         ),
       );
     }
