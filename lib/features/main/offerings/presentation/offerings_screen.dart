@@ -45,7 +45,7 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
         _isLoadingOfferings = false;
       });
     } catch (e) {
-      print("Error fetching offerings: $e");
+      // TODO: Handle error properly (e.g., show error message to user)
       setState(() {
         _isLoadingOfferings = false;
       });
@@ -88,20 +88,32 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
     
     for (final offering in offerings) {
       final category = offering['category'];
-      final parent = category?['parent'];
+      final rootParent = category?['root_parent'];
       
-      // Find the root parent (level 0)
+      // Use root_parent if available, otherwise find level 0 parent or use current category
       String rootParentId;
       String rootParentName;
       
-      if (parent != null && parent['level'] == 0) {
-        // This category's parent is level 0, so use it as root
-        rootParentId = parent['id'] ?? 'other';
-        rootParentName = parent['name'] ?? 'Other';
+      if (rootParent != null) {
+        rootParentId = rootParent['id'] ?? 'other';
+        rootParentName = rootParent['name'] ?? 'Other';
+      } else if (category?['level'] == 0) {
+        // Current category is level 0
+        rootParentId = category['id'] ?? 'other';
+        rootParentName = category['name'] ?? 'Other';
       } else {
-        // No level 0 parent found, use current category or fallback
-        rootParentId = category?['id'] ?? 'other';
-        rootParentName = category?['name'] ?? 'Other';
+        // Find level 0 parent by traversing up the parent chain
+        var currentCategory = category;
+        while (currentCategory != null && currentCategory['level'] != 0) {
+          currentCategory = currentCategory['parent'];
+        }
+        if (currentCategory != null) {
+          rootParentId = currentCategory['id'] ?? 'other';
+          rootParentName = currentCategory['name'] ?? 'Other';
+        } else {
+          rootParentId = 'other';
+          rootParentName = 'Other';
+        }
       }
       
       final rootKey = '$rootParentId|$rootParentName';
@@ -119,88 +131,129 @@ class _OfferingsScreenState extends State<OfferingsScreen> {
         final rootParentId = rootKey.split('|')[0];
         final offeringsInCategory = entry.value;
         
-        return _buildCategoryItem(
-          id: rootParentId,
-          name: rootParentName,
-          level: 0,
+        return _buildRootCategorySection(
+          rootParentId: rootParentId,
+          rootParentName: rootParentName,
           offerings: offeringsInCategory,
-          totalServices: _getTotalServices(offeringsInCategory),
         );
       }).toList(),
     );
   }
 
-  int _getTotalServices(List<Map<String, dynamic>> offerings) {
-    return offerings.fold<int>(0, (sum, offering) {
-      final serviceDetails = offering['service_details'] as List<dynamic>? ?? [];
-      return sum + serviceDetails.length;
-    });
-  }
-
-  Widget _buildCategoryItem({
-    required String id,
-    required String name,
-    required int level,
-    List<Map<String, dynamic>>? offerings,
-    int? totalServices,
+  Widget _buildRootCategorySection({
+    required String rootParentId,
+    required String rootParentName,
+    required List<Map<String, dynamic>> offerings,
   }) {
-    final isExpanded = _expandedCategories.contains(id);
+    final isExpanded = _expandedCategories.contains(rootParentId);
     
-    // For level 0 (root categories)
-    if (level == 0 && offerings != null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    if (isExpanded) {
-                      _expandedCategories.remove(id);
-                    } else {
-                      _expandedCategories.add(id);
-                    }
-                  });
-                },
-                child: Text(
-                  isExpanded ? 'Collapse' : 'Expand',
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (isExpanded) ...[
-            const SizedBox(height: 16),
-            ...offerings.map<Widget>((offeringItem) => _buildSubCategoryItem(offeringItem)),
-            const SizedBox(height: 24),
-          ] else
-            const SizedBox(height: 16),
-        ],
-      );
+    // Group offerings by their immediate category (level 1, 2, etc.)
+    final Map<String, List<Map<String, dynamic>>> groupedByCategory = {};
+    
+    for (final offering in offerings) {
+      final category = offering['category'];
+      final categoryId = category?['id'] ?? 'unknown';
+      final categoryName = category?['name'] ?? 'Unknown';
+      final categoryLevel = category?['level'] ?? 0;
+      
+      final categoryKey = '$categoryId|$categoryName|$categoryLevel';
+      
+      if (!groupedByCategory.containsKey(categoryKey)) {
+        groupedByCategory[categoryKey] = [];
+      }
+      groupedByCategory[categoryKey]!.add(offering);
     }
     
-    return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              rootParentName,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  if (isExpanded) {
+                    _expandedCategories.remove(rootParentId);
+                  } else {
+                    _expandedCategories.add(rootParentId);
+                  }
+                });
+              },
+              child: Text(
+                isExpanded ? 'Collapse' : 'Expand',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (isExpanded) ...[
+          const SizedBox(height: 16),
+          ...groupedByCategory.entries.map<Widget>((entry) {
+            final categoryInfo = entry.key.split('|');
+            final categoryId = categoryInfo[0];
+            final categoryName = categoryInfo[1];
+            final categoryLevel = int.parse(categoryInfo[2]);
+            final categoryOfferings = entry.value;
+            
+            return _buildCategoryGroup(
+              categoryId: categoryId,
+              categoryName: categoryName,
+              categoryLevel: categoryLevel,
+              offerings: categoryOfferings,
+            );
+          }),
+          const SizedBox(height: 24),
+        ] else
+          const SizedBox(height: 16),
+      ],
+    );
   }
 
-  Widget _buildSubCategoryItem(Map<String, dynamic> offering) {
+  Widget _buildCategoryGroup({
+    required String categoryId,
+    required String categoryName,
+    required int categoryLevel,
+    required List<Map<String, dynamic>> offerings,
+  }) {
+    // Only show categories that have services
+    final hasServices = offerings.any((offering) => 
+      (offering['service_details'] as List<dynamic>? ?? []).isNotEmpty
+    );
+    
+    if (hasServices) {
+      // Show as expandable subcategories
+      return Column(
+        children: offerings.map<Widget>((offering) => _buildOfferingItem(offering)).toList(),
+      );
+    } else {
+      // Don't show empty categories
+      return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildOfferingItem(Map<String, dynamic> offering) {
     final categoryName = offering['category']?['name'] ?? 'Unknown Category';
     final serviceDetails = offering['service_details'] as List<dynamic>? ?? [];
     final offeringId = offering['id'] ?? '';
     final isExpanded = _expandedCategories.contains(offeringId);
     final isClass = offering['is_class'] == true;
+
+    // If no service details, don't show anything
+    if (serviceDetails.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     if (isClass) {
       // For classes - show as expandable section with different styling
