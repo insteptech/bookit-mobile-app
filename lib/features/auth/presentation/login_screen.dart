@@ -1,7 +1,7 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:bookit_mobile_app/shared/components/organisms/login_form.dart';
+import 'package:bookit_mobile_app/features/auth/widgets/login_form.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_colors.dart';

@@ -1,116 +1,17 @@
-import 'package:bookit_mobile_app/core/services/active_business_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
-import 'package:bookit_mobile_app/core/services/onboarding_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
-import 'package:bookit_mobile_app/core/utils/validators.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboard_business_info_form.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button.dart';
-import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
-import 'package:bookit_mobile_app/core/providers/business_provider.dart';
+import 'package:bookit_mobile_app/features/onboarding/scaffolds/onboard_scaffold_layout.dart';
+import 'package:bookit_mobile_app/features/onboarding/application/application.dart';
 
-class OnboardAboutScreen extends ConsumerStatefulWidget {
+class OnboardAboutScreen extends ConsumerWidget {
   const OnboardAboutScreen({super.key});
 
   @override
-  ConsumerState<OnboardAboutScreen> createState() => _OnboardAboutScreenState();
-}
-
-class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
-  bool isFormOpen = false;
-  bool isButtonDisabled = true;
-
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController mobileController = TextEditingController();
-  final TextEditingController websiteController = TextEditingController();
-
-  String businessId = "";
-
-  @override
-  void initState() {
-    super.initState();
-    nameController.addListener(_updateButtonState);
-    emailController.addListener(_updateButtonState);
-    mobileController.addListener(_updateButtonState);
-
-    final business = ref.read(businessProvider);
-    if (business != null) {
-      isFormOpen = true; // Show form by default
-      nameController.text = business.name ?? '';
-      emailController.text = business.email ?? '';
-      mobileController.text = business.phone ?? '';
-      websiteController.text = business.website ?? ''; 
-    }
-  }
-
-  void _updateButtonState() {
-    final isValid =
-        nameController.text.isNotEmpty &&
-        isEmailInCorrectFormat(emailController.text) &&
-        mobileController.text.isNotEmpty;
-
-    if (isButtonDisabled != !isValid) {
-      setState(() {
-        isButtonDisabled = !isValid;
-      });
-    }
-  }
-
-  Future<void> _handleBusinessInfoSubmission() async {
-    if (!isFormOpen) return;
-    setState(() {
-      isButtonDisabled = true;
-    });
-    try {
-      final onboardingApiService = OnboardingApiService();
-
-      // fetch users business id's
-      final userData = await UserService().fetchUserDetails();
-      businessId = userData.businessIds.isNotEmpty ? userData.businessIds[0] : "";
-
-      final business = await onboardingApiService.submitBusinessInfo(
-        name: nameController.text.trim(),
-        email: emailController.text.trim(),
-        phone: mobileController.text.trim(),
-        website: websiteController.text.trim(),
-        businessId: businessId,
-      );
-
-      businessId = business.id;
-      await ActiveBusinessService().saveActiveBusiness(businessId);
-
-      // fetch business details and save to global state
-      try {
-        final fetchBusinessDetails = await UserService().fetchBusinessDetails(businessId: businessId);
-        
-        ref.read(businessProvider.notifier).state = fetchBusinessDetails;
-      } catch (e) {
-        throw Exception("Failed to fetch business details: ${e.toString()}");
-      }
-
-      await OnboardingService().saveStep("about");
-
-      // Navigate to next step
-      if (!mounted) return;
-      context.push('/locations');
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
-    } finally {
-      setState(() {
-        isButtonDisabled = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(onboardAboutControllerProvider);
     final theme = Theme.of(context);
     final localizations = AppTranslationsDelegate.of(context);
 
@@ -126,22 +27,20 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
               "onboard_about_radio_new_description",
             ),
             bgColor: theme.scaffoldBackgroundColor,
-            rememberMe: isFormOpen,
+            rememberMe: controller.isFormOpen,
             onChanged: (value) {
-              setState(() {
-                isFormOpen = value;
-              });
+              controller.updateFormOpen(value);
             },
             topRightLabel: "Coming soon",
           ),
-          if (isFormOpen)
+          if (controller.isFormOpen)
             const SizedBox(height: 16),
-          if (isFormOpen)
+          if (controller.isFormOpen)
             OnboardBusinessInfoForm(
-              nameController: nameController,
-              emailController: emailController,
-              mobileController: mobileController,
-              websiteController: websiteController,
+              nameController: controller.nameController,
+              emailController: controller.emailController,
+              mobileController: controller.mobileController,
+              websiteController: controller.websiteController,
             ),
           const SizedBox(height: 16),
           RadioButton(
@@ -159,9 +58,9 @@ class _OnboardAboutScreenState extends ConsumerState<OnboardAboutScreen> {
           ),
         ],
       ),
-      onNext: _handleBusinessInfoSubmission,
+      onNext: () => controller.handleBusinessInfoSubmission(context),
       nextButtonText: localizations.text("onboard_next_button_address_details"),
-      nextButtonDisabled: isButtonDisabled,
+      nextButtonDisabled: controller.isButtonDisabled || controller.isLoading,
       currentStep: 0,
     );
   }

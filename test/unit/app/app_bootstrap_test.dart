@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bookit_mobile_app/app/app.dart';
+import 'package:bookit_mobile_app/app/localization/language_provider.dart';
 import 'package:bookit_mobile_app/core/providers/shared_pref_provider.dart';
 import 'package:bookit_mobile_app/core/providers/theme_provider.dart';
 
@@ -27,19 +29,26 @@ void main() {
     container.dispose();
   });
 
-  test('themeModeProvider defaults to system', () {
-    expect(container.read(themeModeProvider), ThemeMode.system);
+  test('themeModeProvider defaults to light', () {
+    expect(container.read(themeModeProvider), ThemeMode.light);
   });
 
   testWidgets('AppBootstrap uses correct locale when language is set', (tester) async {
     when(mockPrefs.getString('language')).thenReturn('ar');
     
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(mockPrefs),
+      provider.MultiProvider(
+        providers: [
+          provider.ChangeNotifierProvider(
+            create: (context) => LanguageProvider(),
+          ),
         ],
-        child: const AppBootstrap(),
+        child: ProviderScope(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(mockPrefs),
+          ],
+          child: const AppBootstrap(),
+        ),
       ),
     );
     
@@ -51,11 +60,18 @@ void main() {
     when(mockPrefs.getString('language')).thenReturn(null);
     
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(mockPrefs),
+      provider.MultiProvider(
+        providers: [
+          provider.ChangeNotifierProvider(
+            create: (context) => LanguageProvider(),
+          ),
         ],
-        child: const AppBootstrap(),
+        child: ProviderScope(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(mockPrefs),
+          ],
+          child: const AppBootstrap(),
+        ),
       ),
     );
     
@@ -67,32 +83,45 @@ void main() {
     when(mockPrefs.getString('language')).thenReturn(null);
     
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(mockPrefs),
+      provider.MultiProvider(
+        providers: [
+          provider.ChangeNotifierProvider(
+            create: (context) => LanguageProvider(),
+          ),
         ],
-        child: const AppBootstrap(),
+        child: ProviderScope(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(mockPrefs),
+          ],
+          child: const AppBootstrap(),
+        ),
       ),
     );
     
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-    expect(materialApp.supportedLocales, [const Locale('en'), const Locale('ar')]);
+    expect(materialApp.supportedLocales, [const Locale('en', 'US'), const Locale('ar', 'SA')]);
   });
 
-  testWidgets('AppBootstrap uses correct theme mode', (tester) async {
+  testWidgets('AppBootstrap uses light theme mode only', (tester) async {
     when(mockPrefs.getString('language')).thenReturn(null);
     
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(mockPrefs),
-          themeModeProvider.overrideWith((ref) => ThemeMode.dark),
+      provider.MultiProvider(
+        providers: [
+          provider.ChangeNotifierProvider(
+            create: (context) => LanguageProvider(),
+          ),
         ],
-        child: const AppBootstrap(),
+        child: ProviderScope(
+          overrides: [
+            sharedPreferencesProvider.overrideWithValue(mockPrefs),
+          ],
+          child: const AppBootstrap(),
+        ),
       ),
     );
     
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-    expect(materialApp.themeMode, ThemeMode.dark);
+    expect(materialApp.themeMode, ThemeMode.light);
   });
 }

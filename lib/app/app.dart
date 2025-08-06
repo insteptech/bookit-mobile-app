@@ -7,7 +7,6 @@ import 'theme/theme_data.dart';
 import 'router.dart';
 import 'localization/app_translations_delegate.dart';
 import 'localization/language_provider.dart';
-import '../core/providers/theme_provider.dart';
 import '../core/services/navigation_service.dart';
 
 class AppBootstrap extends ConsumerWidget {
@@ -15,8 +14,6 @@ class AppBootstrap extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeModeProvider);
-
     // Initialize navigation service with router
     NavigationService.initialize(router);
 
@@ -26,8 +23,7 @@ class AppBootstrap extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           title: 'Bookit',
           theme: lightTheme,
-          darkTheme: darkTheme,
-          themeMode: themeMode,
+          themeMode: ThemeMode.light, // Force light mode only
           locale: languageProvider.currentLocale,
           routerConfig: router,
           // Set the navigator key for global navigation access

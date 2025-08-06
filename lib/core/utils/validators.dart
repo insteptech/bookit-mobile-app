@@ -24,3 +24,10 @@ bool isEmailInCorrectFormat(String email) {
   );
   return emailRegex.hasMatch(email);
 }
+
+bool isMobileNumberInCorrectFormat(String mobile) {
+  final RegExp mobileRegex = RegExp(
+    r'^\+?[1-9]\d{1,14}$', 
+  );
+  return mobileRegex.hasMatch(mobile);
+}

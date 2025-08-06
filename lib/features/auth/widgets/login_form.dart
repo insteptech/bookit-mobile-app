@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/theme_data.dart';
-import '../atoms/input_field.dart';
-import '../molecules/remember_me_row.dart';
+import '../../../shared/components/atoms/input_field.dart';
+import '../../../shared/components/molecules/remember_me_row.dart';
 
 class LoginForm extends ConsumerWidget {
   const LoginForm({super.key});

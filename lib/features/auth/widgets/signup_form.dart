@@ -84,50 +84,63 @@ class _SignupFormState extends ConsumerState<SignupForm> {
     final localizations = AppTranslationsDelegate.of(context);
     final theme = Theme.of(context);
 
-    return SizedBox(
-      height: 620,
-      child: Column(
-        children: [
-          InputField(
-            hintText: localizations.text("full_name"),
-            controller: nameController,
-          ),
-          const SizedBox(height: 16),
-          InputField(
-            hintText: localizations.text("email"),
-            controller: emailController,
-          ),
-          if (error.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                error,
-                style: AppTypography.bodySmall.copyWith(
-                  color: theme.colorScheme.error,
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  InputField(
+                    hintText: localizations.text("full_name"),
+                    controller: nameController,
+                  ),
+                  const SizedBox(height: 16),
+                  InputField(
+                    hintText: localizations.text("email"),
+                    controller: emailController,
+                  ),
+                  if (error.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        error,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  PasswordValidationWidget(
+                    passwordController: passwordController,
+                    confirmPasswordController: confirmPasswordController,
+                    onValidationChanged: (isValid) {
+                      setState(() {
+                        isPasswordValid = isValid;
+                      });
+                      _updateButtonState();
+                    },
+                  ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24, top: 24),
+                    child: PrimaryButton(
+                      isDisabled: isButtonDisabled,
+                      text: localizations.text("complete_sign_up"),
+                      onPressed: handleSendOtp,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-          const SizedBox(height: 16),
-          PasswordValidationWidget(
-            passwordController: passwordController,
-            confirmPasswordController: confirmPasswordController,
-            onValidationChanged: (isValid) {
-              setState(() {
-                isPasswordValid = isValid;
-              });
-              _updateButtonState();
-            },
           ),
-          const Spacer(),
-          PrimaryButton(
-            isDisabled: isButtonDisabled,
-            text: localizations.text("complete_sign_up"),
-            onPressed: handleSendOtp,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

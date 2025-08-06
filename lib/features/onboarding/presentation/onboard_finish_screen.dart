@@ -3,7 +3,7 @@ import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checklist.dart';
-import 'package:bookit_mobile_app/shared/components/organisms/onboard_scaffold_layout.dart';
+import 'package:bookit_mobile_app/features/onboarding/scaffolds/onboard_scaffold_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

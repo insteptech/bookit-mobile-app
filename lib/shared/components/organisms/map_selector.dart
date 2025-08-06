@@ -45,10 +45,102 @@ class _MapSelectorState extends State<MapSelector> {
       center: Point(coordinates: centerPosition),
       zoom: 14,
     );
+    
+    // Request location permission on init
+    _requestLocationPermissionOnInit();
+  }
+
+  Future<void> _requestLocationPermissionOnInit() async {
+    try {
+      var permission = await Permission.location.status;
+      if (permission.isDenied || permission.isRestricted) {
+        permission = await Permission.location.request();
+      }
+
+      if (permission.isPermanentlyDenied) {
+        // Show dialog or snackbar to inform user to enable from settings
+        _showLocationPermissionDialog();
+        return;
+      }
+
+      if (permission.isGranted) {
+        // Automatically move to current location when permission is granted
+        await _getCurrentLocationAndMove();
+      }
+    } catch (e) {
+      // Handle any errors silently
+    }
+  }
+
+  Future<void> _getCurrentLocationAndMove() async {
+    try {
+      final current = await geo.Geolocator.getCurrentPosition(
+        desiredAccuracy: geo.LocationAccuracy.high,
+      );
+
+      centerPosition = Position(current.longitude, current.latitude);
+      
+      // Update the camera to show current location
+      camera = CameraOptions(
+        center: Point(coordinates: centerPosition),
+        zoom: 15,
+      );
+      
+      // If map is already created, fly to the location
+      if (mapboxMap != null) {
+        await mapboxMap?.flyTo(
+          CameraOptions(center: Point(coordinates: centerPosition), zoom: 15),
+          MapAnimationOptions(duration: 1000),
+        );
+      }
+      
+      setState(() {});
+    } catch (e) {
+      // Handle any errors silently
+    }
+  }
+
+  void _showLocationPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Location Permission Required'),
+          content: const Text(
+            'This app needs location permission to show your current location on the map. Please enable location permission in your device settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _onMapCreated(MapboxMap map) {
     mapboxMap = map;
+    
+    // If we already have a user's location and camera is set to current location,
+    // move to it when map is ready
+    if (centerPosition.lat != 30 || centerPosition.lng != 31) {
+      // This means we've updated the position from default Chandigarh coordinates
+      mapboxMap?.flyTo(
+        CameraOptions(center: Point(coordinates: centerPosition), zoom: 15),
+        MapAnimationOptions(duration: 1000),
+      );
+    }
   }
 
   void _onCameraChange(CameraChangedEventData data) async {
@@ -66,12 +158,13 @@ class _MapSelectorState extends State<MapSelector> {
   Future<void> _moveToCurrentLocation() async {
     try {
       var permission = await Permission.location.status;
-      if (permission.isDenied || permission.isRestricted) {
+      if (!permission.isGranted) {
+        // If permission is not granted, request it
         permission = await Permission.location.request();
       }
 
       if (permission.isPermanentlyDenied) {
-        openAppSettings();
+        _showLocationPermissionDialog();
         return;
       }
 

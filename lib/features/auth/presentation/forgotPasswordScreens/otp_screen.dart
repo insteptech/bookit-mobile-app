@@ -1,6 +1,6 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/shared/components/organisms/auth_flow_scaffold.dart';
+import 'package:bookit_mobile_app/features/auth/scaffolds/auth_flow_scaffold.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/otp_form.dart';
 import 'package:flutter/material.dart';
 
