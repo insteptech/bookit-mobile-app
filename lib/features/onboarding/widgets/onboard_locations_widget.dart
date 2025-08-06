@@ -1,11 +1,10 @@
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:bookit_mobile_app/features/onboarding/widgets/onboarding_location_info_form.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -361,6 +360,7 @@ class _OnboardLocationsWidgetState extends ConsumerState<OnboardLocationsWidget>
               instructionController: controllers["instructions"]!,
               // showDeleteButton: addressControllersList.length > 1,
               showDeleteButton: false,
+              addressNumber: addressControllersList.length > 1 ? index + 1 : null,
               lat: controllers['latitude'],
               lng: controllers['longitude'],
               onClick: () {
@@ -382,24 +382,14 @@ class _OnboardLocationsWidgetState extends ConsumerState<OnboardLocationsWidget>
           );
         }),
         if (widget.showAddButton)
-          GestureDetector(
-            onTap: _openMapSelector,
-            child: Row(
-              children: [
-                Icon(
-                  Icons.add_circle_outline,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  "Add another address",
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
+          SecondaryButton(
+            onPressed: _openMapSelector,
+            prefix: Icon(
+              Icons.add_circle_outline,
+              color: theme.colorScheme.primary,
+              size: 20,
             ),
+            text: "Add another address",
           ),
         if (widget.showNextButton) ...[
           const SizedBox(height: 32),

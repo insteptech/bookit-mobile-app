@@ -3,6 +3,7 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
 import '../../../../shared/components/molecules/multi_select_item.dart';
 
@@ -581,8 +582,8 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
         ],
         
         // Add new service button (works correctly for classes)
-        GestureDetector(
-          onTap: () {
+        SecondaryButton(
+          onPressed: () {
             setState(() {
               final newForm = EnhancedServiceFormData(
                 serviceId: widget.serviceData['category_id'] ?? '',
@@ -591,24 +592,12 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
               forms.add(newForm);
             });
           },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.add_circle_outline,
-                color: theme.colorScheme.primary,
-                size: 20,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                "Add new ${widget.serviceData['title'] ?? 'service'}",
-                style: AppTypography.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
+          prefix: Icon(
+            Icons.add_circle_outline,
+            color: theme.colorScheme.primary,
+            size: 20,
           ),
+          text: "Add new ${widget.serviceData['title'] ?? 'service'}",
         ),
       ],
     );

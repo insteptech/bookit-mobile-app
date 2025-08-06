@@ -18,6 +18,7 @@ class OnboardingLocationInfoForm extends StatelessWidget {
   final double? lng;
   final bool showDeleteButton;
   final Function onClick;
+  final int? addressNumber;
 
   const OnboardingLocationInfoForm({
     super.key,
@@ -33,6 +34,7 @@ class OnboardingLocationInfoForm extends StatelessWidget {
     required this.onLocationUpdated,
     this.lat,
     this.lng,
+    this.addressNumber,
   });
 
   @override
@@ -49,7 +51,12 @@ class OnboardingLocationInfoForm extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(AppTranslationsDelegate.of(context).text("address"), style: AppTypography.bodyMedium),
+            Text(
+              addressNumber != null && addressNumber! > 0 
+                ? "${AppTranslationsDelegate.of(context).text("address")} $addressNumber"
+                : AppTranslationsDelegate.of(context).text("address"), 
+              style: AppTypography.bodyMedium
+            ),
             if (showDeleteButton)
               GestureDetector(
                 onTap: () {

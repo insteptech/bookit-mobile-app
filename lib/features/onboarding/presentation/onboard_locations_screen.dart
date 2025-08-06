@@ -1,13 +1,10 @@
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
-import 'package:bookit_mobile_app/core/providers/business_provider.dart';
+import 'package:bookit_mobile_app/features/onboarding/application/onboard_locations_controller.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:bookit_mobile_app/features/onboarding/scaffolds/onboard_scaffold_layout.dart';
 import 'package:bookit_mobile_app/features/onboarding/widgets/onboarding_location_info_form.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class OnboardLocationsScreen extends ConsumerStatefulWidget {
   const OnboardLocationsScreen({super.key});
@@ -19,189 +16,18 @@ class OnboardLocationsScreen extends ConsumerStatefulWidget {
 
 class _OnboardLocationsScreenState
     extends ConsumerState<OnboardLocationsScreen> {
-  List<Map<String, dynamic>> addressControllersList = [];
-  bool isFormValid = false;
-  bool isOpenMap = false;
-  bool isButtonDisabled = false;
-  bool isFirstTimeVisit = false; // Track if this is first time with no locations
-
-  @override
-  void initState() {
-    super.initState();
-
-    final business = ref.read(businessProvider);
-    final locations = business?.locations ?? [];
-
-    if (locations.isNotEmpty) {
-      // User has existing locations, populate forms
-      for (final loc in locations) {
-        _addAddressForm(
-          id: loc.id,
-          location: loc.title,
-          address: loc.address,
-          floor: loc.floor,
-          city: loc.city,
-          state: loc.state,
-          country: loc.country,
-          instructions: loc.instructions,
-          lat: loc.latitude?.toDouble(),
-          lng: loc.longitude?.toDouble(),
-        );
-      }
-    } else {
-      // First time visit - no existing locations
-      setState(() {
-        isOpenMap = true;
-        isFirstTimeVisit = true;
-      });
-    }
-  }
-
-  void _addAddressForm({
-    String? id,
-    String? location,
-    String? address,
-    String? floor,
-    String? city,
-    String? state,
-    String? country,
-    String? instructions,
-    double? lat,
-    double? lng,
-  }) {
-    final locCtrl = TextEditingController(text: location ?? '');
-    final addrCtrl = TextEditingController(text: address ?? '');
-    final cityCtrl = TextEditingController(text: city ?? '');
-    final stateCtrl = TextEditingController(text: state ?? '');
-    final countryCtrl = TextEditingController(text: country ?? '');
-
-    // Listen for changes
-    [locCtrl, addrCtrl, cityCtrl, stateCtrl, countryCtrl].forEach((ctrl) {
-      ctrl.addListener(_validateForms);
-    });
-
-    setState(() {
-      addressControllersList.add({
-        "id": id,
-        "location": locCtrl,
-        "address": addrCtrl,
-        "floor": TextEditingController(text: floor ?? ''),
-        "city": cityCtrl,
-        "state": stateCtrl,
-        "country": countryCtrl,
-        "instructions": TextEditingController(text: instructions ?? ''),
-        "latitude": lat ?? 0.0,
-        "longitude": lng ?? 0.0,
-      });
-      _validateForms();
-    });
-  }
-
-  void _validateForms() {
-    bool isValid = addressControllersList.every((form) {
-      return form["location"].text.isNotEmpty &&
-          form["address"].text.isNotEmpty &&
-          form["city"].text.isNotEmpty &&
-          form["state"].text.isNotEmpty &&
-          form["country"].text.isNotEmpty;
-    });
-
-    if (isFormValid != isValid) {
-      setState(() {
-        isFormValid = isValid;
-      });
-    }
-  }
-
-  Future<void> _submitAddresses() async {
-    setState(() {
-      isButtonDisabled = true;
-    });
-    final businessId = ref.read(businessProvider)?.id;
-
-    if (businessId == null) {
-      return;
-    }
-
-    final locations =
-        addressControllersList.map((controllers) {
-          return {
-            "id": controllers["id"] ?? "",
-            "title": controllers["location"]?.text ?? "",
-            "address": controllers["address"]?.text ?? "",
-            "floor": controllers["floor"]?.text ?? "",
-            "city": controllers["city"]?.text ?? "",
-            "state": controllers["state"]?.text ?? "",
-            "country": controllers["country"]?.text ?? "",
-            "instructions": controllers["instructions"]?.text ?? "",
-            "latitude": controllers['latitude'] ?? 0.0,
-            "longitude": controllers["longitude"] ?? 0.0,
-            "is_active": true,
-          };
-        }).toList();
-    try {
-      await OnboardingApiService().submitLocationInfo(
-        businessId: businessId,
-        locations: locations,
-      );
-      try {
-        final businessDetails = await UserService().fetchBusinessDetails(
-          businessId: businessId,
-        );
-        ref.read(businessProvider.notifier).state = businessDetails;
-
-        context.push("/offerings");
-      } catch (e) {
-        // print("Error fething business details: $e");
-      }
-    } catch (e) {
-      // print("Error submitting locations: $e");
-    } finally {
-      setState(() {
-        isButtonDisabled = false;
-      });
-    }
-  }
-
-  void _removeAddressForm(int index) {
-    setState(() {
-      addressControllersList.removeAt(index);
-      _validateForms();
-    });
-  }
-
-  void _handleMapBack() {
-    if (isFirstTimeVisit && addressControllersList.isEmpty) {
-      // First time visit with no locations added yet - go back to previous screen
-      context.pop();
-    } else {
-      // Close the map and return to form view
-      setState(() {
-        isOpenMap = false;
-      });
-    }
-  }
-
+  
   @override
   Widget build(BuildContext context) {
+    final controller = ref.watch(onboardLocationsControllerProvider);
     final theme = Theme.of(context);
 
-    if (isOpenMap) {
+    if (controller.isOpenMap) {
       return MapSelector(
         onLocationSelected: (locationData) {
-          setState(() {
-            isOpenMap = false;
-            isFirstTimeVisit = false; // No longer first time after adding location
-            _addAddressForm(
-              lat: locationData['lat'],
-              lng: locationData['lng'],
-              city: locationData['city'],
-              state: locationData['state'],
-              country: locationData['country'],
-            );
-          });
+          controller.onLocationSelected(locationData);
         },
-        onBackPressed: _handleMapBack, // Pass the back handler
+        onBackPressed: () => controller.handleMapBack(context),
       );
     }
 
@@ -212,7 +38,7 @@ class _OnboardLocationsScreenState
       backButtonDisabled: false,
       body: Column(
         children: [
-          ...addressControllersList.asMap().entries.map((entry) {
+          ...controller.addressControllersList.asMap().entries.map((entry) {
             int index = entry.key;
             var controllers = entry.value;
 
@@ -221,7 +47,7 @@ class _OnboardLocationsScreenState
               child: OnboardingLocationInfoForm(
                 key: ValueKey(
                   "${controllers['latitude']}_${controllers['longitude']}",
-                ), // 👈 forces rebuild,
+                ),
                 locationController: controllers["location"]!,
                 addressController: controllers["address"]!,
                 cityController: controllers["city"]!,
@@ -229,58 +55,43 @@ class _OnboardLocationsScreenState
                 countryController: controllers["country"]!,
                 floorController: controllers["floor"]!,
                 instructionController: controllers["instructions"]!,
-                showDeleteButton: addressControllersList.length > 1,
+                showDeleteButton: controller.addressControllersList.length > 1,
+                addressNumber: controller.addressControllersList.length > 1 ? index + 1 : null,
                 lat: controllers['latitude'],
                 lng: controllers['longitude'],
                 onClick: () {
-                  if (addressControllersList.length > 1) {
-                    _removeAddressForm(index);
+                  if (controller.addressControllersList.length > 1) {
+                    controller.removeAddressForm(index);
                   }
                 },
                 onLocationUpdated: (updatedLocation) {
-                  setState(() {
-                    controllers['latitude'] = updatedLocation['lat'];
-                    controllers['longitude'] = updatedLocation['lng'];
-                    controllers['city']?.text = updatedLocation['city'] ?? '';
-                    controllers['state']?.text = updatedLocation['state'] ?? '';
-                    controllers['country']?.text =
-                        updatedLocation['country'] ?? '';
-                  });
+                  controller.updateLocationData(index, updatedLocation);
                 },
               ),
             );
           }),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                isOpenMap = true;
-              });
-            },
-            child: Row(
-              children: [
-                Icon(
+          Row(
+            children: [
+              SecondaryButton(
+                onPressed: () {
+                  controller.openMap();
+                },
+                prefix: Icon(
                   Icons.add_circle_outline,
                   color: theme.colorScheme.primary,
                   size: 20,
                 ),
-                SizedBox(width: 5),
-                Text(
-                  "Add another address",
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
+                text: "Add another address",
+              ),
+            ],
+          )
         ],
       ),
       onNext: () async {
-        await _submitAddresses();
-        // context.push("/offerings");
+        await controller.submitAddresses(context);
       },
       nextButtonText: "Next: select offering",
-      nextButtonDisabled: isButtonDisabled || !isFormValid,
+      nextButtonDisabled: controller.isButtonDisabled || !controller.isFormValid,
       currentStep: 1,
     );
   }

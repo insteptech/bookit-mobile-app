@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 
 class ServiceFormData {
   final String serviceId;
@@ -282,30 +283,18 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
           ),
           const SizedBox(height: 24),
         ],
-        GestureDetector(
-          onTap: () {
+        SecondaryButton(
+          onPressed: () {
             setState(() {
               forms.add(ServiceFormData(serviceId: widget.serviceId));
             });
           },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.add_circle_outline,
-                color: theme.colorScheme.primary,
-                size: 20,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                "Add another service",
-                style: AppTypography.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ],
+          prefix: Icon(
+            Icons.add_circle_outline,
+            color: theme.colorScheme.primary,
+            size: 20,
           ),
+          text: "Add another service",
         ),
       ],
     );
