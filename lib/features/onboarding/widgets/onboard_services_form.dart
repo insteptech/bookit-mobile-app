@@ -123,6 +123,7 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
           Text(AppTranslationsDelegate.of(context).text("write_short_description"), style: AppTypography.bodyMedium),
           const SizedBox(height: 8),
           InputField(
+            maxLines: 3,
             hintText: AppTranslationsDelegate.of(context).text("service_description"),
             controller: formData.descriptionController,
           ),
