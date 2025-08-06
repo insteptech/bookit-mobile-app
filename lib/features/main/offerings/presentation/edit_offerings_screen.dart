@@ -5,6 +5,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
 import 'package:bookit_mobile_app/features/main/offerings/controllers/edit_offerings_controller.dart';
 import 'package:bookit_mobile_app/features/main/offerings/widgets/offerings_add_service_scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -226,7 +227,7 @@ class _EditOfferingsScreenState extends State<EditOfferingsScreen> {
                 'Set a limit on available spots',
                 style: AppTypography.bodyMedium,
               ),
-              Switch(
+              CustomSwitch(
                 value: controller.spotsLimitEnabled,
                 onChanged: (value) {
                   controller.setSpotsLimitEnabled(value);

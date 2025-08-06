@@ -21,7 +21,7 @@ final getUserRegisteredCategoriesEndpoint = "$baseUrl/auth"; //'id'/summary
 final getStaffListByUserIdEndpoint = "$baseUrl/profile/staff/user";
 final getStaffListEndpoint = "$baseUrl/profile/staff/list";
 String getStaffListByBusinessIdEndpoint(String businessId) =>
-    "$baseUrl/profile/staff/$businessId";
+    "$baseUrl/profile/staff/business/$businessId";
 
 //..........................get staff in categories........................................
 String getStaffListUnderCategoriesByBusinessIdEndpoint(String businessId) =>

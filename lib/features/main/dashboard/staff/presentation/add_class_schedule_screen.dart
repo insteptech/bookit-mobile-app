@@ -409,16 +409,6 @@ void _updateFormForLocation(String locationId) {
       filteredStaffMembers = [];
       return;
     }
-    print("");
-    print("");
-    print("");
-    print("");
-
-    print("all staff members $allStaffMembers");
-    print("");
-    print("");
-    print("");
-    print("");
 
     filteredStaffMembers = allStaffMembers.where((staff) {
       final locationIds = staff['location_id'];

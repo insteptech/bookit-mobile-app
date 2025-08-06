@@ -312,6 +312,7 @@ class APIRepository {
       String businessId =
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getStaffListUnderCategoriesByBusinessIdEndpoint(businessId);
+      // final response = await _dio.get(getStaffListEndpoint);
       final response = await _dio.get(url);
 
                  // Pretty print JSON
@@ -333,7 +334,7 @@ class APIRepository {
         await ActiveBusinessService().getActiveBusiness() as String;
       final response = await _dio.get(getStaffListByBusinessIdEndpoint(businessId));
 
-                 // Pretty print JSON
+    //              // Pretty print JSON
     // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from getStaffListByBusinessId:\n$prettyJson");

@@ -345,7 +345,6 @@ class ClassScheduleController {
       }
     }
     
-    print("Controller initialized with schedules: ${schedules.map((s) => 'ID:${s.id} ${s.day}: ${s.instructors}').toList()}");
   }
 
   void updateStaffForDay(String day, List<String> staffIds) {
