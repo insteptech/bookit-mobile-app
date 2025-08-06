@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
@@ -74,12 +77,17 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
             const SizedBox(height: 8),
             if (level1ToLevel2.containsKey(l1.category.id))
               for (final l2 in level1ToLevel2[l1.category.id]!) ...[
-                Text(l2.category.name, style: AppTypography.headingSm),
+                SizedBox(height: 8),
+                Text(l2.category.name.toString().toUpperCase(), style: AppTypography.headingSm.copyWith(color: AppColors.secondaryFontColor)),
                 const SizedBox(height: 8),
                 Builder(builder: (context) {
                   final key = GlobalKey<OnboardServicesFormState>();
                   formKeys[l2.id] = key;
-                  return OnboardServicesForm(key: key, serviceId: l2.id);
+                  return OnboardServicesForm(
+                    key: key, 
+                    serviceId: l2.id,
+                    isClass: l2.category.isClass,
+                  );
                 }),
                 const SizedBox(height: 24),
               ]
@@ -87,7 +95,11 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
               Builder(builder: (context) {
                 final key = GlobalKey<OnboardServicesFormState>();
                 formKeys[l1.id] = key;
-                return OnboardServicesForm(key: key, serviceId: l1.id);
+                return OnboardServicesForm(
+                  key: key, 
+                  serviceId: l1.id,
+                  isClass: l1.category.isClass,
+                );
               }),
               const SizedBox(height: 24),
             ],

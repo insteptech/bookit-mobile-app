@@ -5,11 +5,14 @@ import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
 
 class ServiceFormData {
   final String serviceId;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  bool spotsAvailable = false;
+  final TextEditingController spotsController = TextEditingController();
   final List<Map<String, dynamic>> durationAndCosts = [
     {
       "duration": "",
@@ -58,13 +61,15 @@ class ServiceFormData {
       'name': titleController.text.trim(),
       'description': descriptionController.text.trim(),
       'durations': durationList,
+      'spots_available': spotsAvailable ? (int.tryParse(spotsController.text) ?? null) : null,
     };
   }
 }
 
 class OnboardServicesForm extends StatefulWidget {
   final String serviceId;
-  const OnboardServicesForm({super.key, required this.serviceId});
+  final bool isClass;
+  const OnboardServicesForm({super.key, required this.serviceId, this.isClass = false});
 
   @override
   State<OnboardServicesForm> createState() => OnboardServicesFormState();
@@ -173,28 +178,29 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
               );
             }),
           ),
-          GestureDetector(
-            child: Text(
-              "Add new duration",
-              style: AppTypography.bodyMedium.copyWith(
-                color: theme.colorScheme.primary,
+          if (!widget.isClass) // Only show "Add new duration" for non-class services
+            GestureDetector(
+              child: Text(
+                "Add new duration",
+                style: AppTypography.bodyMedium.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
               ),
-            ),
-            onTap: () {
-              setState(() {
-                formData.durationAndCosts.add({
-                  "duration": "",
-                  "cost": "",
-                  "packageAmount": "",
-                  "packagePerson": "",
-                  "durationController": TextEditingController(),
-                  "costController": TextEditingController(),
-                  "packageAmountController": TextEditingController(),
-                  "packagePersonController": TextEditingController(),
+              onTap: () {
+                setState(() {
+                  formData.durationAndCosts.add({
+                    "duration": "",
+                    "cost": "",
+                    "packageAmount": "",
+                    "packagePerson": "",
+                    "durationController": TextEditingController(),
+                    "costController": TextEditingController(),
+                    "packageAmountController": TextEditingController(),
+                    "packagePersonController": TextEditingController(),
+                  });
                 });
-              });
-            },
-          ),
+              },
+            ),
           const SizedBox(height: 16),
           Text(AppTranslationsDelegate.of(context).text("cost"), style: AppTypography.headingSm),
           const SizedBox(height: 8),
@@ -281,6 +287,48 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
                     })
                     .toList(),
           ),
+          if (widget.isClass) ...[
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Spots available",
+                  style: AppTypography.headingSm,
+                ),
+                CustomSwitch(
+                  value: formData.spotsAvailable,
+                  onChanged: (value) {
+                    setState(() {
+                      formData.spotsAvailable = value;
+                      if (!value) {
+                        formData.spotsController.clear();
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            if (formData.spotsAvailable) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 88,
+                    child: NumericInputBox(
+                      controller: formData.spotsController,
+                      hintText: "00",
+                      onChanged: (value) {
+                        setState(() {
+                          // Just trigger rebuild for any validation if needed
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
           const SizedBox(height: 24),
         ],
         SecondaryButton(
