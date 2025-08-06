@@ -68,7 +68,7 @@ class _BookNewAppointmentScreenState
     setState(() {
       //filter only services that are not classes
       serviceList = extractedList.where((service) => service['is_class'] == false).toList();
-      print('Extracted services:');
+
       for (final service in serviceList) {
         print('  - ${service['name']}: ID=${service['id']}, Duration=${service['durations'][0]['duration_minutes']}');
       }

@@ -39,7 +39,6 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
     setState(() {
       selectedCategoryId = category['id'];
       selectedCategory = category;
-      print("Selected Category: $selectedCategory");
     });
   }
 

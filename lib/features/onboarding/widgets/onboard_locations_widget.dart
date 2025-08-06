@@ -56,7 +56,6 @@ class _OnboardLocationsWidgetState extends ConsumerState<OnboardLocationsWidget>
       
       if (widget.initialLocations != null) {
         locations = widget.initialLocations!;
-        print("Initial location: $locations");
       } else {
         final business = ref.read(businessProvider);
         locations = business?.locations ?? [];

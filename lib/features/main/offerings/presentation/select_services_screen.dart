@@ -93,18 +93,6 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
             },
           )
           .toList();
-
-          print(".");
-          print(".");
-
-          print(".");
-
-        print(servicesPayload);
-          print(".");
-
-          print(".");
-          print(".");
-
         if (mounted) {
          context.push('/add_offering_service_details', extra: {
            'services': servicesPayload,

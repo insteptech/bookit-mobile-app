@@ -59,8 +59,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       }
     } catch (e) {
       // If any API call fails (likely due to invalid token), redirect to login
-      print("Splash screen API error: ${e.toString()}");
-      print("Redirecting to login screen");
+      // print("Splash screen API error: ${e.toString()}");
+      // print("Redirecting to login screen");
       NavigationService.go('/login');
     }
   }

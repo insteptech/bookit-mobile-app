@@ -268,19 +268,14 @@ class ClassScheduleSelectorState extends State<ClassScheduleSelector> {
 
   // Add this method to ClassScheduleSelectorState class
 void initializeWithExistingData(List<Map<String, String>> schedules, List<dynamic> originalSchedules) {
-  debugPrint("=== initializeWithExistingData Debug ===");
-  debugPrint("Received ${schedules.length} schedules to initialize");
-  debugPrint("Schedules: $schedules");
-  debugPrint("Original schedules: $originalSchedules");
+
   
   // Clear existing state
-  debugPrint("Clearing existing state...");
   selectedDays = List.generate(7, (_) => false);
   timeRanges.clear();
   selectedStaffPerDay.clear();
   scheduleIdsPerDay.clear();
   
-  debugPrint("Available staff members: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
   
   for (int i = 0; i < schedules.length && i < originalSchedules.length; i++) {
     final schedule = schedules[i];
@@ -289,14 +284,12 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
     final from = schedule['from'];
     final to = schedule['to'];
     
-    debugPrint("Processing schedule $i: day=$day, from=$from, to=$to");
     
     if (day != null && from != null && to != null) {
       final dayIndex = fullDays.indexWhere(
         (d) => d.toLowerCase() == day.toLowerCase()
       );
       
-      debugPrint("Day index for $day: $dayIndex");
       
       if (dayIndex != -1) {
         try {
@@ -312,7 +305,6 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
             
             // Track schedule ID for this day
             scheduleIdsPerDay[dayIndex] = schedule['id'];
-            debugPrint("Set schedule ID for day $day (index $dayIndex): ${schedule['id']}");
             
             // Set instructors - extract IDs from instructor objects
             if (originalSchedule['instructors'] != null) {
@@ -328,7 +320,6 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
               }
               
               selectedStaffPerDay[dayIndex] = instructorIds;
-              debugPrint("Set staff for day $day (index $dayIndex): ${selectedStaffPerDay[dayIndex]}");
             }
           });
         } catch (e) {
@@ -340,18 +331,10 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
   
   // Update the controller with the loaded data
   _updateSchedule();
-  debugPrint("Finished initializing with existing data");
-  debugPrint("Final selectedDays: $selectedDays");
-  debugPrint("Final timeRanges: ${timeRanges.map((k, v) => MapEntry(fullDays[k], '${v.startStr(context)} - ${v.endStr(context)}'))}");
-  debugPrint("Final selectedStaffPerDay: $selectedStaffPerDay");
-  debugPrint("Final scheduleIdsPerDay: $scheduleIdsPerDay");
-  debugPrint("Controller schedules after init: ${_scheduleController.schedules.map((s) => 'ID:${s.id} ${s.day}: instructors=${s.instructors}')}");
-  debugPrint("=== End initializeWithExistingData ===");
 }
 
 // Add method to clear all schedule data
 void clearAll() {
-  debugPrint("=== clearAll called ===");
   setState(() {
     selectedDays = List.generate(7, (_) => false);
     timeRanges.clear();
@@ -359,7 +342,6 @@ void clearAll() {
     scheduleIdsPerDay.clear();
     _scheduleController.clear();
   });
-  debugPrint("Schedule selector state cleared");
 }
 
   TimeOfDay _parseTimeFromBackend(String timeStr) {
@@ -399,7 +381,6 @@ void clearAll() {
     final endHour = (totalMinutes ~/ 60) % 24; // Handle overflow past midnight
     final endMinute = totalMinutes % 60;
     
-    debugPrint('Duration calculation: Start ${startTime.format(context)}, Duration ${widget.classDurationMinutes} mins, End ${TimeOfDay(hour: endHour, minute: endMinute).format(context)}');
     
     return TimeOfDay(hour: endHour, minute: endMinute);
   }
@@ -417,7 +398,6 @@ void clearAll() {
       final startMinute = adjustedMinutes % 60;
       final calculatedStartTime = TimeOfDay(hour: startHour, minute: startMinute);
       
-      debugPrint('Duration calculation (previous day): End ${endTime.format(context)}, Duration ${widget.classDurationMinutes} mins, Start ${calculatedStartTime.format(context)}');
       return calculatedStartTime;
     }
     
@@ -425,7 +405,6 @@ void clearAll() {
     final startMinute = totalMinutes % 60;
     final calculatedStartTime = TimeOfDay(hour: startHour, minute: startMinute);
     
-    debugPrint('Duration calculation: End ${endTime.format(context)}, Duration ${widget.classDurationMinutes} mins, Start ${calculatedStartTime.format(context)}');
     
     return calculatedStartTime;
   }
@@ -446,9 +425,6 @@ void clearAll() {
       }
     }
 
-    print("=== _updateSchedule Debug ===");
-    print("daySchedules: $daySchedules");
-    print("selectedStaffPerDay: $selectedStaffPerDay");
 
     // Update controller with day schedules
     _scheduleController.updateDaySchedule(daySchedules);
@@ -458,13 +434,10 @@ void clearAll() {
       if (selectedDays[index] && selectedStaffPerDay[index] != null) {
         final dayName = fullDays[index].toLowerCase();
         final staffIds = selectedStaffPerDay[index]!;
-        print("Updating staff for day $dayName: $staffIds");
         _scheduleController.updateStaffForDay(dayName, staffIds);
       }
     }
 
-    print("Final controller.isValid: ${_scheduleController.isValid}");
-    print("============================");
 
     // For backward compatibility, also send the legacy format
     final legacyFormat = _scheduleController.getLegacyFormat();
@@ -535,7 +508,7 @@ void clearAll() {
       }
     }
     
-    debugPrint("Day $dayIndex staff selection - selectedStaffId: $selectedStaffId, selectedStaffItem: $selectedStaffItem");
+    // debugPrint("Day $dayIndex staff selection - selectedStaffId: $selectedStaffId, selectedStaffItem: $selectedStaffItem");
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +521,7 @@ void clearAll() {
           hintText: 'Select staff',
           initialSelectedItem: selectedStaffItem,
           onChanged: (selectedStaffItem) {
-            debugPrint("Staff selected for day $dayIndex: $selectedStaffItem");
+            // debugPrint("Staff selected for day $dayIndex: $selectedStaffItem");
             setState(() {
               final staffId = selectedStaffItem['id'];
               selectedStaffPerDay[dayIndex] = staffId != null ? [staffId] : [];

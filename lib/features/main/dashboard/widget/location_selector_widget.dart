@@ -35,7 +35,6 @@ class LocationSelectorWidget extends ConsumerWidget {
                   await businessController.fetchBusinessCategories();
                 }
                 
-                print("Fetching for location ${location['id']}");
               },
               child: Container(
                 margin: const EdgeInsets.only(right: 8),

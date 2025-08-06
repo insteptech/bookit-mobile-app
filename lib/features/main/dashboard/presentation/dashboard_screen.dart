@@ -35,8 +35,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final businessController = ref.read(businessControllerProvider.notifier);
     final categoriesFuture = businessController.fetchBusinessCategories();
 
-    print("Locations: $locations");
-    print("categoriesFuture: $categoriesFuture");
     
     if (locations.isNotEmpty) {
       final activeLocation = ref.read(activeLocationProvider);
@@ -92,7 +90,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Future<void> fetchClasses(String locationId) async {
     try {
       final classesData = await APIRepository.getAllClassesDetails();
-      print("Classes data: ${classesData['data']}");
     } catch (e) {
       print("Error fetching classes: $e");
     }

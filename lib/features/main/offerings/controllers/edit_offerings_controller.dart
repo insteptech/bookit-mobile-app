@@ -200,7 +200,6 @@ class EditOfferingsController extends ChangeNotifier {
       if (_isClass && _spotsLimitEnabled && spotsController.text.isNotEmpty) {
         payload['spots_available'] = int.tryParse(spotsController.text) ?? 0;
       }
-      print('Payload: $payload');
 
       // API call to update service details
       final response = await APIRepository.updateServiceDetails(_serviceDetailId!, payload);

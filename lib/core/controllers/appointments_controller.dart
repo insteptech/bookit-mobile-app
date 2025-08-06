@@ -74,11 +74,8 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
           final utcStartTime = DateTime.parse(appointment['start_time']);
           final localStartTime = utcStartTime.toLocal();
           
-          debugPrint("Appointment: ${appointment['start_time']} (UTC) -> ${localStartTime.toString()} (Local)");
-          
           // Check if appointment falls within today's local time boundaries
           final isToday = localStartTime.isAfter(todayStart) && localStartTime.isBefore(todayEnd);
-          debugPrint("Is today: $isToday");
           
           return isToday;
         } catch (e) {
@@ -93,7 +90,6 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
       };
     }).where((staff) => (staff['appointments'] as List).isNotEmpty).toList();
     
-    debugPrint("Filtered appointments: $filtered");
 
     state = state.copyWith(todaysStaffAppointments: filtered);
   }
