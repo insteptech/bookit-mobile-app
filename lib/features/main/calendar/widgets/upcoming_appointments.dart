@@ -1,6 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
-import 'package:bookit_mobile_app/features/main/dashboard/widget/no_upcoming_appointments_box.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widgets/no_upcoming_appointments_box.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';

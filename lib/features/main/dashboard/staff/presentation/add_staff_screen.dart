@@ -1,15 +1,15 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/navigation_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
-import 'package:bookit_mobile_app/features/main/dashboard/staff/models/staff_profile_request_model.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/staff/application/add_staff_controller.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:flutter/material.dart';
 import '../widgets/add_member_form.dart';
 
 enum StaffScreenButtonMode {
-  continueToSchedule, // Shows "Continue to Schedule" + "Save and Exit"
-  saveOnly,          // Shows only "Save" button
+  continueToSchedule, 
+  saveOnly,         
 }
 
 class AddStaffScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class AddStaffScreen extends StatefulWidget {
   
   const AddStaffScreen({
     super.key, 
-    this.isClass, // Optional parameter
+    this.isClass, 
     this.buttonMode = StaffScreenButtonMode.continueToSchedule, // Default mode
   });
 
@@ -27,87 +27,70 @@ class AddStaffScreen extends StatefulWidget {
 }
 
 class _AddStaffScreenState extends State<AddStaffScreen> {
-  List<int> memberForms = [0];
-  Map<int, StaffProfile> staffProfiles = {};
-  bool isLoading = false;
+  late final AddStaffController _controller;
+  bool _isSaveAndExit = false; // Track which action triggered the submission
 
-  void addMemberForm() {
-    setState(() {
-      memberForms.add(DateTime.now().millisecondsSinceEpoch);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _controller = AddStaffController();
+    _controller.setCallbacks(
+      onStateChanged: () => setState(() {}),
+      onSuccess: _handleSuccess,
+      onError: _handleError,
+    );
   }
 
-  void removeMemberForm(int id) {
-    if (memberForms.length <= 1) return;
-
-    setState(() {
-      memberForms.remove(id);
-      staffProfiles.remove(id);
-    });
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
-  void updateStaffProfile(int id, StaffProfile profile) {
-    setState(() {
-      staffProfiles[id] = profile;
-    });
-  }
-
-  bool get canSubmit {
-    return staffProfiles.length == memberForms.length &&
-        staffProfiles.values.every(
-          (profile) =>
-              profile.name.isNotEmpty &&
-              profile.email.isNotEmpty &&
-              profile.phoneNumber.isNotEmpty &&
-              profile.categoryIds.isNotEmpty &&
-              profile.locationIds.isNotEmpty,
-        );
-  }
-
-  Future<void> submitStaffProfiles() async {
-    if (!canSubmit) return;
-
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final response = await APIRepository.addMultipleStaff(
-        staffProfiles: staffProfiles.values.toList(),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(
-              AppTranslationsDelegate.of(context).text("staff_members_added_successfully")
-          )),
-        );
-        
-        // Handle navigation based on button mode
-        if (widget.buttonMode == StaffScreenButtonMode.continueToSchedule) {
-          // Navigate based on whether this is for a class or regular staff
-          if (widget.isClass == true) {
-            NavigationService.push("/add_class_schedule");
-          } else {
-            NavigationService.pushStaffList();
-          }
+  void _handleSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+    
+    // Handle navigation based on which action was triggered
+    if (_isSaveAndExit) {
+      // For save and exit, just go back to previous screen
+      Navigator.pop(context);
+    } else {
+      // For continue to schedule, handle navigation based on button mode
+      if (widget.buttonMode == StaffScreenButtonMode.continueToSchedule) {
+        // Navigate based on whether this is for a class or regular staff
+        if (widget.isClass == true) {
+          NavigationService.push("/add_class_schedule");
         } else {
-          // For saveOnly mode, just go back
-          Navigator.pop(context);
+          NavigationService.pushStaffList();
         }
       } else {
-        throw Exception('Failed to add staff members');
+        // For saveOnly mode, just go back
+        Navigator.pop(context);
       }
-    } catch (e) {
-      print("Error occurred while adding staff members: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${AppTranslationsDelegate.of(context).text("error")}: $e')));
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
     }
+    
+    // Reset the flag
+    _isSaveAndExit = false;
+  }
+
+  void _handleSaveAndExit() async {
+    // Only save if there's valid data to save
+    if (_controller.canSubmit) {
+      _isSaveAndExit = true;
+      await _controller.submitStaffProfiles();
+      // Navigation will be handled by _handleSuccess callback
+    } else {
+      // If no valid data, just exit
+      Navigator.pop(context);
+    }
+  }
+
+  void _handleError(String error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${AppTranslationsDelegate.of(context).text("error")}: $error')),
+    );
   }
 
   @override
@@ -131,27 +114,25 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               ),
               const SizedBox(height: 48),
               // Render all member forms
-              ...memberForms.map(
+              ..._controller.memberForms.map(
                 (id) => Padding(
                   padding: const EdgeInsets.only(bottom: 32),
                   child: AddMemberForm(
                     key: ValueKey(id),
                     isClass: widget.isClass, // Pass the optional isClass parameter directly
-                    onAdd: addMemberForm,
+                    onAdd: _controller.addMemberForm,
                     onDelete:
-                        memberForms.length > 1
-                            ? () => removeMemberForm(id)
+                        _controller.memberForms.length > 1
+                            ? () => _controller.removeMemberForm(id)
                             : null,
-                    onDataChanged: (profile) => updateStaffProfile(id, profile),
+                    onDataChanged: (profile) => _controller.updateStaffProfile(id, profile),
                   ),
                 ),
               ),
-              TextButton.icon(
-                onPressed: addMemberForm,
-                icon: const Icon(Icons.add_circle_outline, size: 22),
-                label: Text(
-                    AppTranslationsDelegate.of(context).text("add_another_staff_member")
-                ), 
+              SecondaryButton(
+                onPressed: _controller.addMemberForm, 
+                text: AppTranslationsDelegate.of(context).text("add_another_staff_member"),
+                prefix: Icon(Icons.add_circle_outline, size: 22, color: Theme.of(context).colorScheme.primary),
               ),
 
               // Action buttons
@@ -170,20 +151,21 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         return Column(
           children: [
             PrimaryButton(
-              text: isLoading 
+              text: _controller.isLoading 
                 ? AppTranslationsDelegate.of(context).text("adding_staff")
                 : AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
-              onPressed: isLoading ? null : submitStaffProfiles,
-              isDisabled: !canSubmit || isLoading,
+              onPressed: _controller.isLoading ? null : _controller.submitStaffProfiles,
+              isDisabled: !_controller.canSubmit || _controller.isLoading,
             ),
             const SizedBox(height: 10),
             Center(
               child: TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: _controller.isLoading ? null : _handleSaveAndExit,
                 child: Text(
                   AppTranslationsDelegate.of(context).text("save_and_exit"),
                   style: AppTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w500,
+                    color: _controller.isLoading ? Colors.grey : null,
                   ),
                 ),
               ),
@@ -192,11 +174,11 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         );
       case StaffScreenButtonMode.saveOnly:
         return PrimaryButton(
-          text: isLoading 
+          text: _controller.isLoading 
             ? AppTranslationsDelegate.of(context).text("adding_staff")
             : "Save",
-          onPressed: isLoading ? null : submitStaffProfiles,
-          isDisabled: !canSubmit || isLoading,
+          onPressed: _controller.isLoading ? null : _controller.submitStaffProfiles,
+          isDisabled: !_controller.canSubmit || _controller.isLoading,
         );
     }
   }

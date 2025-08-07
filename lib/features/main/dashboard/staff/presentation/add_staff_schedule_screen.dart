@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/api_prov
 import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/set_schedule_form.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -168,18 +169,16 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
                         }),
 
                         if (controller.entries.length < locations.length)
-                          TextButton.icon(
-                            onPressed: () {
-                              setState(() {
+                          SecondaryButton(onPressed: (){
+                             setState(() {
                                 controller.addNewEntry();
                               });
-                            },
-                            icon: const Icon(
+                          }, 
+                          text: AppTranslationsDelegate.of(context).text("add_another_location_schedule"),
+                          prefix: Icon(
                               Icons.add_circle_outline,
-                              size: 22,
                             ),
-                            label: Text(AppTranslationsDelegate.of(context).text("add_another_location_schedule")),
-                          ),
+                          )
                       ],
                     ),
                   ),

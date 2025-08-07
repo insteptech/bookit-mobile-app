@@ -92,8 +92,8 @@
     "choose_location": "Choose location",
     "female": "female",
     "male": "male",
-    "see_all": "See All",
-    "see_less": "See Less",
+    "see_all": "See all",
+    "see_less": "See less",
 
     "add_another_member": "Add Another Member",
 
@@ -165,7 +165,7 @@
     "set_schedule": "Set schedule",
     "set_schedule_description": "Fantastic! Now, let's get their schedules sorted. You can add their availability here, and it's always editable under 'Schedule'. Choose a member to edit their schedule.",
     "add_staff": "Add staff",
-    "add_another_staff_member": "Add Another Staff Member",
+    "add_another_staff_member": "Add another staff member",
     "staff_members_added_successfully": "Staff members added successfully!",
     "failed_to_add_staff_members": "Failed to add staff members",
     "error": "Error",

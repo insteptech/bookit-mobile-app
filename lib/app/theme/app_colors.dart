@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // static const primary = Color(0xFF377BF6);
-  static const primary = Color(0xFF1A6AFF);
-  static const secondary = Color(0xFF9CBFFF);
+  // static const primary = Color(0xFF1A6AFF);
+  static const primary = Color(0xFF790077);
+
+  // static const secondary = Color(0xFF9CBFFF);
+  static const secondary = Color(0xFFDBD4FF); //lavender 200
+  static const secondary2 = Color(0xFFF1EFFF); //lavender 100
 
   static const backgroundLight = Color(0xFFFFFFFF);
   static const surfaceLight = Color(0xFFF5F5F5);
@@ -15,7 +19,8 @@ class AppColors {
   static const onBackgroundDark = Color(0xFFFFFFFF);
   static const onSurfaceDark = Color(0xFFFFFFFF);
 
-  static const error = Color(0xFFFF5555);
+  // static const error = Color(0xFFFF5555);
+  static const error = Color(0xFFEA52E7);
   static const onPrimary = Colors.white;
   static const onSecondary = Colors.white;
   static const onError = Colors.white;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/shared/components/molecules/checkbox_list_item.dart';
 import 'package:dio/dio.dart';
 
 class CategorySelector extends StatefulWidget {
@@ -16,6 +17,9 @@ class CategorySelector extends StatefulWidget {
 class CategorySelectorState extends State<CategorySelector> {
   List<Map<String, dynamic>> categories = [];
   Set<String> selectedCategoryIds = {};
+
+  /// Public getter for selected category IDs
+  Set<String> get selectedCategories => selectedCategoryIds;
 
   @override
   void initState() {
@@ -62,37 +66,19 @@ class CategorySelectorState extends State<CategorySelector> {
             // If isClass is not null, filter by matching isClass value
             return widget.isClass == null || category['isClass'] == widget.isClass;
           }).map(
-            (category) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5.0),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: selectedCategoryIds.contains(category['id']),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                    onChanged: (checked) {
-                      setState(() {
-                        if (checked == true) {
-                          selectedCategoryIds.add(category['id']);
-                        } else {
-                          selectedCategoryIds.remove(category['id']);
-                        }
-                      });
-                      widget.onSelectionChanged?.call();
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      category['name'] ?? '',
-                      style: AppTypography.bodyMedium,
-                    ),
-                  ),
-                ],
-              ),
+            (category) => CheckboxListItem(
+              title: category['name'] ?? '',
+              isSelected: selectedCategoryIds.contains(category['id']),
+              onChanged: (checked) {
+                setState(() {
+                  if (checked) {
+                    selectedCategoryIds.add(category['id']);
+                  } else {
+                    selectedCategoryIds.remove(category['id']);
+                  }
+                });
+                widget.onSelectionChanged?.call();
+              },
             ),
           ),
       ],

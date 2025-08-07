@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
@@ -5,12 +6,14 @@ class RadioButtonCustom extends StatefulWidget {
   final List<String> options;
   final String? initialValue;
   final ValueChanged<String>? onChanged;
+  final String? textSuffix;
 
   const RadioButtonCustom({
     super.key,
     required this.options,
     this.initialValue,
     this.onChanged,
+    this.textSuffix,
   });
 
   @override
@@ -83,7 +86,7 @@ class _RadioButtonCustomState extends State<RadioButtonCustom> {
                   border: Border.all(
                     color: isSelected
                         ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface,
+                        : AppColors.socialIcon,
                     width: 2,
                   ),
                 ),
@@ -102,7 +105,7 @@ class _RadioButtonCustomState extends State<RadioButtonCustom> {
               ),
               const SizedBox(width: 8),
               Text(
-                "$option min",
+                widget.textSuffix != null ? "$option${widget.textSuffix}" : option,
                 style: AppTypography.bodyMedium
               ),
             ],

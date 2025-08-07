@@ -20,6 +20,9 @@ class SecondaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final primaryColor = isDisabled 
+      ? theme.colorScheme.primary.withValues(alpha: 0.4)
+      : theme.colorScheme.primary;
     
     return GestureDetector(
       onTap: isDisabled ? null : onPressed,
@@ -29,21 +32,25 @@ class SecondaryButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (prefix != null) ...[
-            prefix!,
+            IconTheme(
+              data: IconThemeData(color: primaryColor, size: 22),
+              child: prefix!,
+            ),
             const SizedBox(width: 5),
           ],
           Text(
             text,
             style: AppTypography.bodyMedium.copyWith(
               fontWeight: FontWeight.w500,
-              color: isDisabled 
-                ? theme.colorScheme.primary.withValues(alpha: 0.4)
-                : theme.colorScheme.primary,
+              color: primaryColor,
             ),
           ),
            if (suffix != null) ...[
             const SizedBox(width: 5),
-            suffix!,
+            IconTheme(
+              data: IconThemeData(color: primaryColor, size: 22),
+              child: suffix!,
+            ),
           ],
         ],
       ),

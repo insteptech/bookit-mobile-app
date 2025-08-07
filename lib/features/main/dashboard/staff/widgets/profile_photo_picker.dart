@@ -14,6 +14,9 @@ class ProfilePhotoPicker extends StatefulWidget {
 class ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
   File? profileImage;
 
+  /// Public getter for profile image
+  File? get selectedImage => profileImage;
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile = await picker.pickImage(

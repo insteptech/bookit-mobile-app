@@ -1,6 +1,6 @@
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:flutter/material.dart';
 
 class StaffAvailabilityRadio extends StatefulWidget {
@@ -18,45 +18,22 @@ class StaffAvailabilityRadio extends StatefulWidget {
 }
 
 class _StaffAvailabilityRadioState extends State<StaffAvailabilityRadio> {
-  late bool isAvailable;
-
-  @override
-  void initState() {
-    super.initState();
-    isAvailable = widget.controller.entries[widget.index].isAvailable;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _buildRadioOption(AppTranslationsDelegate.of(context).text("available"), true),
-        const SizedBox(width: 40),
-        _buildRadioOption(AppTranslationsDelegate.of(context).text("unavailable"), false),
-      ],
-    );
-  }
-
-  Widget _buildRadioOption(String label, bool value) {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        Radio<bool>(
-          value: value,
-          groupValue: isAvailable,
-          activeColor: theme.colorScheme.primary,
-          onChanged: (val) {
-            setState(() {
-              isAvailable = val!;
-              widget.controller.entries[widget.index].isAvailable = isAvailable;
-            });
-          },
-        ),
-        Text(
-          label,
-          style: AppTypography.bodyMedium,
-        ),
-      ],
+    final availableText = AppTranslationsDelegate.of(context).text("available");
+    final unavailableText = AppTranslationsDelegate.of(context).text("unavailable");
+    
+    return RadioButtonCustom(
+      options: [availableText, unavailableText],
+      initialValue: widget.controller.entries[widget.index].isAvailable 
+          ? availableText
+          : unavailableText,
+      onChanged: (value) {
+        setState(() {
+          widget.controller.entries[widget.index].isAvailable = 
+              value == availableText;
+        });
+      },
     );
   }
 }

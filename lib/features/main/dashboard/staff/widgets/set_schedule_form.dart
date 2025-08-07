@@ -51,7 +51,7 @@ class SetScheduleForm extends StatelessWidget {
             ),
           ],
         ),
-        
+        SizedBox(height: 8,),
         StaffAvailabilityRadio(
           index: index,
           controller: controller,
@@ -67,7 +67,7 @@ class SetScheduleForm extends StatelessWidget {
 
         LocationAndSchedule(
         index: index,
-        locations: availableLocations, // 🔥 Filtered here
+        locations: availableLocations, 
         controller: controller,
         onChange: onChange,
       ),

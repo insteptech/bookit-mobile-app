@@ -29,5 +29,5 @@ bool isMobileNumberInCorrectFormat(String mobile) {
   final RegExp mobileRegex = RegExp(
     r'^\+?[1-9]\d{1,14}$', 
   );
-  return mobileRegex.hasMatch(mobile);
+  return mobileRegex.hasMatch(mobile) && mobile.length == 11;
 }

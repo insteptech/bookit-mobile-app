@@ -5,7 +5,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
-import '../../../../shared/components/molecules/multi_select_item.dart';
+import '../../../../shared/components/molecules/checkbox_list_item.dart';
 
 class EnhancedServiceFormData {
   final String serviceId;
@@ -549,7 +549,7 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
                     staff['first_name']?.toString() ?? 
                     'Unknown Staff';
                 
-                return MultiSelectItem(
+                return CheckboxListItem(
                     title: staffName,
                     isSelected: isSelected,
                     onChanged: (bool value) {

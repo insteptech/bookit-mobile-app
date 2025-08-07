@@ -1,7 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/shared/components/molecules/checkbox_list_item.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 
 class LocationSelector extends StatefulWidget {
   final VoidCallback? onSelectionChanged;
@@ -15,6 +15,9 @@ class LocationSelector extends StatefulWidget {
 class LocationSelectorState extends State<LocationSelector> {
   List<Map<String, String>> locations = [];
   Set<String> selectedLocationIds = {};
+
+  /// Public getter for selected location IDs
+  Set<String> get selectedLocations => selectedLocationIds;
 
   @override
   void initState() {
@@ -53,34 +56,19 @@ class LocationSelectorState extends State<LocationSelector> {
           const Center(child: CircularProgressIndicator())
         else
           ...locations.map(
-            (location) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: selectedLocationIds.contains(location['id']),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                    onChanged: (checked) {
-                      setState(() {
-                        if (checked == true) {
-                          selectedLocationIds.add(location['id']!);
-                        } else {
-                          selectedLocationIds.remove(location['id']);
-                        }
-                      });
-                      widget.onSelectionChanged?.call();
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(location['title'] ?? '', style: AppTypography.bodyMedium),
-                  ),
-                ],
-              ),
+            (location) => CheckboxListItem(
+              title: location['title'] ?? '',
+              isSelected: selectedLocationIds.contains(location['id']),
+              onChanged: (checked) {
+                setState(() {
+                  if (checked) {
+                    selectedLocationIds.add(location['id']!);
+                  } else {
+                    selectedLocationIds.remove(location['id']);
+                  }
+                });
+                widget.onSelectionChanged?.call();
+              },
             ),
           ),
       ],

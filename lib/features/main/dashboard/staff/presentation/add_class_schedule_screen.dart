@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/staff/widgets/class_schedule_selector.dart';
 import 'package:flutter/material.dart';
 
@@ -676,7 +677,7 @@ void _updateFormForLocation(String locationId) {
                           }).toList(),
                         ),
 
-                        if ((widget.classId?.isNotEmpty ?? true) && (widget.className?.isNotEmpty ?? true))
+                        if ((widget.classId?.isNotEmpty ?? false) && (widget.className?.isNotEmpty ?? false))
                         Text("${widget.className}", style: AppTypography.headingMd.copyWith(fontWeight: FontWeight.w400),),
 
                         const SizedBox(height: 32),
@@ -738,7 +739,7 @@ void _updateFormForLocation(String locationId) {
                         const SizedBox(height: 32),
 
                         Text(
-                          'Pricing details', 
+                          'Location specific pricing', 
                           style: AppTypography.headingSm
                         ),
                         const SizedBox(height: 8),
@@ -746,10 +747,10 @@ void _updateFormForLocation(String locationId) {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Set custom pricing for this location?',
+                              'Override price for this location?',
                               style: AppTypography.bodyMedium,
                             ),
-                            Switch(
+                            CustomSwitch(
                               value: locationPricingEnabled,
                               onChanged: (value) {
                                 setState(() {

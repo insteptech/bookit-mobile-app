@@ -36,6 +36,20 @@ class _AddMemberFormState extends State<AddMemberForm> {
   final _profilePickerKey = GlobalKey<ProfilePhotoPickerState>();
   final _genderSelectorKey = GlobalKey<GenderSelectorState>();
 
+  /// Checks if the current form has all required fields filled
+  bool get isFormValid {
+    final categoryIds = _categorySelectorKey.currentState?.selectedCategories ?? {};
+    final locationIds = _locationSelectorKey.currentState?.selectedLocations ?? {};
+    final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? '';
+
+    return _nameController.text.trim().isNotEmpty &&
+           _emailController.text.trim().isNotEmpty &&
+           _phoneController.text.trim().isNotEmpty &&
+           gender.trim().isNotEmpty &&
+           categoryIds.isNotEmpty &&
+           locationIds.isNotEmpty;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -46,25 +60,24 @@ class _AddMemberFormState extends State<AddMemberForm> {
 
   void _onDataChanged() async {
     if (widget.onDataChanged != null) {
-      final categoryIds = _categorySelectorKey.currentState?.selectedCategoryIds.toList() ?? [];
-      final locationIds = _locationSelectorKey.currentState?.selectedLocationIds.toList() ?? [];
-      final profileImage = _profilePickerKey.currentState?.profileImage;
-      final gender = _genderSelectorKey.currentState?.selectedGender;
+      final categoryIds = _categorySelectorKey.currentState?.selectedCategories.toList() ?? [];
+      final locationIds = _locationSelectorKey.currentState?.selectedLocations.toList() ?? [];
+      final profileImage = _profilePickerKey.currentState?.selectedImage;
+      final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? '';
 
-      if (categoryIds.isNotEmpty && locationIds.isNotEmpty) {
-        widget.onDataChanged!(
-          StaffProfile(
-            userId: '',
-            name: _nameController.text,
-            email: _emailController.text,
-            phoneNumber: _phoneController.text,
-            gender: gender ?? 'male',
-            categoryIds: categoryIds,
-            locationIds: locationIds,
-            profileImage: profileImage,
-          ),
-        );
-      }
+      // Always send profile data to controller for validation tracking
+      widget.onDataChanged!(
+        StaffProfile(
+          userId: '',
+          name: _nameController.text,
+          email: _emailController.text,
+          phoneNumber: _phoneController.text,
+          gender: gender,
+          categoryIds: categoryIds,
+          locationIds: locationIds,
+          profileImage: profileImage,
+        ),
+      );
     }
   }
 

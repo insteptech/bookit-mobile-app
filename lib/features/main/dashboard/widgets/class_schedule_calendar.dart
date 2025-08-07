@@ -2,7 +2,7 @@ import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart';
-import 'package:bookit_mobile_app/features/main/dashboard/widget/no_classes_box.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widgets/no_classes_box.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';

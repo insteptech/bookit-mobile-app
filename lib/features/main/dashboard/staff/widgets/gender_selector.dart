@@ -1,5 +1,4 @@
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:flutter/material.dart';
 
 class GenderSelector extends StatefulWidget {
@@ -14,37 +13,18 @@ class GenderSelector extends StatefulWidget {
 class GenderSelectorState extends State<GenderSelector> {
   String? selectedGender;
 
+  /// Public getter for selected gender
+  String? get selectedGenderValue => selectedGender;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _buildOption("female"),
-        const SizedBox(width: 16),
-        _buildOption("male"),
-      ],
-    );
-  }
-
-  Widget _buildOption(String value) {
-    final theme = Theme.of(context);
-    return Expanded(
-      child: Row(
-        children: [
-          Radio<String>(
-            value: value,
-            groupValue: selectedGender,
-            activeColor: theme.colorScheme.primary,
-            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            onChanged: (val) {
-              setState(() => selectedGender = val);
-              widget.onSelectionChanged?.call();
-            },
-          ),
-          const SizedBox(width: 8),
-          Text(AppTranslationsDelegate.of(context).text(value), style: AppTypography.bodyMedium),
-        ],
-      ),
+    return RadioButtonCustom(
+      options: const ["female", "male"],
+      initialValue: selectedGender,
+      onChanged: (value) {
+        setState(() => selectedGender = value);
+        widget.onSelectionChanged?.call();
+      },
     );
   }
 }

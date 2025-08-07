@@ -457,7 +457,7 @@ void clearAll() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Select instructors for ${fullDays[dayIndex]}:'),
+        // Text('Select instructors for ${fullDays[dayIndex]}:'),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -513,8 +513,8 @@ void clearAll() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Select instructor for ${fullDays[dayIndex]}:'),
-        const SizedBox(height: 8),
+        // Text('Select instructor for ${fullDays[dayIndex]}:'),
+        // const SizedBox(height: 8),
         DropDown(
           key: ValueKey('staff_dropdown_${dayIndex}_${selectedStaffId ?? 'none'}'),
           items: _getStaffDropdownItems(),

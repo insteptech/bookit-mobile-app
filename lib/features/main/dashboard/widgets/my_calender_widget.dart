@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -525,10 +526,10 @@ class _MyCalenderWidgetState extends State<MyCalenderWidget> {
   final Color backgroundColor = isCurrentAppointment
     ? (Theme.of(context).brightness == Brightness.dark
         ? Theme.of(context).colorScheme.secondary.withOpacity(0.5)
-        : const Color(0xFF9CBFFF))
+        : AppColors.secondary)
     : (Theme.of(context).brightness == Brightness.dark
         ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
-        : const Color(0xFFDEEAFF));
+        : AppColors.secondary2);
 
   final Color textColor = theme.colorScheme.onSurface;
 

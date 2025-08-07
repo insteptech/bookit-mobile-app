@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/core/controllers/business_controller.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/models/business_category_model.dart';
-import 'package:bookit_mobile_app/features/main/dashboard/widget/appointment_section_widget.dart';
-import 'package:bookit_mobile_app/features/main/dashboard/widget/class_schedule_section_widget.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widgets/appointment_section_widget.dart';
+import 'package:bookit_mobile_app/features/main/dashboard/widgets/class_schedule_section_widget.dart';
 
 class DashboardContentWidget extends ConsumerWidget {
   const DashboardContentWidget({super.key});
