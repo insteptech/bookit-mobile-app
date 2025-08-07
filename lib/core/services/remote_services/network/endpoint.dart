@@ -9,6 +9,9 @@ final resendOtpEndpoint = "$baseUrl/auth/resend-otp";
 final loginEndpoint = "$baseUrl/auth/login";
 final profileEndpoint = "$baseUrl/auth/profile";
 final refreshTokenEndpoint = "$baseUrl/auth/refresh-token";
+final initiatePasswordResetEndpoint = "$baseUrl/auth/initiate-password-reset";
+final verifyResetOtpEndpoint = "$baseUrl/auth/verify-reset-otp";
+final resetPasswordEndpoint = "$baseUrl/auth/reset-password";
 
 //.................................Business Onboarding................................
 String businessDetailsEndpoint(String businessId) =>

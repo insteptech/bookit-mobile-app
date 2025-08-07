@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class PasswordInputField extends StatefulWidget {
@@ -51,7 +52,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(
-              color: Color(0xFF007BFF),
+              color: AppColors.primary,
               width: 2,
             ),
           ),

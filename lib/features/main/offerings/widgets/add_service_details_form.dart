@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
@@ -440,23 +441,19 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
                 'Override price for one location?',
                 style: AppTypography.bodyMedium,
               ),
-              Switch(
-                value: formData.locationPricingEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    formData.locationPricingEnabled = value;
-                    if (!value) {
-                      formData.selectedLocationId = '';
-                      // Dispose all location price controllers
-                      for (var controller in formData.locationPriceControllers.values) {
-                        controller.dispose();
-                      }
-                      formData.locationPriceControllers.clear();
+              CustomSwitch(value: formData.locationPricingEnabled, onChanged: (val) {
+                setState(() {
+                  formData.locationPricingEnabled = val;
+                  if (!val) {
+                    formData.selectedLocationId = '';
+                    // Dispose all location price controllers
+                    for (var controller in formData.locationPriceControllers.values) {
+                      controller.dispose();
                     }
-                  });
-                },
-                activeColor: theme.colorScheme.primary,
-              ),
+                    formData.locationPriceControllers.clear();
+                  }
+                });
+              }),
             ],
           ),
           

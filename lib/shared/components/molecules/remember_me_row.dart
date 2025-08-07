@@ -46,19 +46,19 @@ class RememberMeRow extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        GestureDetector(
-          onTap: (){context.push('/forgetpassword');},
-          child: Text(
-          localizations.text('forgot_password'),
-          style: const TextStyle(
-            decoration: TextDecoration.underline,
-            color: AppColors.onSurfaceLight,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            fontFamily: 'Campton',
-          ),
-        ),
-        )
+        // GestureDetector(
+        //   onTap: (){context.push('/forgetpassword');},
+        //   child: Text(
+        //   localizations.text('forgot_password'),
+        //   style: const TextStyle(
+        //     decoration: TextDecoration.underline,
+        //     color: AppColors.onSurfaceLight,
+        //     fontSize: 12,
+        //     fontWeight: FontWeight.w500,
+        //     fontFamily: 'Campton',
+        //   ),
+        // ),
+        // )
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/features/auth/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/theme_data.dart';
 import '../../../shared/components/atoms/input_field.dart';
@@ -42,11 +43,31 @@ class LoginForm extends ConsumerWidget {
             obscureText: true,
           ),
           const SizedBox(height: 3),
-          RememberMeRow(
-            rememberMe: rememberMe,
-            onChanged: (value) {
-              ref.read(rememberMeProvider.notifier).state = value;
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: RememberMeRow(
+                  rememberMe: rememberMe,
+                  onChanged: (value) {
+                    ref.read(rememberMeProvider.notifier).state = value;
+                  },
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  context.push('/forgetpassword');
+                },
+                child: Text(
+                  "Forgot Password?",
+                  style: AppTypography.bodySmall.copyWith(
+                    decoration: TextDecoration.underline,
+                    color: AppColors.onSurfaceLight,      
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 5),
           SizedBox(

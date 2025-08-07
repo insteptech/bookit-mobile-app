@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
@@ -98,8 +99,8 @@ class InputField extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
           color: isDisabled == true 
-              ? const Color(0xFFCED4DA).withOpacity(0.5)
-              : const Color(0xFF007BFF),
+              ? theme.primaryColor.withOpacity(0.5)
+              : AppColors.primary,
           width: 2,
         ),
       ),

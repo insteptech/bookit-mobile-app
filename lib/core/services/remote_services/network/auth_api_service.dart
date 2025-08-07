@@ -119,6 +119,65 @@ class AuthService {
   Future<void> logout() async {
     await _tokenService.clearToken();
   }
+
+  //...........................initiate password reset............................
+  Future<void> initiatePasswordReset({required String email}) async {
+    try {
+      final response = await _dio.post(
+        initiatePasswordResetEndpoint,
+        data: {'email': email},
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(response.data['message'] ?? 'Failed to initiate password reset.');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to initiate password reset.');
+    }
+  }
+
+  //...........................verify reset OTP............................
+  Future<void> verifyResetOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final response = await _dio.post(
+        verifyResetOtpEndpoint,
+        data: {'email': email, 'otp': otp},
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(response.data['message'] ?? 'OTP verification failed.');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'OTP verification failed.');
+    }
+  }
+
+  //...........................reset password............................
+  Future<void> resetPassword({
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      final response = await _dio.post(
+        resetPasswordEndpoint,
+        data: {
+          'email': email,
+          'password': password,
+          'confirm_password': confirmPassword,
+        },
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(response.data['message'] ?? 'Password reset failed.');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Password reset failed.');
+    }
+  }
 }
 
 

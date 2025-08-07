@@ -529,4 +529,46 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     }
   }
 
+  //............................Forgot Password Methods..............................
+  /// Initiates password reset by sending OTP to email
+  static Future<void> initiatePasswordReset({required String email}) async {
+    try {
+      final authService = AuthService();
+      await authService.initiatePasswordReset(email: email);
+    } catch (e) {
+      throw Exception("Failed to initiate password reset: ${e.toString()}");
+    }
+  }
+
+  /// Verifies OTP for password reset
+  static Future<void> verifyResetOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final authService = AuthService();
+      await authService.verifyResetOtp(email: email, otp: otp);
+    } catch (e) {
+      throw Exception("Failed to verify reset OTP: ${e.toString()}");
+    }
+  }
+
+  /// Resets password with new password
+  static Future<void> resetPassword({
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      final authService = AuthService();
+      await authService.resetPassword(
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+      );
+    } catch (e) {
+      throw Exception("Failed to reset password: ${e.toString()}");
+    }
+  }
+
 }
