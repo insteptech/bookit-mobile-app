@@ -45,7 +45,7 @@ class _ViewAllScheduleScreenState extends State<ViewAllScheduleScreen> {
         child: PrimaryButton(
           text: "Add new class schedule",
           onPressed: () {
-            context.push("/class_schedule", extra: {'className': '', 'classId': ''});
+            context.push("/add_class_schedule", extra: {'className': '', 'classId': ''});
           },
           isDisabled: false,
         ),

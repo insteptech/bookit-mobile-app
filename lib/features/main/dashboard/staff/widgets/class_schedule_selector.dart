@@ -84,6 +84,13 @@ class ClassScheduleController {
     }
   }
 
+  /// Updates staff assignments for multiple days at once, preserving existing assignments for other days.
+  void updateStaffForDays(Map<String, List<String>> staffAssignments) {
+    for (var entry in staffAssignments.entries) {
+      updateStaffForDay(entry.key, entry.value);
+    }
+  }
+
   /// Adds a single staff member to a specific day.
   void addStaffToDay(String day, String staffId) {
     try {
@@ -329,8 +336,44 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
     }
   }
   
-  // Update the controller with the loaded data
-  _updateSchedule();
+  // IMPORTANT: Initialize the controller with all the existing schedules
+  // so they are preserved when new schedules are added
+  final allExistingSchedules = <Map<String, String>>[];
+  for (int i = 0; i < schedules.length; i++) {
+    final schedule = schedules[i];
+    if (schedule['day'] != null && schedule['from'] != null && schedule['to'] != null) {
+      allExistingSchedules.add({
+        'id': schedule['id'] ?? '',
+        'day': schedule['day']!.toLowerCase(),
+        'from': schedule['from']!,
+        'to': schedule['to']!,
+      });
+    }
+  }
+  
+  // Initialize controller with existing schedules
+  _scheduleController.updateDaySchedule(allExistingSchedules);
+  
+  // Set staff assignments for existing schedules
+  for (int i = 0; i < originalSchedules.length; i++) {
+    final originalSchedule = originalSchedules[i];
+    final day = schedules[i]['day'];
+    
+    if (day != null && originalSchedule['instructors'] != null) {
+      final instructors = originalSchedule['instructors'] as List<dynamic>;
+      final instructorIds = <String>[];
+      
+      for (var instructor in instructors) {
+        if (instructor is Map<String, dynamic> && instructor['id'] != null) {
+          instructorIds.add(instructor['id'].toString());
+        } else if (instructor is String) {
+          instructorIds.add(instructor);
+        }
+      }
+      
+      _scheduleController.updateStaffForDay(day.toLowerCase(), instructorIds);
+    }
+  }
 }
 
 // Add method to clear all schedule data
@@ -410,13 +453,32 @@ void clearAll() {
   }
 
   void _updateSchedule() {
-    // Update the internal controller with current UI state
-    final List<Map<String, String>> daySchedules = [];
-
+    // Collect ALL schedules: existing ones from controller + current UI state
+    final List<Map<String, String>> allSchedules = [];
+    
+    // First, add existing schedules that are not currently being modified in the UI
+    for (var existingSchedule in _scheduleController.schedules) {
+      final dayIndex = fullDays.indexWhere(
+        (d) => d.toLowerCase() == existingSchedule.day.toLowerCase()
+      );
+      
+      // Only keep existing schedule if it's not currently selected in UI
+      // (if it's selected, we'll add the updated version from UI state below)
+      if (dayIndex == -1 || !selectedDays[dayIndex]) {
+        allSchedules.add({
+          "id": existingSchedule.id ?? '',
+          "day": existingSchedule.day.toLowerCase(),
+          "from": existingSchedule.startTime,
+          "to": existingSchedule.endTime,
+        });
+      }
+    }
+    
+    // Then, add schedules from current UI state (selected days)
     for (int index = 0; index < 7; index++) {
       if (selectedDays[index] && timeRanges[index] != null) {
         final range = timeRanges[index]!;
-        daySchedules.add({
+        allSchedules.add({
           "id": scheduleIdsPerDay[index] ?? '', // Include existing schedule ID or empty string for new
           "day": fullDays[index].toLowerCase(),
           "from": timeOfDayToUtcFormatWithTimezone(range.start),
@@ -425,11 +487,10 @@ void clearAll() {
       }
     }
 
+    // Update controller with ALL schedules (existing + new/modified)
+    _scheduleController.updateDaySchedule(allSchedules);
 
-    // Update controller with day schedules
-    _scheduleController.updateDaySchedule(daySchedules);
-
-    // Update staff assignments
+    // Update staff assignments for currently selected days
     for (int index = 0; index < 7; index++) {
       if (selectedDays[index] && selectedStaffPerDay[index] != null) {
         final dayName = fullDays[index].toLowerCase();
@@ -437,7 +498,6 @@ void clearAll() {
         _scheduleController.updateStaffForDay(dayName, staffIds);
       }
     }
-
 
     // For backward compatibility, also send the legacy format
     final legacyFormat = _scheduleController.getLegacyFormat();

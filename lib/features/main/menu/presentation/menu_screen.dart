@@ -8,6 +8,7 @@ import 'package:bookit_mobile_app/features/main/menu/widgets/menu_item.dart';
 import 'package:bookit_mobile_app/features/main/menu/widgets/menu_section.dart';
 import 'package:bookit_mobile_app/features/main/menu/controllers/menu_controller.dart' as menu_ctrl;
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -18,11 +19,26 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   late final menu_ctrl.MenuController _menuController;
+  String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
     _menuController = menu_ctrl.MenuController();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _appVersion = 'v${packageInfo.version}+${packageInfo.buildNumber}';
+      });
+    } catch (e) {
+      setState(() {
+        _appVersion = 'v1.0.0+3'; // Fallback version
+      });
+    }
   }
 
   @override
@@ -116,6 +132,20 @@ class _MenuScreenState extends State<MenuScreen> {
                       ),
                     ],
                   ),
+
+                  // App Version
+                  if (_appVersion.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Center(
+                        child: Text(
+                          _appVersion,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                        ),
+                      ),
+                    ),
 
                   // Log out button
                    Row(

@@ -28,6 +28,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   dio: ^5.8.0+1
   image_picker: ^1.1.2
+  package_info_plus: ^8.0.2
 
   markdown_widget: 2.3.2+8
 

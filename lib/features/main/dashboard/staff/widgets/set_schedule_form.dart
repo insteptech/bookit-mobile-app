@@ -8,10 +8,10 @@ import 'package:flutter/material.dart';
 
 class SetScheduleForm extends StatelessWidget {
   final int index;
-  final List<Map<String, String>> services;
+  final List<Map<String, dynamic>> services;
   final StaffScheduleController controller;
   final List<Map<String, String>> locations;
-  final List<Map<String, String>> category;
+  final List<Map<String, dynamic>> category;
   final VoidCallback onChange;
   final VoidCallback onDelete;
 

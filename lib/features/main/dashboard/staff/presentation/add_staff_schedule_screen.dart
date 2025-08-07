@@ -23,7 +23,7 @@ class AddStaffScheduleScreen extends StatefulWidget {
 }
 
 class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
-  List<Map<String, String>> category = [];
+  List<Map<String, dynamic>> category = [];
   List<Map<String, String>> locations = [];
   String userName = "";
   final StaffScheduleController controller = StaffScheduleController();
@@ -43,6 +43,7 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
                 (cat) => {
                   'id': cat['id'].toString(),
                   'name': cat['name'].toString(),
+                  'isClass':cat['is_class']
                 },
               )
               .toList();
