@@ -45,7 +45,7 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
       final data = await APIRepository.getAppointments(locationId);
       final List<Map<String, dynamic>> appointmentsList =
           List<Map<String, dynamic>>.from(data['data']);
-
+    
       state = state.copyWith(
         allStaffAppointments: appointmentsList,
         isLoading: false,

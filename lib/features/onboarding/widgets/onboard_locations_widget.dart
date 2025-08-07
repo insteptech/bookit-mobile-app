@@ -382,7 +382,9 @@ class _OnboardLocationsWidgetState extends ConsumerState<OnboardLocationsWidget>
           );
         }),
         if (widget.showAddButton)
-          SecondaryButton(
+        Row(
+          children: [
+SecondaryButton(
             onPressed: _openMapSelector,
             prefix: Icon(
               Icons.add_circle_outline,
@@ -391,6 +393,8 @@ class _OnboardLocationsWidgetState extends ConsumerState<OnboardLocationsWidget>
             ),
             text: "Add another address",
           ),
+          ],
+        ),  
         if (widget.showNextButton) ...[
           const SizedBox(height: 32),
           SizedBox(

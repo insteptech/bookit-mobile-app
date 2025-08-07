@@ -188,7 +188,7 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
                   child: Column(
                     children: [
                       PrimaryButton(
-                        text: AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
+                        text: "Add another staff schedule",
                         onPressed: () {
                           saveUserSchedule();
                         },

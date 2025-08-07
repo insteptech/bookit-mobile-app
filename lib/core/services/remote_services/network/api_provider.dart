@@ -166,7 +166,6 @@ class APIRepository {
   static Future<Map<String, dynamic>> getAppointments(String locationId) async {
     try {
       final url = fetchAppointmentsEndpoint(locationId);
-
       final response = await _dio.get(url);
 
       return response.data['data'];
