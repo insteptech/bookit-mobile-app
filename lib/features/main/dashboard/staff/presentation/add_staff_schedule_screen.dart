@@ -206,7 +206,6 @@ class _AddStaffScheduleScreenState extends State<AddStaffScheduleScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
                     ],
                   ),
                 ),

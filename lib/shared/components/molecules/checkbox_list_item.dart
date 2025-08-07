@@ -27,7 +27,7 @@ class CheckboxListItem extends StatelessWidget {
     return GestureDetector(
       onTap: disabled ? null : () => onChanged(!isSelected),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.only(bottom: 0),
         child: Row(
           children: [
             Opacity(

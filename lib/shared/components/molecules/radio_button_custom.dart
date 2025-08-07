@@ -7,6 +7,9 @@ class RadioButtonCustom extends StatefulWidget {
   final String? initialValue;
   final ValueChanged<String>? onChanged;
   final String? textSuffix;
+  final bool isHorizontal;
+  final double? spacing;
+  final double? runSpacing;
 
   const RadioButtonCustom({
     super.key,
@@ -14,6 +17,9 @@ class RadioButtonCustom extends StatefulWidget {
     this.initialValue,
     this.onChanged,
     this.textSuffix,
+    this.isHorizontal = true,
+    this.spacing,
+    this.runSpacing,
   });
 
   @override
@@ -64,54 +70,66 @@ class _RadioButtonCustomState extends State<RadioButtonCustom> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Wrap(
-      spacing: 80,
-      runSpacing: 8,
-      children: widget.options.map((option) {
-        final isSelected = selected == option;
-        return GestureDetector(
-          onTap: () {
-            setState(() => selected = option);
-            if (widget.onChanged != null) widget.onChanged!(option);
-          },
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected
-                        ? theme.colorScheme.primary
-                        : AppColors.socialIcon,
-                    width: 2,
-                  ),
+    final radioButtons = widget.options.map((option) {
+      final isSelected = selected == option;
+      return GestureDetector(
+        onTap: () {
+          setState(() => selected = option);
+          if (widget.onChanged != null) widget.onChanged!(option);
+        },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? theme.colorScheme.primary
+                      : AppColors.socialIcon,
+                  width: 2,
                 ),
-                child: isSelected
-                    ? Center(
-                        child: Container(
-                          width: 9,
-                          height: 9,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
+              ),
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 9,
+                        height: 9,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          shape: BoxShape.circle,
                         ),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                widget.textSuffix != null ? "$option${widget.textSuffix}" : option,
-                style: AppTypography.bodyMedium
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              widget.textSuffix != null ? "$option${widget.textSuffix}" : option,
+              style: AppTypography.bodyMedium
+            ),
+          ],
+        ),
+      );
+    }).toList();
+
+    if (widget.isHorizontal) {
+      return Wrap(
+        spacing: widget.spacing ?? 80,
+        runSpacing: widget.runSpacing ?? 8,
+        children: radioButtons,
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: radioButtons.map((button) => Padding(
+          padding: EdgeInsets.only(bottom: widget.spacing ?? 8),
+          child: button,
+        )).toList(),
+      );
+    }
   }
 }

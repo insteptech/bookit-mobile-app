@@ -72,7 +72,7 @@ class SetScheduleForm extends StatelessWidget {
         onChange: onChange,
       ),
       
-        const SizedBox(height: 50),
+        const SizedBox(height: 24),
       ],
     );
   }
