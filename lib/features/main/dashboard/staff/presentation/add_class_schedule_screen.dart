@@ -519,6 +519,7 @@ void _updateFormForLocation(String locationId) {
 
     try {
       final backendPayload = _generateBackendPayload();
+      print('Submitting schedule with payload: $backendPayload');
       await APIRepository.postClassDetails(payload: backendPayload);
 
       if (mounted) {

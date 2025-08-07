@@ -112,52 +112,55 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       );
     }
 
-    return Column(
-      children: [
-        // Show appointments section if business supports appointments
-        if (businessType == BusinessType.appointmentOnly || businessType == BusinessType.both) ...[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppTranslationsDelegate.of(context).text("appointments"),
-                style: AppTypography.headingMd.copyWith(
-                  fontWeight: FontWeight.w500,
+    return Container(
+      key: ValueKey('calendar_content_$activeLocation'), // Include location in key to force rebuild
+      child: Column(
+        children: [
+          // Show appointments section if business supports appointments
+          if (businessType == BusinessType.appointmentOnly || businessType == BusinessType.both) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppTranslationsDelegate.of(context).text("appointments"),
+                  style: AppTypography.headingMd.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          AppointmentsWidget(
-            staffAppointments: appointments,
-            maxAppointments: 3,
-            isLoading: isLoading,
-            showBottomOptions: true,
-          ),
-          const SizedBox(height: 48),
-        ],
-        
-        // Show class schedule section if business supports classes
-        if (businessType == BusinessType.classOnly || businessType == BusinessType.both) ...[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppTranslationsDelegate.of(context).text("schedule"),
-                style: AppTypography.headingMd.copyWith(
-                  fontWeight: FontWeight.w500,
+              ],
+            ),
+            const SizedBox(height: 16),
+            AppointmentsWidget(
+              staffAppointments: appointments,
+              maxAppointments: 3,
+              isLoading: isLoading,
+              showBottomOptions: true,
+            ),
+            const SizedBox(height: 48),
+          ],
+          
+          // Show class schedule section if business supports classes
+          if (businessType == BusinessType.classOnly || businessType == BusinessType.both) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppTranslationsDelegate.of(context).text("schedule"),
+                  style: AppTypography.headingMd.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClassScheduleCalendar(
-            locationId: activeLocation,
-            showCalendarHeader: true,
-            numberOfClasses: 4,
-          ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ClassScheduleCalendar(
+              locationId: activeLocation,
+              showCalendarHeader: true,
+              numberOfClasses: 4,
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

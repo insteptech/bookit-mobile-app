@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/core/controllers/business_controller.dart';
+import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/models/business_category_model.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widgets/appointment_section_widget.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widgets/class_schedule_section_widget.dart';
@@ -11,6 +12,7 @@ class DashboardContentWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final businessState = ref.watch(businessControllerProvider);
+    final activeLocation = ref.watch(activeLocationProvider); // Watch location changes
     final isLoading = businessState.isLoading;
     final businessType = businessState.businessType;
 
@@ -22,7 +24,7 @@ class DashboardContentWidget extends ConsumerWidget {
             child: CircularProgressIndicator(),
           )
         : Container(
-            key: const ValueKey('dashboard_content'),
+            key: ValueKey('dashboard_content_$activeLocation'), // Include location in key
             child: Column(
               children: _buildSectionsForBusinessType(businessType),
             ),
