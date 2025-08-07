@@ -31,6 +31,6 @@ class AppColors {
 
   static const lightGrayBoxColor = Color(0xFFF8F9FA);
 
-  static const secondaryFontColor = Color(0xFF00256A);
+  static const secondaryFontColor = Color(0xFF790077);
 
 }

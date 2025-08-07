@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/features/main/dashboard/widgets/no_upcoming_appointments_box.dart';
@@ -249,7 +250,7 @@ Widget build(BuildContext context) {
           Text(
             message,
             style: AppTypography.bodyMedium.copyWith(
-              color: Colors.grey[600],
+              color: AppColors.primary,
             ),
             textAlign: TextAlign.center,
           ),

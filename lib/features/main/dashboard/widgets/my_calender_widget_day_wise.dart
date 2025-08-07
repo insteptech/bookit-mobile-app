@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 // Definition for the callback function.
@@ -74,7 +75,7 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
   void _parseAppointments() {
     appointments.clear();
     final next7Days = _getNext7Days();
-    final color = Color(0xFfDEEAFF);
+    final color = AppColors.secondary2;
 
     for (final practitioner in widget.calenderData) {
       for (final slot in practitioner['slots']) {
@@ -424,7 +425,6 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
   }
 }
 
-// MODIFIED: Enhanced Appointment class
 class Appointment {
   final String title; // Service Name
   final String practitionerName;

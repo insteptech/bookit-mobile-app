@@ -26,7 +26,8 @@ class NoClassesBox extends StatelessWidget {
           child: Text(
             "You dont have any classes scheduled for $message. Click below to add class schedule.",
             textAlign: TextAlign.center,
-            style: AppTypography.bodyMedium,
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.primary),
+
           ),
         ),
         const SizedBox(height: 8),

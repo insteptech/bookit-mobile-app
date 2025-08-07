@@ -75,8 +75,8 @@ class LoginForm extends ConsumerWidget {
             child: ElevatedButton(
                style: ElevatedButton.styleFrom(
       elevation: 0, 
-      backgroundColor: Theme.of(context).primaryColor, 
-      foregroundColor: theme.colorScheme.onPrimary
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, 
+      foregroundColor: AppColors.primary
     ),
               onPressed: state.isLoading
                   ? null

@@ -108,7 +108,13 @@ final GoRouter router = GoRouter(
     ),
 
     //.....................dasboard..................
-    GoRoute(path: "/home_screen", builder: (context, state) => HomeScreen()),
+    GoRoute(
+      path: "/home_screen", 
+      builder: (context, state) {
+        final refresh = state.uri.queryParameters['refresh'] == 'true';
+        return HomeScreen(refresh: refresh);
+      }
+    ),
 
     //..................add staff screen....................
     GoRoute(

@@ -360,30 +360,62 @@ class _BookNewAppointmentScreen2State
               padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 20),
               child: PrimaryButton(
                 onPressed: _selectedClient != null
-                    ? () async{
-                      setState(() {
-                        _isLoading = true;
-                      });
-                        List<Map<String,dynamic>> newPayload = [
-                          {
-                            'business_id': widget.partialPayload['business_id'],
-                            'location_id': widget.partialPayload['location_id'],
-                            'booked_by': _selectedClient!['id'],
-                            'status': 'booked',
-                            'business_service_id': widget.partialPayload['business_service_id'],
-                            'practitioner': widget.partialPayload['practitioner'],
-                            'start_from': widget.partialPayload['start_from'],
-                            'end_at': widget.partialPayload['end_at'],
-                            'date': widget.partialPayload['date'],
-                            'user_id': widget.partialPayload['user_id'],
+                    ? () async {
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        
+                        try {
+                          List<Map<String, dynamic>> newPayload = [
+                            {
+                              'business_id': widget.partialPayload['business_id'],
+                              'location_id': widget.partialPayload['location_id'],
+                              'booked_by': _selectedClient!['id'],
+                              'status': 'booked',
+                              'business_service_id': widget.partialPayload['business_service_id'],
+                              'practitioner': widget.partialPayload['practitioner'],
+                              'start_from': widget.partialPayload['start_from'],
+                              'end_at': widget.partialPayload['end_at'],
+                              'date': widget.partialPayload['date'],
+                              'user_id': widget.partialPayload['user_id'],
+                            }
+                          ];
+                          
+                          await APIRepository.bookAppointment(payload: newPayload);
+                          
+                          // Show success message
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Appointment booked successfully!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                            
+                            // Navigate to home screen with a refresh parameter
+                            context.go("/home_screen?refresh=true");
                           }
-                        ];
-                        await APIRepository.bookAppointment(payload: newPayload);
-                        context.go("/home_screen");
+                        } catch (e) {
+                          // Show error message
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to book appointment: ${e.toString()}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } finally {
+                          if (mounted) {
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          }
+                        }
                       }
                     : null,
                 isDisabled: (_selectedClient == null || _isLoading),
-                text: "Confirm booking",
+                text: _isLoading ? "Booking..." : "Confirm booking",
               ),
             ),
           ],

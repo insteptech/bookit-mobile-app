@@ -6,7 +6,8 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final bool refresh;
+  const HomeScreen({super.key, this.refresh = false});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -16,12 +17,18 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   // Screens for each tab
-  final List<Widget> _screens = [
-    DashboardScreen(),
-    CalendarScreen(),
-    OfferingsScreen(),
-    MenuScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      DashboardScreen(refresh: widget.refresh),
+      CalendarScreen(),
+      OfferingsScreen(),
+      MenuScreen(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

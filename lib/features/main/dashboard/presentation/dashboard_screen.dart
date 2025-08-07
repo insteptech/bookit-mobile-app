@@ -11,7 +11,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  const DashboardScreen({super.key});
+  final bool refresh;
+  
+  const DashboardScreen({super.key, this.refresh = false});
 
   @override
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
@@ -24,8 +26,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     super.initState();
     // Initialize dashboard data after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeDashboard();
+      if (widget.refresh) {
+        // Force refresh of appointments if refresh parameter is true
+        _refreshDashboard();
+      } else {
+        _initializeDashboard();
+      }
     });
+  }
+
+  Future<void> _refreshDashboard() async {
+    final activeLocation = ref.read(activeLocationProvider);
+    if (activeLocation.isNotEmpty) {
+      // Force refresh appointments for current location
+      final appointmentsController = ref.read(appointmentsControllerProvider.notifier);
+      await appointmentsController.fetchAppointments(activeLocation);
+    }
+    // Also refresh business categories
+    final businessController = ref.read(businessControllerProvider.notifier);
+    await businessController.fetchBusinessCategories();
   }
 
   Future<void> _initializeDashboard() async {
@@ -89,7 +108,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Future<void> fetchClasses(String locationId) async {
     try {
-      final classesData = await APIRepository.getAllClassesDetails();
+      await APIRepository.getAllClassesDetails();
     } catch (e) {
       print("Error fetching classes: $e");
     }

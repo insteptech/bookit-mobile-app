@@ -1,4 +1,3 @@
-import 'package:bookit_mobile_app/app/theme/theme_data.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
@@ -70,19 +69,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lightTheme.scaffoldBackgroundColor,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset('assets/images/background.jpeg', fit: BoxFit.cover),
-          Center(
-            child: SvgPicture.asset(
-              'assets/images/logo.svg',
-              width: 174.56,
-              height: 57.53,
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(-1.0, 0.0), // Center-left positioning
+            radius: 1.5,
+            colors: [
+              Color(0xFF790077), // #790077 - Dark purple at center-left
+              Color(0xFFBB27B8), // #BB27B8 - Medium purple 
+              Color.fromARGB(255, 249, 139, 249), // #FFF3FF - Light pink at edges
+            ],
+            stops: [0.3, 0.8, 1.0],
           ),
-        ],
+        ),
+        child: Center(
+          child: SvgPicture.asset(
+            'assets/images/logo.svg',
+            width: 174.56,
+            height: 57.53,
+          ),
+        ),
       ),
     );
   }

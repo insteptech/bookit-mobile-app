@@ -203,7 +203,7 @@ class SearchableClientField extends StatelessWidget {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(
-          color: Color(0xFF007BFF), // Changed to match InputField focus color
+          color: AppColors.primary, // Changed to match InputField focus color
           width: 2,
         ),
       ),

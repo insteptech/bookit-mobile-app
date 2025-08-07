@@ -842,7 +842,12 @@ void _updateFormForLocation(String locationId) {
                             staffMembers: filteredStaffMembers,
                             classDurationMinutes: classDurationMinutes,
                             onScheduleUpdate: (schedules) {
-                              // Handle schedule updates if needed
+                              // Trigger rebuild to update button state
+                              if (mounted) {
+                                setState(() {
+                                  // Schedule data has been updated, trigger rebuild
+                                });
+                              }
                             },
                           ),
 

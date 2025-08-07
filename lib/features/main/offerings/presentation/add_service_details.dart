@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/features/main/offerings/widgets/offerings_add_
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:go_router/go_router.dart';
 
 class AddServiceDetailsScreen extends StatefulWidget {
   final Map<String, dynamic>? servicePayload;
@@ -88,10 +89,32 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
         };
 
         await APIRepository.postBusinessOfferings(payload: payload);
-        // Navigator.of(context).pop();
+        
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Service details saved successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          
+          // Navigate to dashboard after successful save
+          context.go('/home_screen');
+        }
       }
     } catch (e) {
       debugPrint('Error submitting service details: $e');
+      
+      // Show error message to user
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save service details: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       setState(() {
         isButtonDisabled = false;
