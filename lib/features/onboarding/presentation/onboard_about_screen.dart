@@ -48,7 +48,7 @@ class OnboardAboutScreen extends ConsumerWidget {
             description: localizations.text(
               "onboard_about_radio_existing_description",
             ),
-            bgColor: const Color(0xFF001948),
+            bgColor: const Color(0xFF3A0039),
             rememberMe: false,
             onChanged: (value) {},
             topRightLabel: localizations.text(

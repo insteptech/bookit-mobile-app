@@ -15,10 +15,11 @@ class OfferingsScreen extends StatefulWidget {
   State<OfferingsScreen> createState() => _OfferingsScreenState();
 }
 
-class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProviderStateMixin {
+class _OfferingsScreenState extends State<OfferingsScreen>
+    with SingleTickerProviderStateMixin {
   late OfferingsController _controller;
   final Set<String> _expandedCategories = {};
-  
+
   // Tab and scroll controller for category navigation
   TabController? _tabController;
   final ScrollController _scrollController = ScrollController();
@@ -77,9 +78,13 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
         }
 
         // Initialize tab controller if not already done or if categories changed
-        if (_tabController == null || _tabController!.length != rootCategoryNames.length) {
+        if (_tabController == null ||
+            _tabController!.length != rootCategoryNames.length) {
           _tabController?.dispose();
-          _tabController = TabController(length: rootCategoryNames.length, vsync: this);
+          _tabController = TabController(
+            length: rootCategoryNames.length,
+            vsync: this,
+          );
         }
 
         // Create global keys for each category section
@@ -110,8 +115,8 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                   indicatorWeight: 2,
                   indicatorSize: TabBarIndicatorSize.label,
                   labelPadding: const EdgeInsets.fromLTRB(0, 0, 32, 0),
-                  dividerColor: Colors.transparent, 
-                  overlayColor: WidgetStateProperty.all(Colors.transparent), 
+                  dividerColor: Colors.transparent,
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   splashFactory: NoSplash.splashFactory,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -124,7 +129,8 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                   onTap: (index) {
                     _scrollToCategoryAtIndex(index, groupedOfferings);
                   },
-                  tabs: rootCategoryNames.map((name) => Tab(text: name)).toList(),
+                  tabs:
+                      rootCategoryNames.map((name) => Tab(text: name)).toList(),
                 ),
               ),
               const SizedBox(height: 24),
@@ -134,18 +140,20 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
               child: SingleChildScrollView(
                 controller: _scrollController,
                 child: Column(
-                  children: groupedOfferings.map<Widget>((group) {
-                    final rootKey = '${group.rootParentId}|${group.rootParentName}';
-                    
-                    return Container(
-                      key: _categoryKeys[rootKey],
-                      child: _buildRootCategorySection(
-                        rootParentId: group.rootParentId,
-                        rootParentName: group.rootParentName,
-                        offerings: group.offerings,
-                      ),
-                    );
-                  }).toList(),
+                  children:
+                      groupedOfferings.map<Widget>((group) {
+                        final rootKey =
+                            '${group.rootParentId}|${group.rootParentName}';
+
+                        return Container(
+                          key: _categoryKeys[rootKey],
+                          child: _buildRootCategorySection(
+                            rootParentId: group.rootParentId,
+                            rootParentName: group.rootParentName,
+                            offerings: group.offerings,
+                          ),
+                        );
+                      }).toList(),
                 ),
               ),
             ),
@@ -155,7 +163,10 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
     );
   }
 
-  void _scrollToCategoryAtIndex(int index, List<GroupedOfferings> groupedOfferings) {
+  void _scrollToCategoryAtIndex(
+    int index,
+    List<GroupedOfferings> groupedOfferings,
+  ) {
     if (index < groupedOfferings.length) {
       final group = groupedOfferings[index];
       final targetKey = '${group.rootParentId}|${group.rootParentName}';
@@ -177,12 +188,13 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
   }) {
     // Check if any subcategories under this root category are expanded
     final anySubcategoryExpanded = offerings.any((offering) {
-      return offering.serviceDetails.isNotEmpty && _expandedCategories.contains(offering.id);
+      return offering.serviceDetails.isNotEmpty &&
+          _expandedCategories.contains(offering.id);
     });
-    
+
     // Create a hierarchical structure to properly handle nesting
     final Map<String, Map<String, dynamic>> categoryHierarchy = {};
-    
+
     // First, organize all categories in the hierarchy
     for (final offering in offerings) {
       final category = offering.category;
@@ -190,9 +202,9 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
       final categoryName = category.name;
       final categoryLevel = category.level;
       final parentCategory = category.parent;
-      
+
       final categoryKey = '$categoryId|$categoryName|$categoryLevel';
-      
+
       if (!categoryHierarchy.containsKey(categoryKey)) {
         categoryHierarchy[categoryKey] = {
           'id': categoryId,
@@ -203,23 +215,28 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
           'children': <String>[],
         };
       }
-      
-      (categoryHierarchy[categoryKey]!['offerings'] as List<OfferingItem>).add(offering);
+
+      (categoryHierarchy[categoryKey]!['offerings'] as List<OfferingItem>).add(
+        offering,
+      );
     }
-    
+
     // Build parent-child relationships
     for (final entry in categoryHierarchy.entries) {
       final categoryData = entry.value;
       final parentCategory = categoryData['parent'] as CategoryDetails?;
-      
+
       if (parentCategory != null) {
-        final parentKey = '${parentCategory.id}|${parentCategory.name}|${parentCategory.level}';
+        final parentKey =
+            '${parentCategory.id}|${parentCategory.name}|${parentCategory.level}';
         if (categoryHierarchy.containsKey(parentKey)) {
-          (categoryHierarchy[parentKey]!['children'] as List<String>).add(entry.key);
+          (categoryHierarchy[parentKey]!['children'] as List<String>).add(
+            entry.key,
+          );
         }
       }
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -263,7 +280,7 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
         const SizedBox(height: 16),
         // Render hierarchical categories starting from level 1 (direct children of root)
         ..._buildCategoryHierarchy(categoryHierarchy, 1, context),
-        
+
         // Add service button for each category when multiple level 0 categories exist
         Consumer<OfferingsController>(
           builder: (context, controller, child) {
@@ -271,27 +288,36 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
               return Column(
                 children: [
                   const SizedBox(height: 16),
-                  _buildAddServiceButton(rootParentId, rootParentName, offerings),
+                  _buildAddServiceButton(
+                    rootParentId,
+                    rootParentName,
+                    offerings,
+                  ),
                 ],
               );
             }
             return const SizedBox.shrink();
           },
         ),
-        
+
         const SizedBox(height: 24),
       ],
     );
   }
 
-  List<Widget> _buildCategoryHierarchy(Map<String, Map<String, dynamic>> categoryHierarchy, int targetLevel, BuildContext context) {
+  List<Widget> _buildCategoryHierarchy(
+    Map<String, Map<String, dynamic>> categoryHierarchy,
+    int targetLevel,
+    BuildContext context,
+  ) {
     final List<Widget> widgets = [];
-    
+
     // Find categories at the target level
-    final categoriesAtLevel = categoryHierarchy.entries
-        .where((entry) => entry.value['level'] == targetLevel)
-        .toList();
-    
+    final categoriesAtLevel =
+        categoryHierarchy.entries
+            .where((entry) => entry.value['level'] == targetLevel)
+            .toList();
+
     for (final entry in categoriesAtLevel) {
       final categoryData = entry.value;
       final categoryId = categoryData['id'] as String;
@@ -299,28 +325,36 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
       final categoryLevel = categoryData['level'] as int;
       final offerings = categoryData['offerings'] as List<OfferingItem>;
       final children = categoryData['children'] as List<String>;
-      
+
       // Add the current category
-      widgets.add(_buildCategoryItem(
-        categoryId: categoryId,
-        categoryName: categoryName,
-        categoryLevel: categoryLevel,
-        offerings: offerings,
-        hasChildren: children.isNotEmpty,
-        context: context, // Pass context for theme access
-      ));
-      
+      widgets.add(
+        _buildCategoryItem(
+          categoryId: categoryId,
+          categoryName: categoryName,
+          categoryLevel: categoryLevel,
+          offerings: offerings,
+          hasChildren: children.isNotEmpty,
+          context: context, // Pass context for theme access
+        ),
+      );
+
       // Add children recursively without indentation
       if (children.isNotEmpty) {
         final childHierarchy = Map<String, Map<String, dynamic>>.fromEntries(
-          children.map((childKey) => MapEntry(childKey, categoryHierarchy[childKey]!))
+          children.map(
+            (childKey) => MapEntry(childKey, categoryHierarchy[childKey]!),
+          ),
         );
-        
-        final childWidgets = _buildCategoryHierarchy(childHierarchy, targetLevel + 1, context);
+
+        final childWidgets = _buildCategoryHierarchy(
+          childHierarchy,
+          targetLevel + 1,
+          context,
+        );
         widgets.addAll(childWidgets); // Add directly without padding
       }
     }
-    
+
     return widgets;
   }
 
@@ -333,14 +367,18 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
     required BuildContext context,
   }) {
     // If this category has direct offerings (services), show them expandable
-    final directOfferings = offerings.where((offering) {
-      return offering.category.id == categoryId;
-    }).toList();
-    
+    final directOfferings =
+        offerings.where((offering) {
+          return offering.category.id == categoryId;
+        }).toList();
+
     if (directOfferings.isNotEmpty) {
       // This category has services - make it expandable
       return Column(
-        children: directOfferings.map<Widget>((offering) => _buildOfferingItem(offering)).toList(),
+        children:
+            directOfferings
+                .map<Widget>((offering) => _buildOfferingItem(offering))
+                .toList(),
       );
     } else if (hasChildren) {
       // This is a parent category with only subcategories - show as header without arrow
@@ -352,9 +390,11 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
             Text(
               hasChildren ? categoryName : categoryName,
               style: AppTypography.headingSm.copyWith(
-                fontWeight: categoryLevel == 1 ? FontWeight.w600 : FontWeight.w500,
-                // Make text blue only if it has children (multiple nestings)
-                color: hasChildren ? AppColors.secondaryFontColor : Colors.black,
+                fontWeight:
+                    categoryLevel == 1 ? FontWeight.w600 : FontWeight.w500,
+                // Make text secondary font color only if it has children (multiple nestings)
+                color:
+                    hasChildren ? AppColors.secondaryFontColor : Colors.black,
               ),
             ),
             // No arrow icon for parent categories with children
@@ -367,15 +407,26 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
     }
   }
 
-  Widget _buildAddServiceButton(String categoryId, String categoryName, List<OfferingItem> offerings) {
+  Widget _buildAddServiceButton(
+    String categoryId,
+    String categoryName,
+    List<OfferingItem> offerings,
+  ) {
     // Determine if this category contains classes or services
     final bool isClass = offerings.isNotEmpty && offerings.first.isClass;
     final String buttonText = isClass ? "Add class" : "Add service";
-    
+
     return Consumer<OfferingsController>(
       builder: (context, controller, child) {
         return PrimaryButton(
-          onPressed: controller.isLoading ? null : () => _handleAddServiceForCategory(categoryId, categoryName, isClass),
+          onPressed:
+              controller.isLoading
+                  ? null
+                  : () => _handleAddServiceForCategory(
+                    categoryId,
+                    categoryName,
+                    isClass,
+                  ),
           isDisabled: controller.isLoading,
           text: controller.isLoading ? "Loading..." : buttonText,
           isHollow: true,
@@ -384,7 +435,11 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
     );
   }
 
-  Future<void> _handleAddServiceForCategory(String categoryId, String categoryName, bool isClass) async {
+  Future<void> _handleAddServiceForCategory(
+    String categoryId,
+    String categoryName,
+    bool isClass,
+  ) async {
     // Navigate directly to add service with the specific level 0 category and is_class parameter
     context.push(
       '/add_service_categories?categoryId=$categoryId&categoryName=$categoryName&isClass=$isClass',
@@ -400,7 +455,7 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
     final isClass = offering.isClass;
 
     // We need to determine if this category has children by checking the hierarchy
-    // For now, we'll use a simpler approach: only make it blue if it's level 1 AND has no services
+    // For now, we'll use a simpler approach: only make it secondary font color if it's level 1 AND has no services
     // (indicating it's a parent category that only exists to group subcategories)
     final isParentWithChildren = categoryLevel == 1 && serviceDetails.isEmpty;
 
@@ -415,16 +470,17 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
               isParentWithChildren ? categoryName.toUpperCase() : categoryName,
               style: AppTypography.headingSm.copyWith(
                 // Make parent categories blue only if they're level 1 AND have no services (indicating they have subcategories)
-                color: isParentWithChildren ? AppColors.secondaryFontColor : Colors.black,
-                fontWeight: isParentWithChildren ? FontWeight.w600 : FontWeight.w500,
+                color:
+                    isParentWithChildren
+                        ? AppColors.secondaryFontColor
+                        : Colors.black,
+                fontWeight:
+                    isParentWithChildren ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
             // Show icon for all categories except parent categories with children
             if (!isParentWithChildren)
-              Icon(
-                Icons.keyboard_arrow_right,
-                color: Colors.grey[600],
-              ),
+              Icon(Icons.keyboard_arrow_right, color: Colors.grey[600]),
           ],
         ),
       );
@@ -450,13 +506,14 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
               Text(
                 categoryName,
                 style: AppTypography.headingSm.copyWith(
-                  // Keep default black color for categories with services
                   color: Colors.black,
                 ),
               ),
               // Show expand/collapse icon for all categories with services
               Icon(
-                isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+                isExpanded
+                    ? Icons.keyboard_arrow_down
+                    : Icons.keyboard_arrow_right,
                 color: Colors.grey[600],
               ),
             ],
@@ -464,14 +521,20 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
         ),
         if (isExpanded) ...[
           const SizedBox(height: 12),
-          ...serviceDetails.map<Widget>((service) => _buildServiceCard(service, isClass, categoryName)),
+          ...serviceDetails.map<Widget>(
+            (service) => _buildServiceCard(service, isClass, categoryName),
+          ),
         ],
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildServiceCard(ServiceDetail service, bool isClass, String categoryName) {
+  Widget _buildServiceCard(
+    ServiceDetail service,
+    bool isClass,
+    String categoryName,
+  ) {
     final serviceName = service.name;
     final serviceDescription = service.description;
     final durations = service.durations;
@@ -490,95 +553,99 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
 
     if (isClass) {
       // Class card design - with image placeholder and expandable content
-     return GestureDetector(
-       onTap: () {
-         // Navigate to edit screen with service detail ID
-         final serviceDetailId = service.id;
-         context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
-       },
-       child: Container(
-  margin: const EdgeInsets.only(bottom: 8),
-  child: Card(
-    elevation: 0,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    margin: EdgeInsets.all(0),
-    color: Color(0xFFF8F9FA),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row: Image and headings
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Service image
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: NetworkImage("https://dims.apnews.com/dims4/default/e40c94b/2147483647/strip/true/crop/7773x5182+0+0/resize/599x399!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F16%2Fc9%2F0eecec78d44f016ffae1915e26c3%2F304c692a6f0b431aa8f954a4fdb5d7b5"), // or AssetImage
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Headings column
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Category name (blue text)
-                    Text(
-                      categoryName,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.w500,
+      return GestureDetector(
+        onTap: () {
+          // Navigate to edit screen with service detail ID
+          final serviceDetailId = service.id;
+          context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: EdgeInsets.all(0),
+            color: Color(0xFFF8F9FA),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top row: Image and headings
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Service image
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                              "https://dims.apnews.com/dims4/default/e40c94b/2147483647/strip/true/crop/7773x5182+0+0/resize/599x399!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F16%2Fc9%2F0eecec78d44f016ffae1915e26c3%2F304c692a6f0b431aa8f954a4fdb5d7b5",
+                            ), // or AssetImage
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Service name (bold black text)
+                      const SizedBox(width: 16),
+                      // Headings column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Category name (blue text)
+                            Text(
+                              categoryName,
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            // Service name (bold black text)
+                            Text(
+                              serviceName,
+                              style: AppTypography.bodyMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Bottom section: Description and duration
+                  const SizedBox(height: 16),
+                  // Service description
+                  if (serviceDescription.isNotEmpty) ...[
                     Text(
-                      serviceName,
+                      serviceDescription,
+                      style: AppTypography.bodyMedium,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  // Duration
+                  if (durationText.isNotEmpty)
+                    Text(
+                      durationText,
                       style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.black87,
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-          // Bottom section: Description and duration
-          const SizedBox(height: 16),
-          // Service description
-          if (serviceDescription.isNotEmpty) ...[
-            Text(
-              serviceDescription,
-              style: AppTypography.bodyMedium,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 24),
-          ],
-          // Duration
-          if (durationText.isNotEmpty)
-            Text(
-              durationText,
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-        ],
-      ),
-    ),
-  ),
-       ),
-     );
+        ),
+      );
     } else {
       // Service card design - rounded border, simple layout
       return GestureDetector(
@@ -607,7 +674,10 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                         Expanded(
                           child: Text(
                             categoryName,
-                            style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.w500)
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -618,7 +688,9 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                         Expanded(
                           child: Text(
                             serviceName,
-                            style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w500)
+                            style: AppTypography.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -632,20 +704,15 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                       ),
                     ],
                     if (durationText.isNotEmpty) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 24),
                       Text(
                         durationText,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
+                        style: AppTypography.bodyMedium 
                       ),
                     ],
                   ],
                 ),
               ),
-              
             ],
           ),
         ),
@@ -653,20 +720,18 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
     }
   }
 
-  
-
   Future<void> _handleAddService() async {
     // Fetch business categories first
     await _controller.fetchBusinessCategories();
-    
+
     if (!mounted) return;
-    
+
     // Get the isClass flag from controller
     final bool isClass = _controller.getCategoryIsClass();
-    
+
     // Check if we should navigate directly or show category selection
     final directCategory = _controller.shouldNavigateDirectly();
-    
+
     if (directCategory != null) {
       // Navigate directly to add service with the single category and is_class parameter
       context.push(
@@ -677,10 +742,11 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChangeNotifierProvider.value(
-            value: _controller,
-            child: const CategorySelectionScreen(),
-          ),
+          builder:
+              (context) => ChangeNotifierProvider.value(
+                value: _controller,
+                child: const CategorySelectionScreen(),
+              ),
         ),
       );
     }
@@ -724,7 +790,10 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                           hintStyle: TextStyle(color: Colors.grey),
                           prefixIcon: Icon(Icons.search, color: Colors.grey),
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -744,16 +813,24 @@ class _OfferingsScreenState extends State<OfferingsScreen> with SingleTickerProv
                 builder: (context, controller, child) {
                   if (controller.rootCategoryNames.length == 1) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 34,
+                        vertical: 24,
+                      ),
                       child: Consumer<OfferingsController>(
                         builder: (context, controller, child) {
                           // Get button text from controller
-                          final buttonText = controller.getAddServiceButtonText();
-                          
+                          final buttonText =
+                              controller.getAddServiceButtonText();
+
                           return PrimaryButton(
-                            onPressed: controller.isLoading ? null : _handleAddService,
+                            onPressed:
+                                controller.isLoading ? null : _handleAddService,
                             isDisabled: controller.isLoading,
-                            text: controller.isLoading ? "Loading..." : buttonText,
+                            text:
+                                controller.isLoading
+                                    ? "Loading..."
+                                    : buttonText,
                             isHollow: true,
                           );
                         },
