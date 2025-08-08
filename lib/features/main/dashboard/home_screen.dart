@@ -3,6 +3,7 @@ import 'package:bookit_mobile_app/features/main/dashboard/presentation/dashboard
 import 'package:bookit_mobile_app/features/main/menu/presentation/menu_screen.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/offerings_screen.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,7 +44,7 @@ Widget build(BuildContext context) {
   return Scaffold(
     body: _screens[_selectedIndex],
     bottomNavigationBar: Padding(
-      padding: const EdgeInsets.only(top: 5), // Increase top padding here
+      padding: EdgeInsets.only(top: AppConstants.bottomNavTopPadding), // Increase top padding here
       child: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -52,13 +53,13 @@ Widget build(BuildContext context) {
         elevation: 0,
         selectedItemColor: theme.colorScheme.primary,
         unselectedItemColor: theme.colorScheme.onSurface,
-        selectedLabelStyle: const TextStyle(
+        selectedLabelStyle: TextStyle(
           fontWeight: FontWeight.w500,
-          fontSize: 14,
+          fontSize: AppConstants.bottomNavSelectedFontSize,
         ),
-        unselectedLabelStyle: const TextStyle(
+        unselectedLabelStyle: TextStyle(
           fontWeight: FontWeight.w400,
-          fontSize: 14,
+          fontSize: AppConstants.bottomNavUnselectedFontSize,
         ),
         items: [
           BottomNavigationBarItem(

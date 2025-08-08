@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class InputField extends StatelessWidget {
@@ -120,10 +121,7 @@ class InputField extends StatelessWidget {
           width: 1,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 10,
-      ),
+      contentPadding: AppConstants.fieldContentPadding,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/progress_stepper.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,7 +38,7 @@ class OnboardScaffoldLayout extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 35,),
+          padding: AppConstants.onboardingScaffoldPadding,
           child: Column(
             children: [
               Expanded(
@@ -45,10 +46,10 @@ class OnboardScaffoldLayout extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
                       ProgressStepper(currentStep: currentStep),
                       if(!backButtonDisabled)
-                      SizedBox(height: 26,),
+                      SizedBox(height: AppConstants.progressToBackButtonSpacing,),
                       if(!backButtonDisabled)
                       Row(
                         children: [
@@ -57,25 +58,25 @@ class OnboardScaffoldLayout extends StatelessWidget {
                               context.pop();
                             },
                             child: 
-                            Icon(Icons.arrow_back, size: 32,)
+                            Icon(Icons.arrow_back, size: AppConstants.backButtonIconSize,)
                           )
                         ],
                       ),
                       if(backButtonDisabled)
-                      const SizedBox(height: 63,),
-                      const SizedBox(height: 9),
+                      SizedBox(height: AppConstants.onboardingNoBackButtonSpacing,),
+                      SizedBox(height: AppConstants.backButtonToTitleSpacing),
                       Text(heading, style: AppTypography.headingLg),
-                      const SizedBox(height: 8),
+                      SizedBox(height: AppConstants.titleToSubtitleSpacing),
                       Text(subheading, style: AppTypography.bodyMedium),
-                      const SizedBox(height: 48),
+                      SizedBox(height: AppConstants.headerToContentSpacing),
                       body,
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppConstants.sectionSpacing),
                     ],
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: AppConstants.onboardingBottomSpacing),
                 child: PrimaryButton(
                 onPressed: onNext,
                 isDisabled: nextButtonDisabled,

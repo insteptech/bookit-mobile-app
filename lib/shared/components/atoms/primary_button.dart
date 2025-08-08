@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
@@ -32,7 +33,7 @@ class PrimaryButton extends StatelessWidget {
               ? theme.colorScheme.primary
               : theme.colorScheme.surface,
           textStyle: AppTypography.button,
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: EdgeInsets.symmetric(vertical: AppConstants.buttonVerticalPadding),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
             side: isHollow == true

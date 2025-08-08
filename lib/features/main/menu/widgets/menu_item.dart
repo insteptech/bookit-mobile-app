@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class MenuItem extends StatelessWidget {
@@ -22,7 +23,7 @@ class MenuItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: EdgeInsets.only(bottom: AppConstants.menuItemSpacing),
         child: Row(
           children: [
             if (icon != null)
@@ -32,7 +33,7 @@ class MenuItem extends StatelessWidget {
               color: theme.colorScheme.onSurface,
             ),
             if (icon != null) 
-            const SizedBox(width: 16),
+            SizedBox(width: AppConstants.contentSpacing),
             Expanded(
               child: Text(
                 title,

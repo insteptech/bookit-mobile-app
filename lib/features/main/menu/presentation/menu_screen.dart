@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
@@ -58,16 +59,19 @@ class _MenuScreenState extends State<MenuScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  35,80,35,10
+                padding: EdgeInsets.fromLTRB(
+                  AppConstants.authHorizontalPadding,
+                  AppConstants.scaffoldTopSpacing,
+                  AppConstants.authHorizontalPadding,
+                  10
                 ),
                 children: [
-                  const SizedBox(height: 24),
+                  SizedBox(height: AppConstants.sectionSpacing),
                   Text(
                     AppTranslationsDelegate.of(context).text("menu_title"),
                     style: AppTypography.headingLg,
                   ),
-                  const SizedBox(height: 48),
+                  SizedBox(height: AppConstants.headerToContentSpacing),
                   
                   // STAFF Section
                   MenuSection(
@@ -136,7 +140,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   // App Version
                   if (_appVersion.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+                      padding: EdgeInsets.only(bottom: AppConstants.contentSpacing),
                       child: Center(
                         child: Text(
                           _appVersion,
@@ -179,7 +183,7 @@ class _MenuScreenState extends State<MenuScreen> {
                         ],
                       ),
 
-                  const SizedBox(height: 32),
+                  SizedBox(height: AppConstants.headerToContentSpacingMedium),
                 ],
               ),
             ),

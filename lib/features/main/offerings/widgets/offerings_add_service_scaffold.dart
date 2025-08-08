@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 
 class OfferingsAddServiceScaffold extends StatelessWidget {
   final String title;
@@ -37,7 +38,7 @@ class OfferingsAddServiceScaffold extends StatelessWidget {
             // Header Section (Scrolls with content)
             SliverToBoxAdapter(
               child: Padding(
-                padding: headerPadding ?? const EdgeInsets.fromLTRB(34, 40, 34, 0),
+                padding: headerPadding ?? EdgeInsets.fromLTRB(AppConstants.defaultHorizontalPadding, AppConstants.scaffoldTopSpacingAlt, AppConstants.defaultHorizontalPadding, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -46,10 +47,10 @@ class OfferingsAddServiceScaffold extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: GestureDetector(
                           onTap: onBackPressed ?? () => Navigator.pop(context),
-                          child: const Icon(Icons.arrow_back, size: 32),
+                          child: Icon(Icons.arrow_back, size: AppConstants.backButtonIconSize),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: AppConstants.backButtonToTitleSpacingAlt),
                     ],
                     SizedBox(
                       width: double.infinity,
@@ -60,7 +61,7 @@ class OfferingsAddServiceScaffold extends StatelessWidget {
                       ),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 8),
+                      SizedBox(height: AppConstants.titleToSubtitleSpacing),
                       SizedBox(
                         width: double.infinity,
                         child: Text(
@@ -70,7 +71,7 @@ class OfferingsAddServiceScaffold extends StatelessWidget {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 48),
+                    SizedBox(height: AppConstants.headerToContentSpacing),
                   ],
                 ),
               ),
@@ -79,7 +80,7 @@ class OfferingsAddServiceScaffold extends StatelessWidget {
             // Body Section (Scrolls with content)
             SliverToBoxAdapter(
               child: Padding(
-                padding: bodyPadding ?? const EdgeInsets.symmetric(horizontal: 34.0),
+                padding: bodyPadding ?? EdgeInsets.symmetric(horizontal: AppConstants.defaultHorizontalPadding),
                 child: body,
               ),
             ),
@@ -93,7 +94,7 @@ class OfferingsAddServiceScaffold extends StatelessWidget {
                   // Bottom Button Section (Scrolls with content but stays at bottom)
                   if (bottomButton != null)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
+                      padding: EdgeInsets.symmetric(horizontal: AppConstants.defaultHorizontalPadding, vertical: AppConstants.sectionSpacing),
                       child: bottomButton!,
                     ),
                 ],

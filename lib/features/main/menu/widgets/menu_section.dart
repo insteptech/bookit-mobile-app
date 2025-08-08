@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class MenuSection extends StatelessWidget {
@@ -25,9 +26,9 @@ class MenuSection extends StatelessWidget {
             color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: AppConstants.contentSpacing),
         ...children,
-        const SizedBox(height: 32),
+        SizedBox(height: AppConstants.headerToContentSpacingMedium),
       ],
     );
   }

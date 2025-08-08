@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/controllers/appointments_controller.dart';
@@ -62,20 +63,17 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 34,
-                  vertical: 24,
-                ),
+                padding: AppConstants.defaultScaffoldPadding,
                 children: [
-                  const SizedBox(height: 98),
-                  const SizedBox(height: 16),
+                  SizedBox(height: AppConstants.scaffoldTopSpacing),
+                  // SizedBox(height: AppConstants.contentSpacing),
                   Text(
                     AppTranslationsDelegate.of(context).text("calendar_title"),
                     style: AppTypography.headingLg,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: AppConstants.titleToSubtitleSpacing),
                   const LocationSelectorWidget(),
-                  const SizedBox(height: 48),
+                  SizedBox(height: AppConstants.headerToContentSpacing),
                   _buildCalendarContent(context, ref),
                 ],
               ),
@@ -105,9 +103,9 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       
       return Column(
         children: [
-          const SizedBox(height: 20),
+          SizedBox(height: AppConstants.contentSpacing + 4), // 20px equivalent
           AddStaffAndAvailabilityBox(isClass: isClassContext),
-          const SizedBox(height: 20),
+          SizedBox(height: AppConstants.contentSpacing + 4), // 20px equivalent
         ],
       );
     }
@@ -129,14 +127,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppConstants.contentSpacing),
             AppointmentsWidget(
               staffAppointments: appointments,
               maxAppointments: 3,
               isLoading: isLoading,
               showBottomOptions: true,
             ),
-            const SizedBox(height: 48),
+            SizedBox(height: AppConstants.headerToContentSpacing),
           ],
           
           // Show class schedule section if business supports classes
@@ -152,7 +150,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: AppConstants.listItemSpacing),
             ClassScheduleCalendar(
               locationId: activeLocation,
               showCalendarHeader: true,

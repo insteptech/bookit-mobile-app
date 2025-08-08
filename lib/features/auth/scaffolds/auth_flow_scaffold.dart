@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/app_bar_title.dart';
 
@@ -22,20 +23,20 @@ class AuthFlowScaffold extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 35),
+          padding: AppConstants.authScaffoldPadding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 24),
+              SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
               AppBarTitle(title: title),
-              const SizedBox(height: 64),
+              SizedBox(height: AppConstants.largeContentSpacing + AppConstants.sectionSpacing),
               Text(
                 localizations.text("fogot_pass_title"),
                 style: AppTypography.bodyLg,
               ),
-              const SizedBox(height: 3),
+              SizedBox(height: AppConstants.tinySpacing),
               Expanded(child: child),
-              const SizedBox(height: 32),
+              SizedBox(height: AppConstants.headerToContentSpacingMedium),
             ],
           ),
         ),

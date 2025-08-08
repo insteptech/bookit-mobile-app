@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
 
 class ProgressStepper extends StatelessWidget {
@@ -24,7 +25,7 @@ class ProgressStepper extends StatelessWidget {
           bool isActive = index <= currentStep;
           return Expanded(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
+              margin: EdgeInsets.symmetric(horizontal: AppConstants.progressStepperMargin),
               height: 4,
               decoration: BoxDecoration(
                 color: isActive ? theme.colorScheme.primary : AppColors.socialIcon,

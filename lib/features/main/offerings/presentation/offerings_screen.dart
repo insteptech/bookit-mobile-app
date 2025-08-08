@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/features/main/offerings/controllers/offerings_controller.dart';
 import 'package:bookit_mobile_app/features/main/offerings/presentation/category_selection_screen.dart';
@@ -50,7 +51,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         if (controller.isLoadingOfferings) {
           return const Center(
             child: Padding(
-              padding: EdgeInsets.all(20.0),
+              padding: AppConstants.fieldContentPadding,
               child: CircularProgressIndicator(),
             ),
           );
@@ -59,7 +60,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         if (!controller.isOfferingsSuccess || !controller.hasOfferings) {
           return const Center(
             child: Padding(
-              padding: EdgeInsets.all(20.0),
+              padding: AppConstants.fieldContentPadding,
               child: Text('No offerings available'),
             ),
           );
@@ -71,7 +72,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         if (groupedOfferings.isEmpty) {
           return const Center(
             child: Padding(
-              padding: EdgeInsets.all(20.0),
+              padding: AppConstants.fieldContentPadding,
               child: Text('No offerings found'),
             ),
           );
@@ -114,7 +115,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                   // unselectedLabelColor: Colors.grey[600],
                   indicatorWeight: 2,
                   indicatorSize: TabBarIndicatorSize.label,
-                  labelPadding: const EdgeInsets.fromLTRB(0, 0, 32, 0),
+                  labelPadding: EdgeInsets.fromLTRB(0, 0, AppConstants.headerToContentSpacingMedium, 0),
                   dividerColor: Colors.transparent,
                   overlayColor: WidgetStateProperty.all(Colors.transparent),
                   splashFactory: NoSplash.splashFactory,
@@ -133,7 +134,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                       rootCategoryNames.map((name) => Tab(text: name)).toList(),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: AppConstants.sectionSpacing),
             ],
             // Category sections
             Expanded(
@@ -765,13 +766,10 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             children: [
               // Fixed header content
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 34,
-                  vertical: 24,
-                ),
+                padding: AppConstants.defaultScaffoldPadding,
                 child: Column(
                   children: [
-                    const SizedBox(height: 70),
+                    const SizedBox(height: AppConstants.scaffoldTopSpacing),
                     Row(
                       children: [
                         Text("Offerings", style: AppTypography.headingLg),

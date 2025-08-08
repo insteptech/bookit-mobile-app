@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/controllers/appointments_controller.dart';
@@ -125,26 +126,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 34,
-                  vertical: 24,
-                ),
+                padding: AppConstants.defaultScaffoldPadding,
                 children: [
-                  const SizedBox(height: 70),
+                  SizedBox(height: AppConstants.scaffoldTopSpacing),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: const [
                       Icon(Icons.notifications_outlined, size: 28),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: AppConstants.contentSpacing),
                   Text(
                     AppTranslationsDelegate.of(context).text("welcome_back"),
                     style: AppTypography.headingLg,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: AppConstants.titleToSubtitleSpacing),
                   const LocationSelectorWidget(),
-                  const SizedBox(height: 48),
+                  SizedBox(height: AppConstants.headerToContentSpacing),
                   Text(
                     DateFormat('EEE MMM d').format(DateTime.now()),
                     style: AppTypography.bodyMedium.copyWith(
@@ -152,7 +150,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: AppConstants.contentSpacing),
                   const DashboardContentWidget(),
                 ],
               ),
