@@ -1,8 +1,8 @@
-import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/create_new_password_screen.dart';
-import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/otp_screen.dart';
-import 'package:bookit_mobile_app/features/auth/presentation/forgotPasswordScreens/signin_screen.dart';
-import 'package:bookit_mobile_app/features/auth/presentation/forgot_password_screen.dart';
-import 'package:bookit_mobile_app/features/auth/presentation/signup_verify_otp_screen.dart';
+import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password/create_new_password_screen.dart';
+import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password/otp_screen.dart';
+import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password/signin_screen.dart';
+import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:bookit_mobile_app/features/auth/presentation/screens/signup_verify_otp_screen.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/add_new_client_screen.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen.dart';
 import 'package:bookit_mobile_app/features/main/calendar/presentation/book_new_appointment_screen_2.dart';
@@ -36,8 +36,8 @@ import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_add_s
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_welcome_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/onboard_add_service_screen.dart';
 import 'package:go_router/go_router.dart';
-import '../features/auth/presentation/login_screen.dart';
-import '../features/auth/presentation/signup_screen.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/signup_screen.dart';
 import '../features/splash/presentation/splash_sceen.dart';
 
 final GoRouter router = GoRouter(

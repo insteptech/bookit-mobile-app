@@ -5,17 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import '../../../app/theme/app_colors.dart';
-import '../../../app/theme/theme_data.dart';
-import '../../../shared/components/atoms/input_field.dart';
-import '../../../shared/components/molecules/remember_me_row.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/theme_data.dart';
+import '../../../../shared/components/atoms/input_field.dart';
+import '../../../../shared/components/molecules/remember_me_row.dart';
 
 class LoginForm extends ConsumerWidget {
   const LoginForm({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final localizations = AppTranslationsDelegate.of(context);
     final state = ref.watch(loginProvider);
     final controller = ref.read(loginProvider.notifier);

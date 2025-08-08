@@ -1,11 +1,11 @@
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
-import 'package:bookit_mobile_app/core/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/password_validation_widget.dart';
+import 'package:bookit_mobile_app/features/auth/application/controllers/signup_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,24 +22,20 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
-  String error = "";
-  bool isButtonDisabled = true;
-  bool isPasswordValid = false;
-  bool isLoading = false;
-
   @override
   void initState() {
     super.initState();
-    nameController.addListener(_updateButtonState);
-    emailController.addListener(_updateButtonState);
-  }
-
-  void _updateButtonState() {
-    setState(() {
-      isButtonDisabled =
-          !(isPasswordValid &&
-              nameController.text.isNotEmpty &&
-              isEmailInCorrectFormat(emailController.text));
+    nameController.addListener(() {
+      ref.read(signupControllerProvider.notifier).updateName(nameController.text);
+    });
+    emailController.addListener(() {
+      ref.read(signupControllerProvider.notifier).updateEmail(emailController.text);
+    });
+    passwordController.addListener(() {
+      ref.read(signupControllerProvider.notifier).updatePassword(passwordController.text);
+    });
+    confirmPasswordController.addListener(() {
+      ref.read(signupControllerProvider.notifier).updateConfirmPassword(confirmPasswordController.text);
     });
   }
 
@@ -53,10 +49,10 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   }
 
   Future<void> handleSendOtp() async {
-    setState(() {
-      isLoading = true;
-    });
-    isButtonDisabled = true;
+    final controller = ref.read(signupControllerProvider.notifier);
+    controller.setLoading(true);
+    controller.clearError();
+    
     try {
       final authService = AuthService();
 
@@ -70,12 +66,9 @@ class _SignupFormState extends ConsumerState<SignupForm> {
 
       context.go('/signup_otp', extra: {'email': emailController.text});
     } catch (e) {
-      setState(() {
-        error = e.toString().replaceAll('Exception:', '').trim();
-      });
+      controller.setError(e.toString().replaceAll('Exception:', '').trim());
     } finally {
-      isButtonDisabled = false;
-      if (mounted) setState(() => isLoading = false);
+      controller.setLoading(false);
     }
   }
 
@@ -83,6 +76,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   Widget build(BuildContext context) {
     final localizations = AppTranslationsDelegate.of(context);
     final theme = Theme.of(context);
+    final signupState = ref.watch(signupControllerProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -103,12 +97,12 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                     hintText: localizations.text("email"),
                     controller: emailController,
                   ),
-                  if (error.isNotEmpty) ...[
+                  if (signupState.error?.isNotEmpty == true) ...[
                     const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        error,
+                        signupState.error!,
                         style: AppTypography.bodySmall.copyWith(
                           color: theme.colorScheme.error,
                         ),
@@ -120,17 +114,14 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                     passwordController: passwordController,
                     confirmPasswordController: confirmPasswordController,
                     onValidationChanged: (isValid) {
-                      setState(() {
-                        isPasswordValid = isValid;
-                      });
-                      _updateButtonState();
+                      ref.read(signupControllerProvider.notifier).updatePasswordValid(isValid);
                     },
                   ),
                   const Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 24, top: 24),
                     child: PrimaryButton(
-                      isDisabled: isButtonDisabled,
+                      isDisabled: signupState.isButtonDisabled,
                       text: localizations.text("complete_sign_up"),
                       onPressed: handleSendOtp,
                     ),

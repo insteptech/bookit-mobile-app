@@ -132,7 +132,7 @@ class _AddClassScheduleScreenState extends State<AddClassScheduleScreen> {
           isLoading = false;
         });
         
-        debugPrint('Fetched class data - Duration: $duration minutes');
+        // debugPrint('Fetched class data - Duration: $duration minutes');
         
         _prefillFormFromExistingData(data);
       } else {

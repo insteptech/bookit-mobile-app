@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
@@ -377,7 +378,7 @@ class _EditOfferingsScreenState extends State<EditOfferingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_controller.errorMessage ?? 'Failed to save changes'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }

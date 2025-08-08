@@ -61,10 +61,8 @@ class BusinessController extends StateNotifier<BusinessState> {
         isLoaded: true,
       );
       
-      print("Business categories fetched: ${businessServices.length} categories");
-      for (var service in businessServices) {
-        print("Category: ${service['category']['name']}, is_class: ${service['is_class']}");
-      }
+      // print("Business categories fetched: ${businessServices.length} categories");
+  
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -90,10 +88,10 @@ class BusinessController extends StateNotifier<BusinessState> {
       if (category != null) {
         if (isClass == true) {
           hasClassCategory = true;
-          print("Found class category: ${category['name']}");
+          // print("Found class category: ${category['name']}");
         } else {
           hasNonClassCategory = true;
-          print("Found non-class category: ${category['name']}");
+          // print("Found non-class category: ${category['name']}");
         }
       }
     }

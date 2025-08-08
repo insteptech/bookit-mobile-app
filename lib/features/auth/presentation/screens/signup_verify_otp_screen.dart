@@ -1,34 +1,40 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
+import 'package:bookit_mobile_app/features/auth/application/controllers/otp_verification_controller.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/otp_form.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SignupVerifyOtpScreen extends StatefulWidget {
+class SignupVerifyOtpScreen extends ConsumerStatefulWidget {
   final String email;
   const SignupVerifyOtpScreen({super.key, required this.email});
 
   @override
-  State<SignupVerifyOtpScreen> createState() => _SignupVerifyOtpScreenState();
+  ConsumerState<SignupVerifyOtpScreen> createState() => _SignupVerifyOtpScreenState();
 }
 
-class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
-  bool isLoading = false;
-  String error = "";
-
+class _SignupVerifyOtpScreenState extends ConsumerState<SignupVerifyOtpScreen> {
   final TextEditingController otpController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    // Initialize the email in the state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(otpVerificationControllerProvider.notifier).updateEmail(widget.email);
+    });
+    
+    otpController.addListener(() {
+      ref.read(otpVerificationControllerProvider.notifier).updateOtp(otpController.text);
+    });
   }
 
   Future<void> handleSignup() async {
-    setState(() {
-      isLoading = true;
-      error = "";
-    });
+    final controller = ref.read(otpVerificationControllerProvider.notifier);
+    controller.setLoading(true);
+    controller.clearError();
 
     try {
       final authService = AuthService();
@@ -58,11 +64,9 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
 
       context.go('/onboarding_welcome');
     } catch (e) {
-      setState(() {
-        error = e.toString().replaceAll('Exception:', '').trim();
-      });
+      controller.setError(e.toString().replaceAll('Exception:', '').trim());
     } finally {
-      if (mounted) setState(() => isLoading = false);
+      controller.setLoading(false);
     }
   }
 
@@ -70,6 +74,7 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localizations = AppTranslationsDelegate.of(context);
+    final otpState = ref.watch(otpVerificationControllerProvider);
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
@@ -86,9 +91,9 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
               const SizedBox(height: 8),
               Text("To verify your email we’ve sent a 6-digit code to ${widget.email}", style: AppTypography.bodyMedium,),
               const SizedBox(height: 3),
-              if (error.isNotEmpty)
+              if (otpState.error?.isNotEmpty == true)
                 Text(
-                  error,
+                  otpState.error!,
                   style: AppTypography.bodySmall.copyWith(
                     color: theme.colorScheme.error,
                   ),
@@ -101,7 +106,7 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
                   nextButton: () async {
                     await handleSignup();
                   },
-                  isSubmitting: isLoading,
+                  isSubmitting: otpState.isLoading,
                   nextButtonText: "Complete sign up",
                 ),
               ),

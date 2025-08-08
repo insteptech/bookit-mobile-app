@@ -1,11 +1,11 @@
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/services/remote_services/network/auth_api_service.dart';
-import 'login_state.dart';
+import '../state/login_state.dart';
 
 class LoginController extends StateNotifier<LoginState> {
   LoginController() : super(LoginState());
