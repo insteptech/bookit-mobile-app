@@ -7,6 +7,7 @@ class SignupState {
   final String? error;
   final bool isPasswordValid;
   final bool isButtonDisabled;
+  final bool emailExists;
 
   SignupState({
     this.name = '',
@@ -17,6 +18,7 @@ class SignupState {
     this.error,
     this.isPasswordValid = false,
     this.isButtonDisabled = true,
+    this.emailExists = false,
   });
 
   SignupState copyWith({
@@ -28,6 +30,7 @@ class SignupState {
     String? error,
     bool? isPasswordValid,
     bool? isButtonDisabled,
+    bool? emailExists,
   }) {
     return SignupState(
       name: name ?? this.name,
@@ -38,6 +41,7 @@ class SignupState {
       error: error ?? this.error,
       isPasswordValid: isPasswordValid ?? this.isPasswordValid,
       isButtonDisabled: isButtonDisabled ?? this.isButtonDisabled,
+      emailExists: emailExists ?? this.emailExists,
     );
   }
 

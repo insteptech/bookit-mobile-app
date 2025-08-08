@@ -172,5 +172,6 @@
     "select_your_offerings": "اختر عروضك",
     "select_offerings_description": "للبدء، يرجى اختيار الخدمة الرئيسية التي تقدمها. لا تقلق، يمكنك إضافة جميع الخدمات الأخرى تحت 'أنواع الخدمات' بعد الإعداد.",
     "next_add_services": "التالي: إضافة خدمات",
-    "could_not_load_appointment_details": "لا يمكن تحميل تفاصيل الموعد."
+    "could_not_load_appointment_details": "لا يمكن تحميل تفاصيل الموعد.",
+    "reset_password": "إعادة تعيين كلمة المرور"
 }

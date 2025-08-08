@@ -188,5 +188,6 @@
     "membership_status": "Membership status",
     "notifications": "Notifications",
     "account_visibility": "Account visibility",
-    "terms_conditions": "Terms & conditions"
+    "terms_conditions": "Terms & conditions",
+    "reset_password": "Reset password"
 }

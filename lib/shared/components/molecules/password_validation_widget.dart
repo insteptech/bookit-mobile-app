@@ -115,7 +115,7 @@ class _PasswordValidationWidgetState extends State<PasswordValidationWidget> {
         children: [
           Icon(
             isValid ? Icons.check_circle : Icons.cancel,
-            color: isValid ? Colors.green : Colors.red,
+            color: isValid ? AppColors.primary : AppColors.error,
             size: 16,
           ),
           const SizedBox(width: 6),

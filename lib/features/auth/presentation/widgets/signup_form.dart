@@ -25,6 +25,20 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   @override
   void initState() {
     super.initState();
+    
+    // Reset form completely when returning to signup screen
+    // Use addPostFrameCallback to avoid modifying provider during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Clear all text controllers
+      nameController.clear();
+      emailController.clear();
+      passwordController.clear();
+      confirmPasswordController.clear();
+      
+      // Reset the form state
+      ref.read(signupControllerProvider.notifier).resetForm();
+    });
+    
     nameController.addListener(() {
       ref.read(signupControllerProvider.notifier).updateName(nameController.text);
     });
@@ -52,6 +66,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
     final controller = ref.read(signupControllerProvider.notifier);
     controller.setLoading(true);
     controller.clearError();
+    controller.setEmailExists(false);
     
     try {
       final authService = AuthService();
@@ -66,10 +81,31 @@ class _SignupFormState extends ConsumerState<SignupForm> {
 
       context.go('/signup_otp', extra: {'email': emailController.text});
     } catch (e) {
-      controller.setError(e.toString().replaceAll('Exception:', '').trim());
+      final errorMessage = e.toString().replaceAll('Exception:', '').trim();
+      
+      // Check if the error indicates that email already exists
+      if (errorMessage.toLowerCase().contains('email') && 
+          (errorMessage.toLowerCase().contains('exist') || 
+           errorMessage.toLowerCase().contains('already') ||
+           errorMessage.toLowerCase().contains('registered'))) {
+        controller.setEmailExists(true);
+        controller.setError('An account with this email already exists. Try logging in or resetting your password.');
+      } else {
+        controller.setError(errorMessage);
+      }
     } finally {
       controller.setLoading(false);
     }
+  }
+
+  void handleResetPassword() {
+    // Navigate to reset password screen
+    context.go('/forgetpassword');
+  }
+
+  void handleLogin() {
+    // Navigate to login screen
+    context.go('/login');
   }
 
   @override
@@ -118,14 +154,36 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                     },
                   ),
                   const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 24, top: 24),
-                    child: PrimaryButton(
-                      isDisabled: signupState.isButtonDisabled,
-                      text: localizations.text("complete_sign_up"),
-                      onPressed: handleSendOtp,
+                  if (signupState.emailExists) ...[
+                    // Show Reset Password and Login buttons when email exists
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10, top: 24),
+                      child: PrimaryButton(
+                        isDisabled: false,
+                        text: localizations.text("reset_password"),
+                        onPressed: handleResetPassword,
+                        isHollow: true,
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: PrimaryButton(
+                        isDisabled: false,
+                        text: localizations.text("login_button"),
+                        onPressed: handleLogin,
+                      ),
+                    ),
+                  ] else ...[
+                    // Show normal signup button when email doesn't exist
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24, top: 24),
+                      child: PrimaryButton(
+                        isDisabled: signupState.isButtonDisabled || signupState.isLoading,
+                        text: localizations.text("complete_sign_up"),
+                        onPressed: signupState.isLoading ? null : handleSendOtp,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

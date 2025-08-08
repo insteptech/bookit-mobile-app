@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/widgets/signup_form.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,18 @@ class SignupScreen extends StatelessWidget{
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 60),
+                  const SizedBox(height: AppConstants.scaffoldTopSpacing),
+                  // Back button
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Transform.translate(
+                      offset: const Offset(-10, 0),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back, size: 30),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ),
                   Text(
                     localizations.text("sign_up"),
                     style: AppTypography.headingLg,
