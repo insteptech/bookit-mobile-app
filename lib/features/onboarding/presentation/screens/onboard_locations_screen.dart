@@ -1,4 +1,4 @@
-import 'package:bookit_mobile_app/features/onboarding/application/onboard_locations_controller.dart';
+import 'package:bookit_mobile_app/features/onboarding/application/application.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/widgets/onboarding_location_info_form.dart';

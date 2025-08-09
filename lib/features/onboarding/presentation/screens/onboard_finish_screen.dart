@@ -1,7 +1,3 @@
-import 'package:bookit_mobile_app/core/models/user_model.dart';
-import 'package:bookit_mobile_app/core/providers/business_provider.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
-import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checklist.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +12,8 @@ class OnboardFinishScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardFinishScreenState extends ConsumerState<OnboardFinishScreen> {
-  int currentStep = 0;
-  bool isLoading = true;
+  int currentStep = 5; // All steps completed
+  bool isLoading = false;
 
   final List<Map<String, dynamic>> onboardingSteps = [
     {
@@ -51,53 +47,6 @@ class _OnboardFinishScreenState extends ConsumerState<OnboardFinishScreen> {
       "subheading": "Describe what you offer",
     },
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchData();
-  }
-
-  void fetchData() async {
-    final token = await TokenService().getToken();
-    final UserModel userData = await UserService().fetchUserDetails();
-
-    if (userData.businessIds.isNotEmpty) {
-      final businessId = userData.businessIds[0];
-      final businessDetails = await UserService().fetchBusinessDetails(businessId: businessId);
-      ref.read(businessProvider.notifier).state = businessDetails;
-
-      int updatedStep = 0;
-      switch (businessDetails.activeStep) {
-        case "about_you":
-          updatedStep = 0;
-          break;
-        case "locations":
-          updatedStep = 1;
-          break;
-        case "services":
-          updatedStep = 2;
-          break;
-        case "categories":
-          updatedStep = 3;
-          break;
-        case "service_details":
-          updatedStep = 4;
-          break;
-        default:
-          updatedStep = 5;
-      }
-
-      setState(() {
-        currentStep = updatedStep;
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

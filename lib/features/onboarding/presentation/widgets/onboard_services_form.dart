@@ -6,6 +6,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
+import 'package:bookit_mobile_app/features/onboarding/domain/domain.dart';
 
 class ServiceFormData {
   final String serviceId;
@@ -28,41 +29,16 @@ class ServiceFormData {
 
   ServiceFormData({required this.serviceId});
 
-  Map<String, dynamic>? toJson(String businessId) {
-    final durationList =
-        durationAndCosts
-            .where((item) {
-              return item['duration'].toString().isNotEmpty &&
-                  item['cost'].toString().isNotEmpty;
-            })
-            .map((item) {
-              final map = {
-                'duration_minutes': int.tryParse(item['duration'] ?? '0') ?? 0,
-                'price': int.tryParse(item['cost'] ?? '0') ?? 0,
-              };
-              if ((item['packageAmount'] ?? '').isNotEmpty) {
-                map['package_amount'] =
-                    int.tryParse(item['packageAmount']) ?? 0;
-              }
-              if ((item['packagePerson'] ?? '').isNotEmpty) {
-                map['package_person'] =
-                    int.tryParse(item['packagePerson']) ?? 0;
-              }
-              return map;
-            })
-            .toList();
-
-    if (titleController.text.trim().isEmpty || durationList.isEmpty)
-      return null;
-
-    return {
-      'business_id': businessId,
-      'service_id': serviceId,
-      'name': titleController.text.trim(),
-      'description': descriptionController.text.trim(),
-      'durations': durationList,
-      'spots_available': spotsAvailable ? (int.tryParse(spotsController.text) ?? null) : null,
-    };
+  /// Creates domain entity from form data - no business logic, just data conversion
+  ServiceData? toServiceData() {
+    return ServiceDataFactory.fromFormData(
+      serviceId: serviceId,
+      name: titleController.text,
+      description: descriptionController.text,
+      durationAndCosts: durationAndCosts,
+      spotsAvailable: spotsAvailable,
+      spotsText: spotsController.text,
+    );
   }
 }
 

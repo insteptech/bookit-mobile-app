@@ -1,4 +1,3 @@
-import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
@@ -28,13 +27,8 @@ class OnboardScaffoldLayout extends StatelessWidget {
     required this.backButtonDisabled
   });
 
-
   @override
   Widget build(BuildContext context) {
-  void logout()async{
-    await TokenService().clearToken();
-    context.go("/login");
-  }
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -83,14 +77,6 @@ class OnboardScaffoldLayout extends StatelessWidget {
                 text: nextButtonText,
               )
               ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(vertical: 1),
-              //   child: PrimaryButton(
-              //   onPressed: logout,
-              //   isDisabled: false,
-              //   text: "Logout",
-              // )
-              // ),
             ],
           ),
         ),

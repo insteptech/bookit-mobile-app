@@ -1,55 +1,18 @@
-import 'dart:ffi';
-
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/widgets/onboard_services_form.dart';
+import 'package:bookit_mobile_app/features/onboarding/application/application.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-class OnboardAddServicesDetailsScreen extends ConsumerStatefulWidget {
+class OnboardAddServicesDetailsScreen extends ConsumerWidget {
   const OnboardAddServicesDetailsScreen({super.key});
 
   @override
-  ConsumerState<OnboardAddServicesDetailsScreen> createState() => _OnboardAddServicesDetailsScreenState();
-}
-
-class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServicesDetailsScreen> {
-  final Map<String, GlobalKey<OnboardServicesFormState>> formKeys = {};
-  bool isButtonDisabled = false; 
-
-  Future<void> submitServiceDetails(String businessId) async {
-    List<Map<String, dynamic>> allDetails = [];
-    setState(() {
-      isButtonDisabled= true;
-    });
-    for (var key in formKeys.values) {
-      final state = key.currentState;
-      if (state != null) {
-        for (var form in state.getFormDataList()) {
-          final json = form.toJson(businessId);
-          if (json != null) {
-            allDetails.add(json);
-          }
-        }
-      }
-    }
-    try {
-    await OnboardingApiService().updateService(allDetails: allDetails);
-    } catch (e) {
-      print(e);
-    } finally {
-      setState(() {
-        isButtonDisabled = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(onboardAddServicesDetailsControllerProvider);
     final business = ref.watch(businessProvider);
     final services = business?.businessServices ?? [];
 
@@ -77,12 +40,13 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
             const SizedBox(height: 8),
             if (level1ToLevel2.containsKey(l1.category.id))
               for (final l2 in level1ToLevel2[l1.category.id]!) ...[
-                SizedBox(height: 8),
-                Text(l2.category.name.toString().toUpperCase(), style: AppTypography.headingSm.copyWith(color: AppColors.secondaryFontColor)),
+                const SizedBox(height: 8),
+                Text(l2.category.name.toString().toUpperCase(), 
+                     style: AppTypography.headingSm.copyWith(color: AppColors.secondaryFontColor)),
                 const SizedBox(height: 8),
                 Builder(builder: (context) {
                   final key = GlobalKey<OnboardServicesFormState>();
-                  formKeys[l2.id] = key;
+                  controller.formKeys[l2.id] = key;
                   return OnboardServicesForm(
                     key: key, 
                     serviceId: l2.id,
@@ -94,7 +58,7 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
             else ...[
               Builder(builder: (context) {
                 final key = GlobalKey<OnboardServicesFormState>();
-                formKeys[l1.id] = key;
+                controller.formKeys[l1.id] = key;
                 return OnboardServicesForm(
                   key: key, 
                   serviceId: l1.id,
@@ -106,14 +70,9 @@ class _OnboardAddServicesDetailsScreenState extends ConsumerState<OnboardAddServ
           ]
         ],
       ),
-      onNext: () async {
-        if (business?.id != null) {
-          await submitServiceDetails(business!.id);
-          context.go("/onboard_finish_screen");
-        }
-      },
+      onNext: () => controller.submitServiceDetails(context),
       nextButtonText: "Finish",
-      nextButtonDisabled: isButtonDisabled,
+      nextButtonDisabled: controller.isButtonDisabled,
       currentStep: 4,
     );
   }

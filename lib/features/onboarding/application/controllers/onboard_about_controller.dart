@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/onboarding_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/core/utils/validators.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
+import 'package:bookit_mobile_app/features/onboarding/data/data.dart';
+import 'package:bookit_mobile_app/features/onboarding/application/providers.dart';
 
 class OnboardAboutController extends ChangeNotifier {
   final Ref ref;
+  late final OnboardingRepository _repository;
   
   // Form state
   bool _isFormOpen = false;
@@ -25,12 +27,12 @@ class OnboardAboutController extends ChangeNotifier {
   final TextEditingController websiteController = TextEditingController();
 
   // Services
-  final OnboardingApiService _onboardingApiService = OnboardingApiService();
   final UserService _userService = UserService();
   final ActiveBusinessService _activeBusinessService = ActiveBusinessService();
   final OnboardingService _onboardingService = OnboardingService();
 
   OnboardAboutController(this.ref) {
+    _repository = ref.read(onboardingRepositoryProvider);
     _initializeControllers();
     _initializeFromBusiness();
   }
@@ -96,8 +98,8 @@ class OnboardAboutController extends ChangeNotifier {
       final userData = await _userService.fetchUserDetails();
       _businessId = userData.businessIds.isNotEmpty ? userData.businessIds[0] : "";
 
-      // Submit business info
-      final business = await _onboardingApiService.submitBusinessInfo(
+      // Submit business info using repository
+      final business = await _repository.submitBusinessInfo(
         name: nameController.text.trim(),
         email: emailController.text.trim(),
         phone: mobileController.text.trim(),
@@ -147,8 +149,3 @@ class OnboardAboutController extends ChangeNotifier {
     super.dispose();
   }
 }
-
-// Provider for the controller
-final onboardAboutControllerProvider = ChangeNotifierProvider.autoDispose<OnboardAboutController>(
-  (ref) => OnboardAboutController(ref),
-);

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
+import 'package:bookit_mobile_app/features/onboarding/data/data.dart';
+import 'package:bookit_mobile_app/features/onboarding/application/providers.dart';
 
 class OnboardLocationsController extends ChangeNotifier {
   final Ref ref;
+  late final OnboardingRepository _repository;
 
   // State
   final List<Map<String, dynamic>> _addressControllersList = [];
@@ -17,10 +19,10 @@ class OnboardLocationsController extends ChangeNotifier {
   String? _errorMessage;
 
   // Services
-  final OnboardingApiService _onboardingApiService = OnboardingApiService();
   final UserService _userService = UserService();
 
   OnboardLocationsController(this.ref) {
+    _repository = ref.read(onboardingRepositoryProvider);
     _initializeFromBusiness();
   }
 
@@ -146,7 +148,7 @@ class OnboardLocationsController extends ChangeNotifier {
     }).toList();
 
     try {
-      await _onboardingApiService.submitLocationInfo(
+      await _repository.submitLocationInfo(
         businessId: businessId,
         locations: locations,
       );
@@ -247,8 +249,3 @@ class OnboardLocationsController extends ChangeNotifier {
     super.dispose();
   }
 }
-
-// Provider for the locations controller
-final onboardLocationsControllerProvider = ChangeNotifierProvider.autoDispose<OnboardLocationsController>((ref) {
-  return OnboardLocationsController(ref);
-});

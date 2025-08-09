@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:bookit_mobile_app/core/models/category_model.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
+import 'package:bookit_mobile_app/features/onboarding/data/data.dart';
+import 'package:bookit_mobile_app/features/onboarding/application/providers.dart';
 
 class OnboardAddServiceController extends ChangeNotifier {
   final Ref ref;
+  late final OnboardingRepository _repository;
 
   // State
   Set<String> _selectedIds = {};
@@ -19,10 +21,10 @@ class OnboardAddServiceController extends ChangeNotifier {
   String? _errorMessage;
 
   // Services
-  final OnboardingApiService _onboardingApiService = OnboardingApiService();
   final UserService _userService = UserService();
 
   OnboardAddServiceController(this.ref) {
+    _repository = ref.read(onboardingRepositoryProvider);
     _initializeFromBusiness();
     _fetchCategories();
   }
@@ -50,7 +52,7 @@ class OnboardAddServiceController extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      final categories = await _onboardingApiService.getCategories();
+      final categories = await _repository.getCategories();
       _categories = categories;
       _isLoading = false;
       notifyListeners();
@@ -64,6 +66,7 @@ class OnboardAddServiceController extends ChangeNotifier {
   void toggleSelection(String id, List<CategoryModel> categories) {
     if (_selectedIds.contains(id)) {
       _selectedIds.remove(id);
+      // Remove child categories when parent is deselected
       final children = categories.where((e) => e.parentId == id);
       for (var child in children) {
         _selectedIds.remove(child.id);
@@ -109,7 +112,7 @@ class OnboardAddServiceController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _onboardingApiService.createServices(services: servicesPayload);
+      await _repository.createServices(services: servicesPayload);
       
       final businessDetails = await _userService.fetchBusinessDetails(
         businessId: business.id,
@@ -135,8 +138,3 @@ class OnboardAddServiceController extends ChangeNotifier {
     super.dispose();
   }
 }
-
-// Provider for the add service controller
-final onboardAddServiceControllerProvider = ChangeNotifierProvider.autoDispose<OnboardAddServiceController>(
-  (ref) => OnboardAddServiceController(ref),
-);
