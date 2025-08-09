@@ -99,8 +99,9 @@ class _SignupFormState extends ConsumerState<SignupForm> {
   }
 
   void handleResetPassword() {
-    // Navigate to reset password screen
-    context.go('/forgetpassword');
+    // Navigate to reset password screen with the current email
+    final email = emailController.text;
+    context.push('/forgetpassword?email=${Uri.encodeComponent(email)}');
   }
 
   void handleLogin() {

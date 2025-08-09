@@ -25,20 +25,21 @@ class CreateNewPasswordState {
     String? error,
     bool? isPasswordValid,
     bool? isButtonDisabled,
+    bool clearError = false,
   }) {
     return CreateNewPasswordState(
       email: email ?? this.email,
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
       isPasswordValid: isPasswordValid ?? this.isPasswordValid,
       isButtonDisabled: isButtonDisabled ?? this.isButtonDisabled,
     );
   }
 
   CreateNewPasswordState clearError() {
-    return copyWith(error: null);
+    return copyWith(clearError: true);
   }
 
   bool get isFormValid => 

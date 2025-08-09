@@ -10,7 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  final String? email;
+  
+  const ForgotPasswordScreen({super.key, this.email});
 
   @override
   ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -22,6 +24,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   void initState() {
     super.initState();
+    
+    // Pre-fill email if provided
+    if (widget.email?.isNotEmpty == true) {
+      emailController.text = widget.email!;
+      // Update the controller state with the pre-filled email
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(forgotPasswordControllerProvider.notifier).updateEmail(widget.email!);
+      });
+    }
+    
     emailController.addListener(() {
       ref.read(forgotPasswordControllerProvider.notifier).updateEmail(emailController.text);
     });
@@ -83,7 +95,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           const Spacer(),
           PrimaryButton(
             onPressed: forgotPasswordState.isLoading ? null : handleForgotPassword,
-            isDisabled: emailController.text.isEmpty || forgotPasswordState.isLoading,
+            isDisabled: forgotPasswordState.email.isEmpty || forgotPasswordState.isLoading,
             text: forgotPasswordState.isLoading 
                 ? "Sending..." 
                 : localizations.text("forgot_pass_next_button"),

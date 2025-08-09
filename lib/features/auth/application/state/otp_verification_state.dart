@@ -19,18 +19,19 @@ class OtpVerificationState {
     bool? isLoading,
     String? error,
     bool? isButtonDisabled,
+    bool clearError = false,
   }) {
     return OtpVerificationState(
       email: email ?? this.email,
       otp: otp ?? this.otp,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
       isButtonDisabled: isButtonDisabled ?? this.isButtonDisabled,
     );
   }
 
   OtpVerificationState clearError() {
-    return copyWith(error: null);
+    return copyWith(clearError: true);
   }
 
   bool get isOtpValid => otp.length == 6;

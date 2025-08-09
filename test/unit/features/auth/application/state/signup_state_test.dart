@@ -14,6 +14,7 @@ void main() {
       expect(state.error, null);
       expect(state.isPasswordValid, false);
       expect(state.isButtonDisabled, true);
+      expect(state.emailExists, false);
     });
 
     test('should update name correctly', () {
@@ -80,6 +81,13 @@ void main() {
       expect(updatedState.isButtonDisabled, false);
     });
 
+    test('should update email exists state correctly', () {
+      final state = SignupState();
+      final updatedState = state.copyWith(emailExists: true);
+      
+      expect(updatedState.emailExists, true);
+    });
+
     test('should check if form is valid', () {
       final state = SignupState();
       expect(state.isFormValid, false);
@@ -101,12 +109,14 @@ void main() {
         email: 'test@example.com',
         password: 'password123',
         isLoading: true,
+        emailExists: true,
       );
       
       expect(updatedState.name, 'John Doe');
       expect(updatedState.email, 'test@example.com');
       expect(updatedState.password, 'password123');
       expect(updatedState.isLoading, true);
+      expect(updatedState.emailExists, true);
     });
 
     test('copyWith should preserve unchanged values', () {

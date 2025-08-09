@@ -31,6 +31,7 @@ class SignupState {
     bool? isPasswordValid,
     bool? isButtonDisabled,
     bool? emailExists,
+    bool clearError = false,
   }) {
     return SignupState(
       name: name ?? this.name,
@@ -38,7 +39,7 @@ class SignupState {
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
       isPasswordValid: isPasswordValid ?? this.isPasswordValid,
       isButtonDisabled: isButtonDisabled ?? this.isButtonDisabled,
       emailExists: emailExists ?? this.emailExists,
@@ -46,7 +47,7 @@ class SignupState {
   }
 
   SignupState clearError() {
-    return copyWith(error: null);
+    return copyWith(clearError: true);
   }
 
   bool get isFormValid =>

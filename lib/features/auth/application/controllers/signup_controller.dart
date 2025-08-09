@@ -46,11 +46,12 @@ class SignupController extends StateNotifier<SignupState> {
   }
 
   void resetEmailExistsState() {
-    state = state.copyWith(emailExists: false, error: null);
+    state = state.copyWith(emailExists: false, clearError: true);
   }
 
   void resetForm() {
     state = SignupState();
+    _updateButtonState();
   }
 
   void _updateButtonState() {

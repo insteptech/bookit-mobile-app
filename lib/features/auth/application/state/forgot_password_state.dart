@@ -13,16 +13,17 @@ class ForgotPasswordState {
     String? email,
     bool? isLoading,
     String? error,
+    bool clearError = false,
   }) {
     return ForgotPasswordState(
       email: email ?? this.email,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
     );
   }
 
   ForgotPasswordState clearError() {
-    return copyWith(error: null);
+    return copyWith(clearError: true);
   }
 
   bool get isEmailValid => email.isNotEmpty && email.contains('@');

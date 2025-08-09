@@ -27,6 +27,7 @@ void main() {
       expect(state.error, null);
       expect(state.isPasswordValid, false);
       expect(state.isButtonDisabled, true);
+      expect(state.emailExists, false);
     });
 
     test('should update name correctly', () {
@@ -109,6 +110,69 @@ void main() {
       
       state = container.read(signupControllerProvider);
       expect(state.isButtonDisabled, false);
+    });
+
+    test('should set email exists flag correctly', () {
+      controller.setEmailExists(true);
+      final state = container.read(signupControllerProvider);
+      
+      expect(state.emailExists, true);
+    });
+
+    test('should clear error correctly', () {
+      // Set an error first
+      controller.setError('Some error');
+      var state = container.read(signupControllerProvider);
+      expect(state.error, 'Some error');
+      
+      // Clear the error
+      controller.clearError();
+      state = container.read(signupControllerProvider);
+      expect(state.error, null);
+    });
+
+    test('should reset email exists state correctly', () {
+      // Set email exists and error first
+      controller.setEmailExists(true);
+      controller.setError('Email already exists');
+      var state = container.read(signupControllerProvider);
+      expect(state.emailExists, true);
+      expect(state.error, 'Email already exists');
+      
+      // Reset email exists state
+      controller.resetEmailExistsState();
+      state = container.read(signupControllerProvider);
+      expect(state.emailExists, false);
+      expect(state.error, null);
+    });
+
+    test('should reset entire form correctly', () {
+      // Set up a form with data
+      controller.updateName('John Doe');
+      controller.updateEmail('test@example.com');
+      controller.updatePassword('password123');
+      controller.updateConfirmPassword('password123');
+      controller.updatePasswordValid(true);
+      controller.setLoading(true);
+      controller.setError('Some error');
+      controller.setEmailExists(true);
+      
+      var state = container.read(signupControllerProvider);
+      
+      // Reset the form
+      controller.resetForm();
+      state = container.read(signupControllerProvider);
+      
+      // Verify everything is reset to initial state
+      expect(state.name, '');
+      expect(state.email, '');
+      expect(state.password, '');
+      expect(state.confirmPassword, '');
+      expect(state.isLoading, false);
+      expect(state.error, null);
+      expect(state.isPasswordValid, false);
+      expect(state.emailExists, false);
+      expect(state.isButtonDisabled, true);
     });
   });
 }

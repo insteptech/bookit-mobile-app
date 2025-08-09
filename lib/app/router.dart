@@ -55,7 +55,10 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/forgetpassword',
-      builder: (context, state) => const ForgotPasswordScreen(),
+      builder: (context, state) {
+        final email = state.uri.queryParameters['email'] ?? '';
+        return ForgotPasswordScreen(email: email);
+      },
     ),
     GoRoute(
       path: '/otpscreen',
