@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/core/models/category_model.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button.dart';
-import 'package:bookit_mobile_app/features/onboarding/scaffolds/onboard_scaffold_layout.dart';
+import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
 import 'package:go_router/go_router.dart';
 
 class OnboardAddServiceScreen extends ConsumerStatefulWidget {

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboard_business_info_form.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button.dart';
-import 'package:bookit_mobile_app/features/onboarding/scaffolds/onboard_scaffold_layout.dart';
+import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
 import 'package:bookit_mobile_app/features/onboarding/application/application.dart';
 
 class OnboardAboutScreen extends ConsumerWidget {

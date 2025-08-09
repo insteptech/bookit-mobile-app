@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
-import 'package:bookit_mobile_app/features/onboarding/widgets/onboard_services_form.dart';
+import 'package:bookit_mobile_app/features/onboarding/presentation/widgets/onboard_services_form.dart';
 
 class OnboardAddServicesDetailsController extends ChangeNotifier {
   final Ref ref;

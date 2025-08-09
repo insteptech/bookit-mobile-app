@@ -1,5 +1,5 @@
 import 'package:bookit_mobile_app/features/main/menu/widgets/menu_screens_scaffold.dart';
-import 'package:bookit_mobile_app/features/onboarding/widgets/onboard_locations_widget.dart';
+import 'package:bookit_mobile_app/features/onboarding/presentation/widgets/onboard_locations_widget.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';

@@ -3,7 +3,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api
 import 'package:bookit_mobile_app/core/services/remote_services/network/onboarding_api_service.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
-import 'package:bookit_mobile_app/features/onboarding/widgets/onboarding_location_info_form.dart';
+import 'package:bookit_mobile_app/features/onboarding/presentation/widgets/onboarding_location_info_form.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
