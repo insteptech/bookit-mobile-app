@@ -22,182 +22,25 @@ class _BookNewAppointmentScreen2State
   // --- State Variables ---
   bool _isLoading = false;
 
-  // For Autocomplete Client Search
+  // For Client Search
   final TextEditingController _clientController = TextEditingController();
   final FocusNode _clientFocusNode = FocusNode();
   final LayerLink _layerLink = LayerLink();
-  OverlayEntry? _overlayEntry;
-
-  // Search and selection state
   Map<String, dynamic>? _selectedClient;
-  bool _showDropdown = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _clientController.addListener(_onSearchChanged);
-    _clientFocusNode.addListener(_onFocusChanged);
-  }
 
   @override
   void dispose() {
-    _clientController.removeListener(_onSearchChanged);
-    _clientFocusNode.removeListener(_onFocusChanged);
     _clientController.dispose();
     _clientFocusNode.dispose();
-    _removeOverlay();
     super.dispose();
   }
 
-  // --- Search and Selection Logic ---
-  void _onSearchChanged() {
-    final query = _clientController.text.trim();
-    final clientController = ref.read(clientControllerProvider.notifier);
-    
-    clientController.updateSearchQuery(query);
-    
-    if (query.isEmpty) {
-      setState(() => _showDropdown = false);
-      _updateOverlay();
-      return;
-    }
-    
-    clientController.searchClients(query);
-    setState(() => _showDropdown = true);
-    _updateOverlay();
-  }
-
-  void _onFocusChanged() {
-    if (_clientFocusNode.hasFocus) {
-      if (_clientController.text.isNotEmpty) {
-        setState(() => _showDropdown = true);
-        _updateOverlay();
-      }
-    } else {
-      Future.delayed(const Duration(milliseconds: 200), () {
-        if (mounted) {
-          setState(() => _showDropdown = false);
-          _updateOverlay();
-        }
-      });
-    }
-  }
-
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
-  void _updateOverlay() {
-    _removeOverlay();
-    if (_showDropdown) {
-      _overlayEntry = _createOverlayEntry();
-      Overlay.of(context).insert(_overlayEntry!);
-    }
-  }
-
   void _selectClient(Map<String, dynamic> client) {
-    final clientController = ref.read(clientControllerProvider.notifier);
-    clientController.selectClient(client);
-    
     setState(() {
       _selectedClient = client;
       _clientController.text = client['full_name'] ?? '';
-      _showDropdown = false;
     });
-    _updateOverlay();
     _clientFocusNode.unfocus();
-  }
-
-  // --- WIDGETS ---
-
-  Widget _buildOverlayContent() {
-    final clientState = ref.watch(clientControllerProvider);
-
-    if (clientState.isSearching) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2)),
-            SizedBox(width: 12),
-            Text('Searching...', style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-      );
-    }
-
-    if (clientState.filteredClients.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(
-            child: Text('No clients found',
-                style: TextStyle(color: Colors.grey))),
-      );
-    }
-
-    return ListView.separated(
-      shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      itemCount: clientState.filteredClients.length,
-      itemBuilder: (context, index) {
-        final client = clientState.filteredClients[index];
-        return InkWell(
-          onTap: () => _selectClient(client),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text(
-              client['full_name'] ?? 'Unknown Client',
-              style: const TextStyle(fontSize: 16, color: Color(0xFF1C1B1F)),
-            ),
-          ),
-        );
-      },
-      separatorBuilder: (context, index) => Divider(
-        height: 1,
-        thickness: 1,
-        color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-        indent: 16,
-        endIndent: 16,
-      ),
-    );
-  }
-
-  OverlayEntry _createOverlayEntry() {
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
-    var size = renderBox.size;
-
-    return OverlayEntry(
-      builder: (context) => Positioned(
-        width: size.width - 68,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: const Offset(0, 52),
-          child: Material(
-            elevation: 4,
-            shadowColor: Colors.black.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 200),
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color:
-                      Theme.of(context).colorScheme.outline.withOpacity(0.2),
-                ),
-              ),
-              child: _buildOverlayContent(), // Use the helper method here
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -311,6 +154,9 @@ class _BookNewAppointmentScreen2State
                         });
                         
                         try {
+                          print('Booking appointment with payload: ${widget.partialPayload}');
+                          print('Selected client: $_selectedClient');
+                          
                           await appointmentController.bookAppointment(
                             businessId: widget.partialPayload['business_id'],
                             locationId: widget.partialPayload['location_id'], 
@@ -339,6 +185,7 @@ class _BookNewAppointmentScreen2State
                             context.go("/home_screen?refresh=true");
                           }
                         } catch (e) {
+                          print('Booking error: $e');
                           // Show error message
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(

@@ -53,14 +53,9 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       'start_from': startTime,
       'end_at': endTime,
       'user_id': userId,
-      'rescheduled_from': "",
       'status_reason': "",
-      'class_id': "",
       'is_cancelled': "",
-      'duration_minutes': durationMinutes,
-      'service_name': serviceName,
-      'practitioner_name': practitionerName,
-      if (clientId != null) 'client_id': clientId,
+      if (clientId != null) 'booked_by': clientId,  // Changed from 'client_id' to 'booked_by'
     }];
 
     await remoteDataSource.bookAppointment(payload: payload);

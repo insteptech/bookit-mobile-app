@@ -48,7 +48,7 @@ class ServiceDurationModel extends ServiceDuration {
     return ServiceDurationModel(
       id: json['id']?.toString() ?? '',
       durationMinutes: json['duration_minutes'] ?? 0,
-      price: (json['price'] ?? 0).toDouble(),
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import '../../provider.dart';
+import '../../application/state/client_state.dart';
 
 class ClientSearchWidget extends ConsumerStatefulWidget {
   final LayerLink layerLink;
@@ -80,7 +81,8 @@ class _ClientSearchWidgetState extends ConsumerState<ClientSearchWidget> {
   void _updateOverlay() {
     _removeOverlay();
     final clientState = ref.read(clientControllerProvider);
-    if (clientState.showDropdown) {
+    print('Updating overlay - showDropdown: ${clientState.showDropdown}, filteredClients: ${clientState.filteredClients.length}');
+    if (clientState.showDropdown && widget.focusNode.hasFocus) {
       _overlayEntry = _createOverlayEntry();
       Overlay.of(context).insert(_overlayEntry!);
     }
@@ -175,7 +177,11 @@ class _ClientSearchWidgetState extends ConsumerState<ClientSearchWidget> {
                   color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
                 ),
               ),
-              child: _buildOverlayContent(),
+              child: Consumer(
+                builder: (context, ref, child) {
+                  return _buildOverlayContent();
+                },
+              ),
             ),
           ),
         ),
@@ -185,6 +191,15 @@ class _ClientSearchWidgetState extends ConsumerState<ClientSearchWidget> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to client state changes and update overlay accordingly
+    ref.listen<ClientState>(clientControllerProvider, (previous, next) {
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _updateOverlay();
+        });
+      }
+    });
+    
     return SearchableClientField(
       layerLink: widget.layerLink,
       controller: widget.controller,

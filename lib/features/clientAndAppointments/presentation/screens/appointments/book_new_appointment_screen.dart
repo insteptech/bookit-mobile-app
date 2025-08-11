@@ -175,7 +175,7 @@ class _BookNewAppointmentScreenState
 
     final selectedServiceData = appointmentState.serviceList.firstWhere(
       (service) => service['id'] == selectedService,
-      orElse: () => <String, dynamic>{},
+      orElse: () => <String, Object>{},
     );
 
     if (selectedServiceData.isEmpty) return [];
@@ -184,7 +184,7 @@ class _BookNewAppointmentScreenState
         .firstWhere(
           (duration) =>
               duration['duration_minutes'].toString() == selectedDuration,
-          orElse: () => <String, dynamic>{},
+          orElse: () => <String, Object>{},
         );
 
     if (selectedDurationData.isEmpty) return [];
@@ -351,6 +351,70 @@ class _BookNewAppointmentScreenState
                     style: AppTypography.headingLg,
                   ),
                   const SizedBox(height: 16),
+                  // Error display
+                  if (appointmentState.error != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.1),
+                        border: Border.all(color: Colors.red.withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Error loading data: ${appointmentState.error}',
+                                  style: const TextStyle(color: Colors.red, fontSize: 14),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await _initializeData();
+                            },
+                            icon: const Icon(Icons.refresh, size: 16),
+                            label: const Text('Retry'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(0, 32),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  // Loading indicator
+                  if (appointmentState.isLoading)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          SizedBox(width: 8),
+                          Text('Loading practitioners and services...'),
+                        ],
+                      ),
+                    ),
                   // Location selector
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -363,7 +427,11 @@ class _BookNewAppointmentScreenState
                               ref.read(activeLocationProvider.notifier).state =
                                   location['id'];
                               setState(() {
-                                selectedPractitioner = ""; // Reset practitioner when location changes
+                                // Reset all form fields when location changes
+                                selectedPractitioner = "";
+                                selectedService = "";
+                                selectedDuration = "";
+                                durationOptions = [];
                               });
                               await appointmentController.fetchPractitioners(location['id']);
                             },
@@ -485,7 +553,7 @@ class _BookNewAppointmentScreenState
                         if (selectedService.isNotEmpty) {
                           final selected = appointmentState.serviceList.firstWhere(
                             (item) => item['id'] == selectedService,
-                            orElse: () => <String, dynamic>{},
+                            orElse: () => <String, Object>{},
                           );
 
                           if (selected.isNotEmpty &&

@@ -223,8 +223,10 @@ class APIRepository {
       );
 
       final response = await _dio.get(url);
-      return response.data["data"];
+      print('Client search API response: ${response.data}');
+      return response.data;
     } catch (e) {
+      print('Error fetching clients: $e');
       throw Exception("Failed to fetch clients: ${e.toString()}");
     }
   }
@@ -234,9 +236,13 @@ class APIRepository {
     required List<Map<String, dynamic>> payload,
   }) async {
     try {
+      print('API: Booking appointment with endpoint: $bookAppointmentEndpoint');
+      print('API: Payload: $payload');
       final response = await _dio.post(bookAppointmentEndpoint, data: payload);
+      print('API: Booking response: ${response.data}');
       return response;
     } catch (e) {
+      print('API: Booking error: $e');
       throw Exception("Failed to book appointment: ${e.toString()}");
     }
   }
