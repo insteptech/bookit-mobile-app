@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookit_mobile_app/features/main/offerings/models/business_offerings_model.dart';
+import 'package:bookit_mobile_app/features/offerings/models/business_offerings_model.dart';
 
 void main() {
   group('BusinessOfferingsModel Tests', () {

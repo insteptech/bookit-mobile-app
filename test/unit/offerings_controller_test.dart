@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookit_mobile_app/features/main/offerings/controllers/offerings_controller.dart';
+import 'package:bookit_mobile_app/features/offerings/controllers/offerings_controller.dart';
 
 void main() {
   group('OfferingsController Tests', () {

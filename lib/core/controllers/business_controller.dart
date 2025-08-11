@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
-import 'package:bookit_mobile_app/features/main/dashboard/models/business_category_model.dart';
+import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
 
 // State classes
 class BusinessState {
