@@ -1,11 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/usecases/get_clients.dart';
+import '../../domain/usecases/create_client.dart';
 import '../state/client_state.dart';
-import '../../data/services/client_api_service.dart';
 
 class ClientController extends StateNotifier<ClientState> {
-  final ClientApiService _apiService;
+  final GetClients _getClients;
+  final CreateClient _createClient;
 
-  ClientController(this._apiService) : super(const ClientState());
+  ClientController(
+    this._getClients,
+    this._createClient,
+  ) : super(const ClientState());
 
   void updateSearchQuery(String query) {
     state = state.copyWith(searchQuery: query);
@@ -42,14 +47,18 @@ class ClientController extends StateNotifier<ClientState> {
         error: null,
       );
 
-      final data = await _apiService.fetchClients(fullName: query);
-      final List<Map<String, dynamic>> clients =
-          (data['profile'] != null)
-              ? List<Map<String, dynamic>>.from(data['profile'])
-              : [];
+      final clients = await _getClients(searchQuery: query);
+      final clientMaps = clients.map((c) => {
+        'id': c.id,
+        'first_name': c.firstName,
+        'last_name': c.lastName,
+        'email': c.email,
+        'phone_number': c.phoneNumber,
+        'full_name': c.fullName,
+      }).toList();
 
       state = state.copyWith(
-        filteredClients: clients,
+        filteredClients: clientMaps,
         isSearching: false,
       );
     } catch (e) {
@@ -68,13 +77,29 @@ class ClientController extends StateNotifier<ClientState> {
   }) async {
     try {
       state = state.copyWith(isLoading: true, error: null);
-      final result = await _apiService.createClient(
-        name: name,
+      
+      // Split name into first and last name
+      final nameParts = name.trim().split(' ');
+      final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+      
+      final client = await _createClient(
+        firstName: firstName,
+        lastName: lastName,
         email: email,
-        phone: phone,
+        phoneNumber: phone,
       );
+      
       state = state.copyWith(isLoading: false);
-      return result;
+      
+      return {
+        'id': client.id,
+        'first_name': client.firstName,
+        'last_name': client.lastName,
+        'email': client.email,
+        'phone_number': client.phoneNumber,
+        'full_name': client.fullName,
+      };
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

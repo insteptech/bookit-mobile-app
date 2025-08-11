@@ -1,7 +1,6 @@
 class AppointmentState {
   final List<Map<String, dynamic>> practitioners;
   final List<Map<String, dynamic>> serviceList;
-  final List<String> durationOptions;
   final String selectedPractitioner;
   final String selectedService;
   final String selectedDuration;
@@ -12,7 +11,6 @@ class AppointmentState {
   const AppointmentState({
     this.practitioners = const [],
     this.serviceList = const [],
-    this.durationOptions = const [],
     this.selectedPractitioner = '',
     this.selectedService = '',
     this.selectedDuration = '',
@@ -24,7 +22,6 @@ class AppointmentState {
   AppointmentState copyWith({
     List<Map<String, dynamic>>? practitioners,
     List<Map<String, dynamic>>? serviceList,
-    List<String>? durationOptions,
     String? selectedPractitioner,
     String? selectedService,
     String? selectedDuration,
@@ -35,7 +32,6 @@ class AppointmentState {
     return AppointmentState(
       practitioners: practitioners ?? this.practitioners,
       serviceList: serviceList ?? this.serviceList,
-      durationOptions: durationOptions ?? this.durationOptions,
       selectedPractitioner: selectedPractitioner ?? this.selectedPractitioner,
       selectedService: selectedService ?? this.selectedService,
       selectedDuration: selectedDuration ?? this.selectedDuration,
@@ -49,4 +45,32 @@ class AppointmentState {
       selectedPractitioner.isNotEmpty &&
       selectedService.isNotEmpty &&
       selectedDuration.isNotEmpty;
+
+  // Helper getters for easier access
+  Map<String, dynamic>? get selectedServiceData {
+    if (selectedService.isEmpty) return null;
+    try {
+      return serviceList.firstWhere(
+        (service) => service['id'] == selectedService,
+        orElse: () => <String, dynamic>{},
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<String> get durationOptionsForSelectedService {
+    final service = selectedServiceData;
+    if (service == null || service['durations'] == null) return [];
+    
+    try {
+      return List<String>.from(
+        (service['durations'] as List).map(
+          (d) => d['duration_minutes'].toString(),
+        ),
+      );
+    } catch (e) {
+      return [];
+    }
+  }
 }

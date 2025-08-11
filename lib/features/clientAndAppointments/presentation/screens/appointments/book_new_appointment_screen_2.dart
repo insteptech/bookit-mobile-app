@@ -311,22 +311,20 @@ class _BookNewAppointmentScreen2State
                         });
                         
                         try {
-                          List<Map<String, dynamic>> newPayload = [
-                            {
-                              'business_id': widget.partialPayload['business_id'],
-                              'location_id': widget.partialPayload['location_id'],
-                              'booked_by': _selectedClient!['id'],
-                              'status': 'booked',
-                              'business_service_id': widget.partialPayload['business_service_id'],
-                              'practitioner': widget.partialPayload['practitioner'],
-                              'start_from': widget.partialPayload['start_from'],
-                              'end_at': widget.partialPayload['end_at'],
-                              'date': widget.partialPayload['date'],
-                              'user_id': widget.partialPayload['user_id'],
-                            }
-                          ];
-                          
-                          await appointmentController.bookAppointment(newPayload);
+                          await appointmentController.bookAppointment(
+                            businessId: widget.partialPayload['business_id'],
+                            locationId: widget.partialPayload['location_id'], 
+                            businessServiceId: widget.partialPayload['business_service_id'],
+                            practitionerId: widget.partialPayload['practitioner'],
+                            date: DateTime.parse(widget.partialPayload['date']),
+                            startTime: widget.partialPayload['start_from'],
+                            endTime: widget.partialPayload['end_at'],
+                            userId: widget.partialPayload['user_id'],
+                            durationMinutes: widget.partialPayload['duration_minutes'],
+                            serviceName: widget.partialPayload['service_name'],
+                            practitionerName: widget.partialPayload['practitioner_name'],
+                            clientId: _selectedClient!['id'],
+                          );
                           
                           // Show success message
                           if (mounted) {

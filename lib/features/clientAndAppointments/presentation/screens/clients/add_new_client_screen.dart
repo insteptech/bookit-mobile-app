@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/appointment_summary_widget.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/utils/validation_service.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -30,38 +31,12 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
     super.dispose();
   }
 
-  // Email validation
-  bool _isValidEmail(String email) {
-    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email);
-  }
-
-  // Phone validation (basic format check)
-  bool _isValidPhone(String phone) {
-    // Remove all non-digit characters for validation
-    String cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
-    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
-  }
-
   String? _getFormErrors() {
-    if (_nameController.text.trim().isEmpty) {
-      return "Name is required";
-    }
-    if (_nameController.text.trim().length < 2) {
-      return "Name must be at least 2 characters";
-    }
-    if (_emailController.text.trim().isEmpty) {
-      return "Email is required";
-    }
-    if (!_isValidEmail(_emailController.text.trim())) {
-      return "Please enter a valid email address";
-    }
-    if (_phoneController.text.trim().isEmpty) {
-      return "Phone number is required";
-    }
-    if (!_isValidPhone(_phoneController.text.trim())) {
-      return "Please enter a valid phone number (10-15 digits)";
-    }
-    return null;
+    return ValidationService.validateClientForm(
+      name: _nameController.text,
+      email: _emailController.text,
+      phone: _phoneController.text,
+    );
   }
 
   Future<void> _saveAndConfirm() async {
