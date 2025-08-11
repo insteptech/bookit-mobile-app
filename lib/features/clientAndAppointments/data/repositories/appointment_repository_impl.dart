@@ -54,7 +54,6 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       'end_at': endTime,
       'user_id': userId,
       'status_reason': "",
-      'is_cancelled': "",
       if (clientId != null) 'booked_by': clientId,  // Changed from 'client_id' to 'booked_by'
     }];
 
