@@ -1,13 +1,12 @@
-import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/appointment_summary_widget.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/client_search_widget.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 class BookNewAppointmentScreen2 extends ConsumerStatefulWidget {
   final Map<String, dynamic> partialPayload;
@@ -22,7 +21,6 @@ class _BookNewAppointmentScreen2State
     extends ConsumerState<BookNewAppointmentScreen2> {
   // --- State Variables ---
   bool _isLoading = false;
-  String _appointmentSummary = "Loading details...";
 
   // For Autocomplete Client Search
   final TextEditingController _clientController = TextEditingController();
@@ -31,15 +29,12 @@ class _BookNewAppointmentScreen2State
   OverlayEntry? _overlayEntry;
 
   // Search and selection state
-  List<Map<String, dynamic>> _filteredClients = [];
   Map<String, dynamic>? _selectedClient;
-  bool _isSearching = false;
   bool _showDropdown = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
     _clientController.addListener(_onSearchChanged);
     _clientFocusNode.addListener(_onFocusChanged);
   }
@@ -54,76 +49,21 @@ class _BookNewAppointmentScreen2State
     super.dispose();
   }
 
-  // --- Data and UI Initialization ---
-  Future<void> _initializeData() async {
-    _buildAppointmentSummary();
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _buildAppointmentSummary() {
-    try {
-      final payload = widget.partialPayload;
-      final duration = payload['duration_minutes'];
-      final serviceName = payload['service_name'];
-      final practitionerName = payload['practitioner_name'];
-      final startTime = DateTime.parse(payload['date']).toLocal();
-      final formattedTime = DateFormat('h:mm a').format(startTime);
-      final formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(startTime);
-
-      setState(() {
-        _appointmentSummary =
-            "$duration min - $serviceName at [$formattedTime] on [$formattedDate] with $practitionerName";
-      });
-    } catch (e) {
-      setState(() {
-        _appointmentSummary = AppTranslationsDelegate.of(context).text("could_not_load_appointment_details");
-      });
-    }
-  }
-
   // --- Search and Selection Logic ---
   void _onSearchChanged() {
     final query = _clientController.text.trim();
+    final clientController = ref.read(clientControllerProvider.notifier);
+    
+    clientController.updateSearchQuery(query);
+    
     if (query.isEmpty) {
-      setState(() {
-        _filteredClients = [];
-        _showDropdown = false;
-      });
+      setState(() => _showDropdown = false);
       _updateOverlay();
       return;
     }
-    _searchClients(query);
-  }
-
-  Future<void> _searchClients(String query) async {
-    if (_isSearching) return;
-
-    setState(() {
-      _isSearching = true;
-      _showDropdown = true;
-    });
-    _updateOverlay();
-
-    try {
-      final data = await APIRepository.fetchClients(fullName: query);
-      final List<Map<String, dynamic>> clients =
-          (data['profile'] != null)
-              ? List<Map<String, dynamic>>.from(data['profile'])
-              : [];
-      setState(() {
-        _filteredClients = clients;
-        _isSearching = false;
-      });
-    } catch (e) {
-      // debugPrint('Error searching clients: $e');
-      setState(() {
-        _filteredClients = [];
-        _isSearching = false;
-      });
-    }
-
+    
+    clientController.searchClients(query);
+    setState(() => _showDropdown = true);
     _updateOverlay();
   }
 
@@ -156,10 +96,25 @@ class _BookNewAppointmentScreen2State
     }
   }
 
+  void _selectClient(Map<String, dynamic> client) {
+    final clientController = ref.read(clientControllerProvider.notifier);
+    clientController.selectClient(client);
+    
+    setState(() {
+      _selectedClient = client;
+      _clientController.text = client['full_name'] ?? '';
+      _showDropdown = false;
+    });
+    _updateOverlay();
+    _clientFocusNode.unfocus();
+  }
+
   // --- WIDGETS ---
 
   Widget _buildOverlayContent() {
-    if (_isSearching) {
+    final clientState = ref.watch(clientControllerProvider);
+
+    if (clientState.isSearching) {
       return const Padding(
         padding: EdgeInsets.all(16),
         child: Row(
@@ -176,7 +131,7 @@ class _BookNewAppointmentScreen2State
       );
     }
 
-    if (_filteredClients.isEmpty) {
+    if (clientState.filteredClients.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16),
         child: Center(
@@ -188,9 +143,9 @@ class _BookNewAppointmentScreen2State
     return ListView.separated(
       shrinkWrap: true,
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      itemCount: _filteredClients.length,
+      itemCount: clientState.filteredClients.length,
       itemBuilder: (context, index) {
-        final client = _filteredClients[index];
+        final client = clientState.filteredClients[index];
         return InkWell(
           onTap: () => _selectClient(client),
           child: Padding(
@@ -245,22 +200,14 @@ class _BookNewAppointmentScreen2State
     );
   }
 
-  void _selectClient(Map<String, dynamic> client) {
-    setState(() {
-      _selectedClient = client;
-      _clientController.text = client['full_name'] ?? '';
-      _showDropdown = false;
-    });
-    _updateOverlay();
-    _clientFocusNode.unfocus();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final activeLocation = ref.watch(locationsProvider).firstWhere(
         (loc) => loc['id'] == widget.partialPayload['location_id'],
         orElse: () => {'title': '...'});
+    
+    final appointmentController = ref.read(appointmentControllerProvider.notifier);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -310,21 +257,19 @@ class _BookNewAppointmentScreen2State
                     ],
                   ),
                   const SizedBox(height: 48),
-                  Text(
-                    _appointmentSummary,
-                    style: AppTypography.headingSm,
-                  ),
+                  AppointmentSummaryWidget(partialPayload: widget.partialPayload),
                   const SizedBox(height: 24),
                   const Text("Client", style: AppTypography.headingSm),
                   const SizedBox(height: 8),
 
-                  SearchableClientField(
+                  ClientSearchWidget(
                     layerLink: _layerLink,
                     controller: _clientController,
                     focusNode: _clientFocusNode,
+                    onClientSelected: _selectClient,
                   ),
 
-                  SizedBox(height: 8,),
+                  const SizedBox(height: 8),
               
                   GestureDetector(
                     onTap: () async {
@@ -342,7 +287,7 @@ class _BookNewAppointmentScreen2State
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(Icons.add_circle_outline_outlined, color: theme.colorScheme.primary, size: 18,),
-                      SizedBox(width: 5,),
+                      const SizedBox(width: 5),
                       Text(
                         "Add new client",
                         style: AppTypography.bodyMedium.copyWith(
@@ -381,7 +326,7 @@ class _BookNewAppointmentScreen2State
                             }
                           ];
                           
-                          await APIRepository.bookAppointment(payload: newPayload);
+                          await appointmentController.bookAppointment(newPayload);
                           
                           // Show success message
                           if (mounted) {

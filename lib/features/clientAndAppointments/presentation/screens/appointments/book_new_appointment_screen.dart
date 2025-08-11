@@ -6,8 +6,8 @@ import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
-import 'package:bookit_mobile_app/features/calendar/presentation/book_new_appointment_screen_2.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/appointments/book_new_appointment_screen_2.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
 import 'package:bookit_mobile_app/shared/calendar/appointments_calendar_day_wise.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
@@ -24,53 +24,42 @@ class BookNewAppointmentScreen extends ConsumerStatefulWidget {
 
 class _BookNewAppointmentScreenState
     extends ConsumerState<BookNewAppointmentScreen> {
-  List<Map<String, dynamic>> practitioners = [];
-  List<Map<String, dynamic>> serviceList = [];
-  List<String> durationOptions = [];
-
+  
+  // Local UI state that doesn't belong in global state
   String selectedPractitioner = "";
   String selectedService = "";
   String selectedDuration = "";
-  bool isLoading = true;
+  List<String> durationOptions = [];
 
-  Future<void> fetchData(String locationId) async {
-    final data = await APIRepository.getPractitioners(locationId);
-    setState(() {
-      practitioners = List<Map<String, dynamic>>.from(data['profiles']);
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
     });
   }
 
-  Future<void> fetchServices() async {
-    final data = await APIRepository.getServiceList();
-    final List<dynamic> rawList = data['business_services_details'];
-    final List<Map<String, dynamic>> extractedList =
-        rawList.asMap().entries.map<Map<String, dynamic>>((entry) {
-          final index = entry.key;
-          final item = entry.value;
-          return {
-            "name": item['name'],
-            "description": item['description'],
-            "id": "${item['business_service']['id']}_$index", // Create unique ID using business service ID + index
-            "business_service_id": item['business_service']['id'], // Keep original business service ID
-            "is_class": item['business_service']['is_class'],
-            "durations":
-                (item['durations'] as List)
-                    .map(
-                      (d) => {
-                        "duration_minutes": d['duration_minutes'],
-                        "price": d['price'],
-                        "id": d['id'],
-                      },
-                    )
-                    .toList(),
-          };
-        }).toList();
-    setState(() {
-      //filter only services that are not classes
-      serviceList = extractedList.where((service) => service['is_class'] == false).toList();
-
-  
-    });
+  Future<void> _initializeData() async {
+    final appointmentController = ref.read(appointmentControllerProvider.notifier);
+    final locationsNotifier = ref.read(locationsProvider.notifier);
+    
+    // Fetch services first
+    await appointmentController.fetchServices();
+    
+    // Fetch locations if empty
+    if (ref.read(locationsProvider).isEmpty) {
+      await locationsNotifier.fetchLocations();
+    }
+    
+    final locations = ref.read(locationsProvider);
+    if (locations.isNotEmpty) {
+      final activeLocation = ref.read(activeLocationProvider);
+      final locationId = activeLocation.isNotEmpty ? activeLocation : locations[0]['id'];
+      ref.read(activeLocationProvider.notifier).state = locationId;
+      
+      // Fetch practitioners for the location
+      await appointmentController.fetchPractitioners(locationId);
+    }
   }
 
   // Helper function to validate and format UTC time string
@@ -176,13 +165,15 @@ class _BookNewAppointmentScreenState
 
   // Convert API data to calendar widget format
   List<Map<String, dynamic>> generateCalendarData() {
-    if (practitioners.isEmpty ||
+    final appointmentState = ref.read(appointmentControllerProvider);
+
+    if (appointmentState.practitioners.isEmpty ||
         selectedService.isEmpty ||
         selectedDuration.isEmpty) {
       return [];
     }
 
-    final selectedServiceData = serviceList.firstWhere(
+    final selectedServiceData = appointmentState.serviceList.firstWhere(
       (service) => service['id'] == selectedService,
       orElse: () => <String, dynamic>{},
     );
@@ -203,7 +194,7 @@ class _BookNewAppointmentScreenState
 
     List<Map<String, dynamic>> calendarData = [];
 
-    for (final practitioner in practitioners) {
+    for (final practitioner in appointmentState.practitioners) {
       // Filter by selected practitioner if one is selected
       if (selectedPractitioner.isNotEmpty &&
           practitioner['id'] != selectedPractitioner) {
@@ -222,6 +213,7 @@ class _BookNewAppointmentScreenState
 
       List<Map<String, String>> allSlots = [];
 
+      // Process each schedule for this practitioner
       for (final schedule in relevantSchedules) {
         final day = schedule['day'] as String;
         final fromTime = schedule['from'] as String;
@@ -266,34 +258,6 @@ class _BookNewAppointmentScreenState
       }
     }
     return calendarData;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeData();
-  }
-
-  Future<void> _initializeData() async {
-    fetchServices();
-    final notifier = ref.read(locationsProvider.notifier);
-    if (ref.read(locationsProvider).isEmpty) {
-      await notifier.fetchLocations();
-    }
-    final locations = ref.read(locationsProvider);
-    if (locations.isNotEmpty) {
-      final activeLocation = ref.read(activeLocationProvider);
-      final locationId =
-          activeLocation.isNotEmpty ? activeLocation : locations[0]['id'];
-      ref.read(activeLocationProvider.notifier).state = locationId;
-      setState(() {
-        isLoading = true;
-      });
-      await fetchData(locationId);
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
    void _handleAppointmentTap(Appointment tappedAppointment) async{
@@ -356,6 +320,8 @@ class _BookNewAppointmentScreenState
     final theme = Theme.of(context);
     final locations = ref.watch(locationsProvider);
     final activeLocation = ref.watch(activeLocationProvider);
+    final appointmentState = ref.watch(appointmentControllerProvider);
+    final appointmentController = ref.read(appointmentControllerProvider.notifier);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -399,7 +365,7 @@ class _BookNewAppointmentScreenState
                               setState(() {
                                 selectedPractitioner = ""; // Reset practitioner when location changes
                               });
-                              await fetchData(location['id']);
+                              await appointmentController.fetchPractitioners(location['id']);
                             },
                             child: Container(
                               margin: const EdgeInsets.only(right: 8),
@@ -464,7 +430,7 @@ class _BookNewAppointmentScreenState
                             ),
                           ),
                         ),
-                        ...practitioners.map((practitioner) {
+                        ...appointmentState.practitioners.map((practitioner) {
                           final isSelected =
                               selectedPractitioner == practitioner['id'];
                           return GestureDetector(
@@ -509,7 +475,7 @@ class _BookNewAppointmentScreenState
                   Text(AppTranslationsDelegate.of(context).text("choose_service"), style: AppTypography.headingSm),
                   const SizedBox(height: 8),
                   DropDown(
-                    items: serviceList,
+                    items: appointmentState.serviceList,
                     onChanged: (item) {
                       setState(() {
                         selectedService = item['id'];
@@ -517,7 +483,7 @@ class _BookNewAppointmentScreenState
                         durationOptions = []; // Clear duration options first
                         
                         if (selectedService.isNotEmpty) {
-                          final selected = serviceList.firstWhere(
+                          final selected = appointmentState.serviceList.firstWhere(
                             (item) => item['id'] == selectedService,
                             orElse: () => <String, dynamic>{},
                           );

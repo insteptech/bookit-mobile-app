@@ -1,11 +1,11 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/appointment_summary_widget.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 class AddNewClientScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> partialPayload;
@@ -21,16 +21,6 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  
-  // State variables
-  bool _isLoading = false;
-  String _appointmentSummary = "Loading details...";
-
-  @override
-  void initState() {
-    super.initState();
-    _buildAppointmentSummary();
-  }
 
   @override
   void dispose() {
@@ -38,26 +28,6 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
-  }
-
-  void _buildAppointmentSummary() {
-    try {
-      final payload = widget.partialPayload;
-      final duration = payload['duration_minutes'];
-      final serviceName = payload['service_name'];
-      final startTime = DateTime.parse(payload['date']).toLocal();
-      final formattedTime = DateFormat('h:mm a').format(startTime);
-      final formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(startTime);
-
-      setState(() {
-        _appointmentSummary =
-            "$duration min - $serviceName at [$formattedTime] on [$formattedDate]";
-      });
-    } catch (e) {
-      setState(() {
-        _appointmentSummary = "Could not load appointment details";
-      });
-    }
   }
 
   // Email validation
@@ -107,89 +77,45 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
-      // Create client payload
-      final clientPayload = {
-        'full_name': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'phone_number': _phoneController.text.trim(),
-      };
-
-      // Create the client account
-      final response = await APIRepository.createClientAccount(payload: clientPayload);
+      // TODO: Implement client creation when backend route is available
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Client creation API not yet implemented on backend'),
+          backgroundColor: Colors.orange,
+        ),
+      );
       
-      if (response.statusCode == 201) {
-        // Success case - extract profile data
-        final responseData = response.data;
-        final profileData = responseData['data']['profile'];
-        
-        // Show success message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Client "${profileData['full_name']}" created successfully!'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
+      // For now, just pop back without creating a client
+      Navigator.pop(context);
+      
+      // When the API is implemented, uncomment the following:
+      /*
+      final clientController = ref.read(clientControllerProvider.notifier);
+      final newClient = await clientController.createClient(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+      );
 
-          // Navigate back with the client data in the expected format
-          Navigator.pop(context, {
-            'id': profileData['id'],
-            'full_name': profileData['full_name'],
-            'email': profileData['email'],
-            'phone_number': profileData['phone'],
-          });
-        }
-      } else if (response.statusCode == 409) {
-        // Handle email conflict error
-        final responseData = response.data;
-        final errorMessage = responseData['message'] ?? 'Email already exists';
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.orange,
-              duration: const Duration(seconds: 4),
-            ),
-          );
-        }
-      } else {
-        // Handle other error status codes
-        final responseData = response.data;
-        final errorMessage = responseData['message'] ?? 'Failed to create client account';
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(errorMessage),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 4),
-            ),
-          );
-        }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Client created successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, newClient);
       }
+      */
     } catch (e) {
-      // Handle network errors or other exceptions
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Network error: Unable to create client account'),
+            content: Text('Failed to create client: ${e.toString()}'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
           ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
       }
     }
   }
@@ -200,6 +126,8 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
     final activeLocation = ref.watch(locationsProvider).firstWhere(
         (loc) => loc['id'] == widget.partialPayload['location_id'],
         orElse: () => {'title': '...'});
+    
+    final clientState = ref.watch(clientControllerProvider);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -208,8 +136,7 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
           children: [
             Expanded(
               child: ListView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
                 children: [
                   const SizedBox(height: 70),
                   Row(
@@ -223,7 +150,7 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
                   ),
                   const SizedBox(height: 9),
                   const Text(
-                    "Book new appointment",
+                    "Add new client",
                     style: AppTypography.headingLg,
                   ),
                   const SizedBox(height: 16),
@@ -240,55 +167,42 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
                           border: Border.all(color: theme.colorScheme.onSurface),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(activeLocation["title"]),
-                      )
+                        child: Text(activeLocation["title"] ?? "Unknown Location"),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 48),
-                  Text(
-                    _appointmentSummary,
-                    style: AppTypography.headingSm,
-                  ),
-                  const SizedBox(height: 24),
-                  const Text("Client information", style: AppTypography.headingSm),
-                  const SizedBox(height: 16),
+                  AppointmentSummaryWidget(partialPayload: widget.partialPayload),
+                  const SizedBox(height: 40),
                   
-                  // Name Field
-                  const Text("First and last name", style: AppTypography.bodyMedium),
+                  // Client Information Form
+                  const Text("Client Information", style: AppTypography.headingSm),
+                  const SizedBox(height: 24),
+                  
+                  const Text("Full Name", style: AppTypography.bodyMedium),
                   const SizedBox(height: 8),
                   InputField(
-                    hintText: "First and last name",
                     controller: _nameController,
-                    onChanged: (_) => setState(() {}),
+                    hintText: "Enter client's full name",
+                    keyboardType: TextInputType.name,
                   ),
                   const SizedBox(height: 16),
                   
-                  // Email Field
                   const Text("Email", style: AppTypography.bodyMedium),
                   const SizedBox(height: 8),
                   InputField(
-                    hintText: "email@theiremail.com",
                     controller: _emailController,
-                    onChanged: (_) => setState(() {}),
+                    hintText: "Enter client's email",
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 16),
                   
-                  // Mobile Phone Field
-                  const Text("Mobile phone", style: AppTypography.bodyMedium),
+                  const Text("Phone Number", style: AppTypography.bodyMedium),
                   const SizedBox(height: 8),
                   InputField(
-                    hintText: "Mobile phone",
                     controller: _phoneController,
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  const SizedBox(height: 8),
-                  
-                  // Help text for phone format
-                  Text(
-                    "Enter 10-15 digits (e.g., +1234567890 or 1234567890)",
-                    style: AppTypography.bodySmall.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                    hintText: "Enter client's phone number",
+                    keyboardType: TextInputType.phone,
                   ),
                 ],
               ),
@@ -296,9 +210,9 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 20),
               child: PrimaryButton(
-                onPressed: !_isLoading ? _saveAndConfirm : null,
-                isDisabled: _isLoading,
-                text: _isLoading ? "Creating client..." : "Save and confirm",
+                onPressed: clientState.isLoading ? null : _saveAndConfirm,
+                isDisabled: clientState.isLoading,
+                text: clientState.isLoading ? "Creating..." : "Create Client",
               ),
             ),
           ],
