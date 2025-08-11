@@ -46,8 +46,6 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
         phoneNumber: phoneNumber,
       );
       
-      print('Client search response structure: ${response.keys}');
-      
       // Handle the actual API response structure
       List<dynamic> clientsData = [];
       if (response['data'] != null && response['data']['profile'] != null) {
@@ -57,8 +55,6 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
       } else if (response['profile'] != null) {
         clientsData = response['profile'];
       }
-      
-      print('Clients found: ${clientsData.length}');
       
       // Transform the API response to match our ClientModel expectations
       final transformedClients = clientsData.map((json) {
@@ -81,8 +77,6 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
           'updated_at': DateTime.now().toIso8601String(),
         };
       }).toList();
-      
-      print('Transformed clients: ${transformedClients.length}');
       
       return transformedClients.map((json) => ClientModel.fromJson(json)).toList();
     } catch (e) {

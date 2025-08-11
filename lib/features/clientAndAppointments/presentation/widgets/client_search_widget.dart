@@ -81,7 +81,6 @@ class _ClientSearchWidgetState extends ConsumerState<ClientSearchWidget> {
   void _updateOverlay() {
     _removeOverlay();
     final clientState = ref.read(clientControllerProvider);
-    print('Updating overlay - showDropdown: ${clientState.showDropdown}, filteredClients: ${clientState.filteredClients.length}');
     if (clientState.showDropdown && widget.focusNode.hasFocus) {
       _overlayEntry = _createOverlayEntry();
       Overlay.of(context).insert(_overlayEntry!);

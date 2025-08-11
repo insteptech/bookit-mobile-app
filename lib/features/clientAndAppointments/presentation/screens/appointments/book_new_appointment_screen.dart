@@ -78,7 +78,7 @@ class _BookNewAppointmentScreenState
         }
       }
     } catch (e) {
-      print('Error validating UTC time format: $e');
+      // Handle error silently and return original time string
     }
     return utcTime;
   }
@@ -158,7 +158,6 @@ class _BookNewAppointmentScreenState
       
       return '${localDateTime.hour.toString().padLeft(2, '0')}:${localDateTime.minute.toString().padLeft(2, '0')}:00';
     } catch (e) {
-      print('Error converting UTC time to local: $e');
       return utcTimeString; // Fallback to original string
     }
   }
@@ -394,27 +393,27 @@ class _BookNewAppointmentScreenState
                       ),
                     ),
                   // Loading indicator
-                  if (appointmentState.isLoading)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withOpacity(0.1),
-                        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        children: [
-                          SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          SizedBox(width: 8),
-                          Text('Loading practitioners and services...'),
-                        ],
-                      ),
-                    ),
+                  // if (appointmentState.isLoading)
+                  //   Container(
+                  //     margin: const EdgeInsets.only(bottom: 16),
+                  //     padding: const EdgeInsets.all(12),
+                  //     decoration: BoxDecoration(
+                  //       color: theme.colorScheme.primary.withOpacity(0.1),
+                  //       border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
+                  //       borderRadius: BorderRadius.circular(8),
+                  //     ),
+                  //     child: const Row(
+                  //       children: [
+                  //         SizedBox(
+                  //           width: 16,
+                  //           height: 16,
+                  //           child: CircularProgressIndicator(strokeWidth: 2),
+                  //         ),
+                  //         SizedBox(width: 8),
+                  //         Text('Loading practitioners and services...'),
+                  //       ],
+                  //     ),
+                  //   ),
                   // Location selector
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,

@@ -154,22 +154,19 @@ class _BookNewAppointmentScreen2State
                         });
                         
                         try {
-                          print('Booking appointment with payload: ${widget.partialPayload}');
-                          print('Selected client: $_selectedClient');
-                          
-                          await appointmentController.bookAppointment(
+                          await ref.read(appointmentControllerProvider.notifier).bookAppointment(
                             businessId: widget.partialPayload['business_id'],
-                            locationId: widget.partialPayload['location_id'], 
+                            locationId: widget.partialPayload['location_id'],
                             businessServiceId: widget.partialPayload['business_service_id'],
-                            practitionerId: widget.partialPayload['practitioner'],
+                            practitionerId: widget.partialPayload['employee_id'],
                             date: DateTime.parse(widget.partialPayload['date']),
-                            startTime: widget.partialPayload['start_from'],
-                            endTime: widget.partialPayload['end_at'],
+                            startTime: widget.partialPayload['slot_time'],
+                            endTime: widget.partialPayload['end_time'],
                             userId: widget.partialPayload['user_id'],
                             durationMinutes: widget.partialPayload['duration_minutes'],
                             serviceName: widget.partialPayload['service_name'],
                             practitionerName: widget.partialPayload['practitioner_name'],
-                            clientId: _selectedClient!['id'],
+                            clientId: _selectedClient!['id'].toString(),
                           );
                           
                           // Show success message
@@ -185,7 +182,6 @@ class _BookNewAppointmentScreen2State
                             context.go("/home_screen?refresh=true");
                           }
                         } catch (e) {
-                          print('Booking error: $e');
                           // Show error message
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
