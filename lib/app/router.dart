@@ -3,11 +3,11 @@ import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_pass
 import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password/signin_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/screens/signup_verify_otp_screen.dart';
-import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/add_new_client_screen.dart';
-import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/book_new_appointment_screen.dart';
-import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/book_new_appointment_screen_2.dart';
 import 'package:bookit_mobile_app/features/calendar/presentation/view_all_appointments_screen.dart';
 import 'package:bookit_mobile_app/features/calendar/presentation/view_all_schedule_screen.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/appointments/book_new_appointment_screen.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/appointments/book_new_appointment_screen_2.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/clients/add_new_client_screen.dart';
 import 'package:bookit_mobile_app/features/main/home_screen.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/add_staff_schedule_screen.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/add_staff_screen.dart';
