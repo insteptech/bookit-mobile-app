@@ -1,8 +1,8 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/features/staff/widgets/schedule_selector.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/schedule_selector.dart';
 import 'package:bookit_mobile_app/features/menu/presentation/businessInformation/controllers/business_hour_controller.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_screens_scaffold.dart';
-import 'package:bookit_mobile_app/features/staff/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/staff_schedule_controller.dart';
 import 'package:flutter/material.dart';
 
 class BusinessHoursScreen extends StatefulWidget {

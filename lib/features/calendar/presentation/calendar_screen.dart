@@ -6,7 +6,7 @@ import 'package:bookit_mobile_app/core/controllers/appointments_controller.dart'
 import 'package:bookit_mobile_app/core/controllers/business_controller.dart';
 import 'package:bookit_mobile_app/core/utils/appointment_utils.dart';
 import 'package:bookit_mobile_app/features/calendar/widgets/upcoming_appointments.dart';
-import 'package:bookit_mobile_app/features/dashboard/widgets/class_schedule_calendar.dart';
+import 'package:bookit_mobile_app/shared/calendar/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/add_staff_and_availability_box.dart';
 import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/location_selector_widget.dart';

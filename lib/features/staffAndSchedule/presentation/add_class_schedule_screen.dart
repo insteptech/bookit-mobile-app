@@ -5,7 +5,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/api_prov
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
-import 'package:bookit_mobile_app/features/staff/widgets/class_schedule_selector.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/class_schedule_selector.dart';
 import 'package:flutter/material.dart';
 
 class AddClassScheduleScreen extends StatefulWidget {

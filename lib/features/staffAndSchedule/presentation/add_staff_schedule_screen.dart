@@ -1,8 +1,8 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
-import 'package:bookit_mobile_app/features/staff/application/staff_schedule_controller.dart';
-import 'package:bookit_mobile_app/features/staff/widgets/set_schedule_form.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/set_schedule_form.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/features/dashboard/widgets/class_schedule_calendar.dart';
+import 'package:bookit_mobile_app/shared/calendar/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

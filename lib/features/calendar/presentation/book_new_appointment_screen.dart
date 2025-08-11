@@ -8,7 +8,7 @@ import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/calendar/presentation/book_new_appointment_screen_2.dart';
-import 'package:bookit_mobile_app/features/dashboard/widgets/my_calender_widget_day_wise.dart';
+import 'package:bookit_mobile_app/shared/calendar/appointments_calendar_day_wise.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
-import 'package:bookit_mobile_app/features/staff/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/multi_select_item.dart';
 import 'package:flutter/material.dart';

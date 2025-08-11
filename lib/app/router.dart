@@ -9,10 +9,10 @@ import 'package:bookit_mobile_app/features/calendar/presentation/book_new_appoin
 import 'package:bookit_mobile_app/features/calendar/presentation/view_all_appointments_screen.dart';
 import 'package:bookit_mobile_app/features/calendar/presentation/view_all_schedule_screen.dart';
 import 'package:bookit_mobile_app/features/main/home_screen.dart';
-import 'package:bookit_mobile_app/features/staff/presentation/add_staff_schedule_screen.dart';
-import 'package:bookit_mobile_app/features/staff/presentation/add_staff_screen.dart';
-import 'package:bookit_mobile_app/features/staff/presentation/add_class_schedule_screen.dart';
-import 'package:bookit_mobile_app/features/staff/presentation/get_staff_list_screen.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/add_staff_schedule_screen.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/add_staff_screen.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/add_class_schedule_screen.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/get_staff_list_screen.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/screens/setup_checklist_screen.dart';
 import 'package:bookit_mobile_app/features/menu/presentation/app_language_screen.dart';
 import 'package:bookit_mobile_app/features/menu/presentation/businessInformation/business_addresses_sceen.dart';

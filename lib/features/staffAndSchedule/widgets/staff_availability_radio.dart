@@ -1,5 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
-import 'package:bookit_mobile_app/features/staff/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:flutter/material.dart';
 

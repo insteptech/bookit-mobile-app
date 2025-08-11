@@ -1,6 +1,6 @@
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/utils/validators.dart';
-import 'package:bookit_mobile_app/features/staff/models/staff_profile_request_model.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 
 class AddStaffController {
   List<int> memberForms = [0];

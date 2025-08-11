@@ -6,7 +6,7 @@ import 'package:bookit_mobile_app/core/controllers/appointments_controller.dart'
 import 'package:bookit_mobile_app/core/utils/appointment_utils.dart';
 import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/add_staff_and_availability_box.dart';
-import 'package:bookit_mobile_app/features/dashboard/widgets/my_calender_widget.dart';
+import 'package:bookit_mobile_app/shared/calendar/appointments_calendar_widget.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/no_upcoming_appointments_box.dart';
 
 class AppointmentSectionWidget extends ConsumerWidget {

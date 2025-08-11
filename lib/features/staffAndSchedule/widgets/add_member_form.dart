@@ -1,5 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/features/staff/models/staff_profile_request_model.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:flutter/material.dart';
 

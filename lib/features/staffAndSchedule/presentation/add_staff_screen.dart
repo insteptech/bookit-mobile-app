@@ -1,7 +1,7 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/navigation_service.dart';
-import 'package:bookit_mobile_app/features/staff/application/add_staff_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_controller.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:flutter/material.dart';
