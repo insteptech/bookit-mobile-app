@@ -2,9 +2,8 @@ import 'package:bookit_mobile_app/features/calendar/presentation/calendar_screen
 import 'package:bookit_mobile_app/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:bookit_mobile_app/features/menu/presentation/menu_screen.dart';
 import 'package:bookit_mobile_app/features/offerings/presentation/offerings_screen.dart';
-import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
-import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/bottom_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool refresh;
@@ -39,68 +38,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
 Widget build(BuildContext context) {
-  final theme = Theme.of(context);
-
   return Scaffold(
     body: _screens[_selectedIndex],
-    bottomNavigationBar: Padding(
-      padding: EdgeInsets.only(top: AppConstants.bottomNavTopPadding), // Increase top padding here
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: theme.scaffoldBackgroundColor,
-        elevation: 0,
-        selectedItemColor: theme.colorScheme.primary,
-        unselectedItemColor: theme.colorScheme.onSurface,
-        selectedLabelStyle: TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: AppConstants.bottomNavSelectedFontSize,
-        ),
-        unselectedLabelStyle: TextStyle(
-          fontWeight: FontWeight.w400,
-          fontSize: AppConstants.bottomNavUnselectedFontSize,
-        ),
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home_outlined,
-              color: _selectedIndex == 0
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-            label: AppTranslationsDelegate.of(context).text("dashboard"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.calendar_today_outlined,
-              color: _selectedIndex == 1
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-            label: AppTranslationsDelegate.of(context).text("calendar"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.grid_view_outlined,
-              color: _selectedIndex == 2
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-            label: AppTranslationsDelegate.of(context).text("offerings"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.menu,
-              color: _selectedIndex == 3
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-            label: AppTranslationsDelegate.of(context).text("menu"),
-          ),
-        ],
-        showUnselectedLabels: true,
-      ),
+    bottomNavigationBar: BookitBottomNavBar(
+      selectedIndex: _selectedIndex,
+      onTap: _onItemTapped,
     ),
   );
 }

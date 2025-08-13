@@ -58,6 +58,7 @@ flutter:
     - assets/icons/apple.svg
     - assets/icons/facebook.svg
     - assets/icons/google.svg
+    - assets/icons/nav/
     - assets/bookitTermsOfServices/bookit_terms_of_services_en.md
     - assets/bookitTermsOfServices/bookit_terms_of_services_ar.md
 

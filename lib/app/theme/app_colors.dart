@@ -4,6 +4,7 @@ class AppColors {
   // static const primary = Color(0xFF377BF6);
   // static const primary = Color(0xFF1A6AFF);
   static const primary = Color(0xFF790077);
+  static const accentPrimary = Color(0xFF971E95);
 
   // static const secondary = Color(0xFF9CBFFF);
   static const secondary = Color(0xFFDBD4FF); //lavender 200
