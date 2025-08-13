@@ -26,12 +26,16 @@ class OnboardingApiService {
         data: payload,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-      
       // Parse response using data models
       final businessApiResponse = BusinessApiResponse.fromJson(response.data['data']);
-      return OnboardingDataMappers.mapBusinessResponse(businessApiResponse);
+      final mapped = OnboardingDataMappers.mapBusinessResponse(businessApiResponse);
+      return mapped;
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Failed to submit onboarding data');
+    } catch (e, stack) {
+      print('[ERROR] Exception in submitOnboardingStep: $e');
+      print(stack);
+      rethrow;
     }
   }
 

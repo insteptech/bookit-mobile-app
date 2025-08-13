@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
@@ -48,6 +49,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
       if(user.businessIds.isNotEmpty){
         final businessData = await userService.fetchBusinessDetails(businessId: user.businessIds[0]);
+
+        ref.read(businessProvider.notifier).state = businessData;
 
         if(businessData.isOnboardingComplete){
           await ActiveBusinessService().saveActiveBusiness(user.businessIds[0]);

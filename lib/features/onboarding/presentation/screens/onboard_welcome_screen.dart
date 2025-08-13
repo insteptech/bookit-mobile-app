@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checklist.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class OnboardWelcomeScreen extends ConsumerStatefulWidget {
 
 class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
   int currentStep = 0;
-  String nextRoute = "onboarding_about";
+  String nextRoute = "/onboarding_about";
   bool isNextDisabled = true;
   String nextStep = "about";
   bool isLoading = true;
@@ -25,40 +26,35 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       "step": 0,
       "heading": "About you",
       "subheading": "Get your business setup",
-      "nextRoute": "/locations",
-      "isCompleted": true,
+      "route": "/about_you",
     },
     {
       "id": "locations",
       "step": 1,
       "heading": "Locations",
       "subheading": "Where to find you",
-      "nextRoute": "/offerings",
-      "isCompleted": true,
-    },
-    {
-      "id": "services",
-      "step": 2,
-      "heading": "Your offerings",
-      "subheading": "What you do",
-      "nextRoute": "/add_services",
-      "isCompleted": false,
+      "route": "/locations",
     },
     {
       "id": "categories",
+      "step": 2,
+      "heading": "Your offerings",
+      "subheading": "What you do",
+      "route": "/offerings",
+    },
+    {
+      "id": "services",
       "step": 3,
       "heading": "Select services",
       "subheading": "Choose your bookable services",
-      "nextRoute": "/services_details",
-      "isCompleted": false,
+      "route": "/add_services",
     },
     {
       "id": "service_details",
       "step": 4,
       "heading": "Services details",
       "subheading": "Describe what you offer",
-      "nextRoute": "/onboard_finish_screen",
-      "isCompleted": false,
+      "route": "/services_details",
     },
   ];
 
@@ -69,8 +65,25 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
   }
 
   void _initializeWelcomeData() async {
-    // TODO: This should be moved to a controller that uses the repository
-    // For now, keeping minimal changes to preserve functionality
+    final business = ref.read(businessProvider);
+    if (business != null) {
+      print("Business active step: ${business.activeStep}");
+      for(int i=0; i<onboardingSteps.length; i++){
+        if(onboardingSteps[i]['id'] == business.activeStep){
+          setState(() {
+            currentStep = i;
+            nextRoute = onboardingSteps[i]['route'];
+            nextStep = onboardingSteps[i]['id'];
+          });
+          break;  
+        }
+      }
+    } else {
+      currentStep = -1;
+      nextStep = onboardingSteps[currentStep]['id'];
+    }
+
+    if (!mounted) return;
     setState(() {
       isLoading = false;
       isNextDisabled = false;
@@ -95,7 +108,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       nextButtonText: "Next: ${nextStep.split('_').map((word) => word[0].toLowerCase() + word.substring(1)).join(' ')}",
       nextButtonDisabled: isNextDisabled,
       onNext: () {
-        context.push("/onboarding_about");
+        context.push(nextRoute);
       },
       body: Column(
         children:

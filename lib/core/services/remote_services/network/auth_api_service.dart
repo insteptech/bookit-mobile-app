@@ -195,9 +195,10 @@ class UserService {
   Future<BusinessModel> fetchBusinessDetails({
     required String businessId,
   }) async {
+    print("Fetching business details");
     final token = await TokenService().getToken();
     if (token == null) throw Exception('No token found');
-
+    
     try {
       final response = await _dio.get(
         businessDetailsEndpoint(businessId),
