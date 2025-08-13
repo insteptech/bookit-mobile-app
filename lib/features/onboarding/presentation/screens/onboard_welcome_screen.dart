@@ -25,6 +25,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       "step": 0,
       "heading": "About you",
       "subheading": "Get your business setup",
+      "nextRoute": "/locations",
       "isCompleted": true,
     },
     {
@@ -32,6 +33,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       "step": 1,
       "heading": "Locations",
       "subheading": "Where to find you",
+      "nextRoute": "/offerings",
       "isCompleted": true,
     },
     {
@@ -39,6 +41,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       "step": 2,
       "heading": "Your offerings",
       "subheading": "What you do",
+      "nextRoute": "/add_services",
       "isCompleted": false,
     },
     {
@@ -46,6 +49,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       "step": 3,
       "heading": "Select services",
       "subheading": "Choose your bookable services",
+      "nextRoute": "/services_details",
       "isCompleted": false,
     },
     {
@@ -53,6 +57,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
       "step": 4,
       "heading": "Services details",
       "subheading": "Describe what you offer",
+      "nextRoute": "/onboard_finish_screen",
       "isCompleted": false,
     },
   ];
