@@ -152,16 +152,15 @@ class _BookNewAppointmentScreen2State
                         setState(() {
                           _isLoading = true;
                         });
-                        
                         try {
                           await ref.read(appointmentControllerProvider.notifier).bookAppointment(
                             businessId: widget.partialPayload['business_id'],
                             locationId: widget.partialPayload['location_id'],
                             businessServiceId: widget.partialPayload['business_service_id'],
-                            practitionerId: widget.partialPayload['employee_id'],
+                            practitionerId: widget.partialPayload['practitioner'],
                             date: DateTime.parse(widget.partialPayload['date']),
-                            startTime: widget.partialPayload['slot_time'],
-                            endTime: widget.partialPayload['end_time'],
+                            startTime: widget.partialPayload['start_from'],
+                            endTime: widget.partialPayload['end_at'],
                             userId: widget.partialPayload['user_id'],
                             durationMinutes: widget.partialPayload['duration_minutes'],
                             serviceName: widget.partialPayload['service_name'],

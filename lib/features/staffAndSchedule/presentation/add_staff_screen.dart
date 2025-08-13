@@ -48,10 +48,10 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
   void _handleSuccess(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
-    
     // Handle navigation based on which action was triggered
     if (_isSaveAndExit) {
       // For save and exit, just go back to previous screen
@@ -70,7 +70,6 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         Navigator.pop(context);
       }
     }
-    
     // Reset the flag
     _isSaveAndExit = false;
   }
@@ -88,6 +87,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
   void _handleError(String error) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${AppTranslationsDelegate.of(context).text("error")}: $error')),
     );
