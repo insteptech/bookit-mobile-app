@@ -121,7 +121,7 @@ class AppConstants {
   static const double listItemSpacing = 12.0;
   
   /// Vertical gap between menu items
-  static const double menuItemSpacing = 12.0;
+  static const double menuItemSpacing = 16.0;
   
   /// Section spacing in lists
   static const double listSectionSpacing = 32.0;

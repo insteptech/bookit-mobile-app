@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/features/offerings/controllers/offerings_controller.dart';
 import 'package:bookit_mobile_app/features/offerings/presentation/category_selection_screen.dart';
 import 'package:bookit_mobile_app/features/offerings/models/business_offerings_model.dart';
@@ -26,6 +27,11 @@ class _OfferingsScreenState extends State<OfferingsScreen>
   final ScrollController _scrollController = ScrollController();
   final Map<String, GlobalKey> _categoryKeys = {};
 
+  // Search bar UI state (visual only; no business logic wired)
+  final LayerLink _searchFieldLink = LayerLink();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +44,8 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     _controller.dispose();
     _tabController?.dispose();
     _scrollController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -776,26 +784,14 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // Search bar
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search here',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
+                    // Search bar (shared component styling)
+                    SearchableClientField(
+                      layerLink: _searchFieldLink,
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      hintText: 'Search here',
                     ),
-                    // const SizedBox(height: 24),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),

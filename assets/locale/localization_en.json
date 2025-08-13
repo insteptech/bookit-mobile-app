@@ -185,9 +185,9 @@
     "billing_payment": "Billing & payment",
     "password_security": "Password & security",
     "app_language": "App language",
-    "membership_status": "Membership status",
+    "membership_status": "Membership settings",
     "notifications": "Notifications",
     "account_visibility": "Account visibility",
-    "terms_conditions": "Terms & conditions",
+    "terms_conditions": "Terms of service",
     "reset_password": "Reset password"
 }

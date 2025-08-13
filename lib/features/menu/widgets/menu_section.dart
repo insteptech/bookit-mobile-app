@@ -14,16 +14,16 @@ class MenuSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          title.toUpperCase(),
           style: AppTypography.bodyMedium.copyWith(
+            fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            letterSpacing: 0.4,
+            color: const Color(0xFF6C757D),
           ),
         ),
         SizedBox(height: AppConstants.contentSpacing),

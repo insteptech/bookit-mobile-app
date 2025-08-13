@@ -11,6 +11,9 @@ class MenuScreenScaffold extends StatelessWidget {
   final String? buttonText;
   final VoidCallback? onButtonPressed;
   final bool showBackButton;
+  final bool showTitle;
+  final Widget? headerWidget;
+  final bool placeHeaderWidgetAfterSubtitle;
   final VoidCallback? onBackPressed;
   final EdgeInsetsGeometry? contentPadding;
   final Color? backgroundColor;
@@ -24,6 +27,9 @@ class MenuScreenScaffold extends StatelessWidget {
     this.buttonText,
     this.onButtonPressed,
     this.showBackButton = true,
+    this.showTitle = true,
+    this.headerWidget,
+    this.placeHeaderWidgetAfterSubtitle = true,
     this.onBackPressed,
     this.contentPadding,
     this.backgroundColor,
@@ -51,26 +57,49 @@ class MenuScreenScaffold extends StatelessWidget {
                   child: Icon(Icons.arrow_back, size: AppConstants.backButtonIconSize),
                 ),
               
-              if (showBackButton) SizedBox(height: AppConstants.backButtonToTitleSpacing),
+              if (showBackButton)
+                SizedBox(
+                  height: showTitle
+                      ? AppConstants.backButtonToTitleSpacing
+                      : 10,
+                ),
               
               // Title
-              Text(
-                title,
-                style: AppTypography.headingLg,
-              ),
+              if (showTitle)
+                Text(
+                  title,
+                  style: AppTypography.headingLg,
+                ),
               
               // Subtitle
-              if (subtitle != null) ...[
+              if (showTitle && subtitle != null) ...[
                 SizedBox(height: AppConstants.titleToSubtitleSpacing),
                 Text(
                   subtitle!,
                   style: AppTypography.bodyMedium.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w500,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
               ],
+
+              // Optional header widget placement
+              if (headerWidget != null) ...[
+                SizedBox(
+                  height: (showTitle && subtitle != null && placeHeaderWidgetAfterSubtitle)
+                      ? AppConstants.contentSpacing
+                      : (showTitle && (subtitle == null || !placeHeaderWidgetAfterSubtitle))
+                          ? AppConstants.contentSpacing
+                          : 0,
+                ),
+                headerWidget!,
+              ],
               
-              SizedBox(height: AppConstants.headerToContentSpacing),
+              SizedBox(
+                height: showTitle
+                    ? AppConstants.headerToContentSpacing
+                    : 0,
+              ),
               
               // Main content
               Expanded(

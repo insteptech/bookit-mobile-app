@@ -2,13 +2,13 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:bookit_mobile_app/core/services/navigation_service.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_item.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_section.dart';
 import 'package:bookit_mobile_app/features/menu/controllers/menu_controller.dart' as menu_ctrl;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -32,12 +32,14 @@ class _MenuScreenState extends State<MenuScreen> {
   Future<void> _loadAppVersion() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
+      if (!mounted) return;
       setState(() {
         _appVersion = 'v${packageInfo.version}+${packageInfo.buildNumber}';
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _appVersion = 'v1.0.0+3'; // Fallback version
+        _appVersion = 'v1.0.0+3';
       });
     }
   }
@@ -75,10 +77,10 @@ class _MenuScreenState extends State<MenuScreen> {
                   
                   // STAFF Section
                   MenuSection(
-                    title: "STAFF",
+                    title: "Staff",
                     children: [
                       MenuItem(
-                        icon: Icons.person_outline,
+                        icon: Icons.group_outlined,
                         title: AppTranslationsDelegate.of(context).text("profiles"),
                         onTap: _menuController.navigateToProfiles,
                       ),
@@ -87,20 +89,20 @@ class _MenuScreenState extends State<MenuScreen> {
 
                   // SETTINGS Section
                   MenuSection(
-                    title: "SETTINGS",
+                    title: "Settings",
                     children: [
                       MenuItem(
-                        icon: Icons.business_outlined,
+                        icon: Icons.work_outline,
                         title: AppTranslationsDelegate.of(context).text("business_information"),
                         onTap: _menuController.navigateToBusinessInformation,
                       ),
                       MenuItem(
-                        icon: Icons.web_outlined,
+                        icon: Icons.link_outlined,
                         title: AppTranslationsDelegate.of(context).text("client_web_app"),
                         onTap: _menuController.navigateToClientWebApp,
                       ),
                       MenuItem(
-                        icon: Icons.payment_outlined,
+                        icon: Icons.account_balance_wallet_outlined,
                         title: AppTranslationsDelegate.of(context).text("billing_payment"),
                         onTap: _menuController.navigateToBillingPayment,
                       ),
@@ -110,14 +112,14 @@ class _MenuScreenState extends State<MenuScreen> {
                         onTap: _menuController.navigateToPasswordSecurity,
                       ),
                       MenuItem(
-                        icon: Icons.language_outlined,
-                        title: AppTranslationsDelegate.of(context).text("app_language"),
-                        onTap: _menuController.navigateToAppLanguage,
-                      ),
-                      MenuItem(
                         icon: Icons.star_outline,
                         title: AppTranslationsDelegate.of(context).text("membership_status"),
                         onTap: _menuController.navigateToMembershipStatus,
+                      ),
+                      MenuItem(
+                        icon: Icons.language_outlined,
+                        title: AppTranslationsDelegate.of(context).text("app_language"),
+                        onTap: _menuController.navigateToAppLanguage,
                       ),
                       MenuItem(
                         icon: Icons.notifications_outlined,
@@ -130,58 +132,56 @@ class _MenuScreenState extends State<MenuScreen> {
                         onTap: _menuController.navigateToAccountVisibility,
                       ),
                       MenuItem(
-                        icon: Icons.description_outlined,
+                        icon: Icons.edit_outlined,
                         title: AppTranslationsDelegate.of(context).text("terms_conditions"),
                         onTap: _menuController.navigateToTermsConditions,
                       ),
                     ],
                   ),
 
-                  // App Version
-                  if (_appVersion.isNotEmpty)
+                  // App Version (debug only)
+                  if (kDebugMode && _appVersion.isNotEmpty)
                     Padding(
                       padding: EdgeInsets.only(bottom: AppConstants.contentSpacing),
                       child: Center(
                         child: Text(
                           _appVersion,
                           style: AppTypography.bodySmall.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                       ),
                     ),
 
                   // Log out button
-                   Row(
-                        children: [
-                          SizedBox(
-                            height: 36,
-                            child: OutlinedButton(
-                              onPressed: () async {
-                                await TokenService().clearToken();
-                                await ActiveBusinessService().clearActiveBusiness();
-                                NavigationService.go("/login");
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: theme.colorScheme.primary,
-                                  width: 1.5,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                              ),
-                              child: Text(
-                                AppTranslationsDelegate.of(context).text("log_out"),
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
+                  Row(
+                    children: [
+                      OutlinedButton(
+                        onPressed: () async {
+                          await TokenService().clearToken();
+                          await ActiveBusinessService().clearActiveBusiness();
+                          NavigationService.go("/login");
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          side: BorderSide(
+                            color: const Color(0xFF790077),
+                            width: 1.5,
                           ),
-                        ],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                        ),
+                        child: Text(
+                          AppTranslationsDelegate.of(context).text("log_out"),
+                          style: AppTypography.button.copyWith(
+                            color: const Color(0xFF790077),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
+                    ],
+                  ),
 
                   SizedBox(height: AppConstants.headerToContentSpacingMedium),
                 ],

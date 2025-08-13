@@ -3,6 +3,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/api_prov
 import 'package:bookit_mobile_app/features/menu/models/staff_category_model.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_screens_scaffold.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/staff_category_section.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +19,8 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
   StaffCategoryData? staffData;
   String? errorMessage;
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  final LayerLink _searchLayerLink = LayerLink();
   List<StaffCategory> filteredCategories = [];
 
   @override
@@ -30,6 +33,7 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -184,42 +188,13 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
 
     return Column(
       children: [
-        // Search bar
-        Container(
-          height: 44,
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x14212529),
-                offset: Offset(0, 2),
-                blurRadius: 4,
-              ),
-            ],
-          ),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: "Search here",
-              hintStyle: AppTypography.bodyMedium.copyWith(
-                color: Colors.grey,
-              ),
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
+        // Search now lives in header via scaffold slot
         
         // Staff categories and members
         Expanded(
-          child: ListView.builder(
+          child: ListView.separated(
             itemCount: filteredCategories.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 24),
             itemBuilder: (context, index) {
               final category = filteredCategories[index];
               return StaffCategorySection(
@@ -238,6 +213,15 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
   Widget build(BuildContext context) {
     return MenuScreenScaffold(
       title: "Staff members",
+      showTitle: true,
+      headerWidget: SearchableClientField(
+        layerLink: _searchLayerLink,
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        hintText: "Search here",
+        showSearchIcon: true,
+      ),
+      placeHeaderWidgetAfterSubtitle: false,
       content: _buildContent(),
       buttonText: "Add member",
       onButtonPressed: () {

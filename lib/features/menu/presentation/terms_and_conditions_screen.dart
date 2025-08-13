@@ -58,7 +58,7 @@ class TermsAndConditionsScreen extends StatelessWidget {
         final termsFilePath = _getTermsFilePath(currentLanguageCode);
         
         return MenuScreenScaffold(
-          title: AppTranslationsDelegate.of(context).text("terms_of_services"),
+          title: AppTranslationsDelegate.of(context).text("terms_conditions"),
           content: FutureBuilder<String>(
             future: rootBundle.loadString(termsFilePath),
             builder: (context, snapshot) {

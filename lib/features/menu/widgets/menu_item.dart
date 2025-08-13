@@ -29,24 +29,22 @@ class MenuItem extends StatelessWidget {
             if (icon != null)
             Icon(
               icon,
-              size: 20,
-              color: theme.colorScheme.onSurface,
+              size: 24,
+              color: const Color(0xFF202733),
             ),
             if (icon != null) 
-            SizedBox(width: AppConstants.contentSpacing),
+            SizedBox(width: 8),
             Expanded(
               child: Text(
                 title,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: theme.colorScheme.onSurface,
-                ),
+                style: AppTypography.bodyMedium.copyWith(fontSize: 16, color: theme.colorScheme.onSurface),
               ),
             ),
             if (hasArrow)
               Icon(
                 Icons.chevron_right,
                 size: 20,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                color: const Color(0xFF202733),
               ),
           ],
         ),
