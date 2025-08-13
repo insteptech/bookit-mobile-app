@@ -50,6 +50,6 @@ class _ViewAllScheduleScreenState extends State<ViewAllScheduleScreen> {
           isDisabled: false,
         ),
       ),
-    );;
+    );
   }
 }
