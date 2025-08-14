@@ -64,7 +64,7 @@ class RadioButton extends StatelessWidget {
       width: 2,
     ),
     checkColor: Colors.white,
-    onChanged: disabled ? null : (_) => onChanged(true),
+    onChanged: disabled ? null : (_) => onChanged(!rememberMe),
   ),
   ),
 ),
@@ -113,7 +113,7 @@ class RadioButton extends StatelessWidget {
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: disabled ? null : () => onChanged(true),
+            onTap: disabled ? null : () => onChanged(!rememberMe),
           ),
         ),
       ],
