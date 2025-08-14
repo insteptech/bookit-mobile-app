@@ -96,16 +96,49 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     // Check if there are any staff members using utility function
     final hasStaff = hasStaffMembers(appointments);
 
-    // If no staff, show the add staff box for both appointment and class businesses
+    // If no staff, still show the section heading(s) according to business type,
+    // then show the add staff box. This ensures the heading is always visible.
     if (!isLoading && !hasStaff) {
-      // Determine if we should show class version based on business type
+      final supportsAppointments = businessType == BusinessType.appointmentOnly || businessType == BusinessType.both;
+      final supportsClasses = businessType == BusinessType.classOnly || businessType == BusinessType.both;
       final isClassContext = businessType == BusinessType.classOnly;
-      
+
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: AppConstants.contentSpacing + 4), // 20px equivalent
+          if (supportsAppointments) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppTranslationsDelegate.of(context).text("appointments"),
+                  style: AppTypography.headingMd.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: AppConstants.contentSpacing),
+          ],
+
+          if (supportsClasses) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppTranslationsDelegate.of(context).text("schedule"),
+                  style: AppTypography.headingMd.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: AppConstants.listItemSpacing),
+          ],
+
+          SizedBox(height: AppConstants.contentSpacing + 4),
           AddStaffAndAvailabilityBox(isClass: isClassContext),
-          SizedBox(height: AppConstants.contentSpacing + 4), // 20px equivalent
+          SizedBox(height: AppConstants.contentSpacing + 4),
         ],
       );
     }

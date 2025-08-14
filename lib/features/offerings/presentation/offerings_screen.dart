@@ -31,6 +31,13 @@ class _OfferingsScreenState extends State<OfferingsScreen>
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
+  void _initOrUpdateTabController(int length) {
+    if (_tabController == null || _tabController!.length != length) {
+      _tabController?.dispose();
+      _tabController = TabController(length: length, vsync: this);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -104,45 +111,6 @@ class _OfferingsScreenState extends State<OfferingsScreen>
 
         return Column(
           children: [
-            // Tab bar for category navigation - only show when there are multiple root categories
-            if (rootCategoryNames.length > 1) ...[
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide.none, // Remove any bottom border
-                  ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  indicatorColor: Theme.of(context).primaryColor,
-                  labelColor: Color(0xFFBB27B8),
-                  unselectedLabelColor: Colors.black,
-                  indicatorWeight: 1.5,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  labelPadding: EdgeInsets.only(right: 32),
-                  dividerColor: Colors.transparent,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  splashFactory: NoSplash.splashFactory,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                  onTap: (index) {
-                    _scrollToCategoryAtIndex(index, groupedOfferings);
-                  },
-                  tabs:
-                      rootCategoryNames.map((name) => Tab(text: name)).toList(),
-                ),
-              ),
-              SizedBox(height: AppConstants.sectionSpacing),
-            ],
             // Category sections
             Expanded(
               child: SingleChildScrollView(
@@ -786,7 +754,62 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                       focusNode: _searchFocusNode,
                       hintText: 'Search here',
                     ),
-                    const SizedBox(height: 24),
+                      // Design-specific spacing below search based on category count
+                      Consumer<OfferingsController>(
+                        builder: (context, controller, _) {
+                          final rootCategoryNames = controller.rootCategoryNames;
+                          if (rootCategoryNames.length > 1) {
+                            _initOrUpdateTabController(rootCategoryNames.length);
+                            return Column(
+                              children: [
+                                const SizedBox(height: 16),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide.none,
+                                    ),
+                                  ),
+                                  child: TabBar(
+                                    controller: _tabController,
+                                    isScrollable: true,
+                                    tabAlignment: TabAlignment.start,
+                                    indicatorColor: Theme.of(context).primaryColor,
+                                    labelColor: Color(0xFFBB27B8),
+                                    unselectedLabelColor: Colors.black,
+                                    indicatorWeight: 1.5,
+                                    indicatorSize: TabBarIndicatorSize.label,
+                                    labelPadding: EdgeInsets.only(right: 32),
+                                    dividerColor: Colors.transparent,
+                                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                                    splashFactory: NoSplash.splashFactory,
+                                    labelStyle: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                    unselectedLabelStyle: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                    ),
+                                    onTap: (index) {
+                                      _scrollToCategoryAtIndex(index, controller.groupedOfferings);
+                                    },
+                                    tabs: rootCategoryNames
+                                        .map((name) => Tab(text: name))
+                                        .toList(),
+                                  ),
+                                ),
+                                // Add 24 inside header so with header bottom padding (24) total becomes 48
+                                SizedBox(height: AppConstants.sectionSpacing),
+                              ],
+                            );
+                          } else if (rootCategoryNames.length == 1) {
+                            // Add 24 inside header so with header bottom padding (24) total becomes 48
+                            return SizedBox(height: AppConstants.sectionSpacing);
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                   ],
                 ),
               ),
