@@ -1,4 +1,3 @@
-import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
@@ -119,11 +118,11 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                   isScrollable: true,
                   tabAlignment: TabAlignment.start,
                   indicatorColor: Theme.of(context).primaryColor,
-                  labelColor: Theme.of(context).primaryColor,
-                  // unselectedLabelColor: Colors.grey[600],
-                  indicatorWeight: 2,
+                  labelColor: Color(0xFFBB27B8),
+                  unselectedLabelColor: Colors.black,
+                  indicatorWeight: 1.5,
                   indicatorSize: TabBarIndicatorSize.label,
-                  labelPadding: EdgeInsets.fromLTRB(0, 0, AppConstants.headerToContentSpacingMedium, 0),
+                  labelPadding: EdgeInsets.only(right: 32),
                   dividerColor: Colors.transparent,
                   overlayColor: WidgetStateProperty.all(Colors.transparent),
                   splashFactory: NoSplash.splashFactory,
@@ -132,7 +131,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                     fontSize: 16,
                   ),
                   unselectedLabelStyle: const TextStyle(
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                     fontSize: 16,
                   ),
                   onTap: (index) {
@@ -255,6 +254,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             Text(
               rootParentName,
               style: AppTypography.headingMd.copyWith(
+                fontSize: 24,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -402,8 +402,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                 fontWeight:
                     categoryLevel == 1 ? FontWeight.w600 : FontWeight.w500,
                 // Make text secondary font color only if it has children (multiple nestings)
-                color:
-                    hasChildren ? AppColors.secondaryFontColor : Colors.black,
+                color: Colors.black,
               ),
             ),
             // No arrow icon for parent categories with children
@@ -476,20 +475,16 @@ class _OfferingsScreenState extends State<OfferingsScreen>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              isParentWithChildren ? categoryName.toUpperCase() : categoryName,
+              categoryName,
               style: AppTypography.headingSm.copyWith(
-                // Make parent categories blue only if they're level 1 AND have no services (indicating they have subcategories)
-                color:
-                    isParentWithChildren
-                        ? AppColors.secondaryFontColor
-                        : Colors.black,
+                color: Colors.black,
                 fontWeight:
                     isParentWithChildren ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
             // Show icon for all categories except parent categories with children
             if (!isParentWithChildren)
-              Icon(Icons.keyboard_arrow_right, color: Colors.grey[600]),
+              Icon(Icons.keyboard_arrow_right, color: Color(0xFF202733)),
           ],
         ),
       );
@@ -523,7 +518,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                 isExpanded
                     ? Icons.keyboard_arrow_down
                     : Icons.keyboard_arrow_right,
-                color: Colors.grey[600],
+                color: Color(0xFF202733),
               ),
             ],
           ),
@@ -569,11 +564,11 @@ class _OfferingsScreenState extends State<OfferingsScreen>
           context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
         },
         child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: 24),
           child: Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
             margin: EdgeInsets.all(0),
             color: Color(0xFFF8F9FA),
@@ -591,7 +586,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(4),
                           image: DecorationImage(
                             image: NetworkImage(
                               "https://dims.apnews.com/dims4/default/e40c94b/2147483647/strip/true/crop/7773x5182+0+0/resize/599x399!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F16%2Fc9%2F0eecec78d44f016ffae1915e26c3%2F304c692a6f0b431aa8f954a4fdb5d7b5",
@@ -620,7 +615,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                               serviceName,
                               style: AppTypography.bodyMedium.copyWith(
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color: Color(0xFF343A40),
                               ),
                             ),
                           ],

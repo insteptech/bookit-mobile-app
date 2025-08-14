@@ -5,6 +5,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/checkbox_list_item.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/delete_action.dart';
 
 import 'profile_photo_picker.dart';
 import 'gender_selector.dart';
@@ -136,9 +137,8 @@ class _AddMemberFormState extends State<AddMemberForm> {
           children: [
             Text("Staff member information", style: AppTypography.headingSm),
             if (widget.onDelete != null)
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: widget.onDelete,
+              DeleteAction(
+                onConfirm: widget.onDelete!,
               ),
           ],
         ),

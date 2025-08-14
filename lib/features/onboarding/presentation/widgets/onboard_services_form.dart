@@ -7,6 +7,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.d
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
 import 'package:bookit_mobile_app/features/onboarding/domain/domain.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/delete_action.dart';
 
 class ServiceFormData {
   final String serviceId;
@@ -75,17 +76,12 @@ class OnboardServicesFormState extends State<OnboardServicesForm> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(AppTranslationsDelegate.of(context).text("name_your_service"), style: AppTypography.headingSm),
-              GestureDetector(
-                onTap: () {
+              DeleteAction(
+                onConfirm: () {
                   setState(() {
                     forms.remove(formData);
                   });
                 },
-                child: Icon(
-                  Icons.delete_outline,
-                  size: 24,
-                  color: theme.colorScheme.primary,
-                ),
               ),
             ],
           ),
