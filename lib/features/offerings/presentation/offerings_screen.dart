@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
@@ -774,8 +775,9 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                                     controller: _tabController,
                                     isScrollable: true,
                                     tabAlignment: TabAlignment.start,
-                                    indicatorColor: Theme.of(context).primaryColor,
-                                    labelColor: Color(0xFFBB27B8),
+                                    // Figma: underline #790077 at 1.5px under selected tab
+                                    indicatorColor: AppColors.primary,
+                                    labelColor: AppColors.primary,
                                     unselectedLabelColor: Colors.black,
                                     indicatorWeight: 1.5,
                                     indicatorSize: TabBarIndicatorSize.label,
