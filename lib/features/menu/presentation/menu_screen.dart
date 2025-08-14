@@ -80,7 +80,7 @@ class _MenuScreenState extends State<MenuScreen> {
                     title: "Staff",
                     children: [
                       MenuItem(
-                        icon: Icons.group_outlined,
+                        iconAsset: 'assets/icons/menu/staff.svg',
                         title: AppTranslationsDelegate.of(context).text("profiles"),
                         onTap: _menuController.navigateToProfiles,
                       ),
@@ -92,47 +92,47 @@ class _MenuScreenState extends State<MenuScreen> {
                     title: "Settings",
                     children: [
                       MenuItem(
-                        icon: Icons.work_outline,
+                        iconAsset: 'assets/icons/menu/briefcase.svg',
                         title: AppTranslationsDelegate.of(context).text("business_information"),
                         onTap: _menuController.navigateToBusinessInformation,
                       ),
                       MenuItem(
-                        icon: Icons.link_outlined,
+                        iconAsset: 'assets/icons/menu/link.svg',
                         title: AppTranslationsDelegate.of(context).text("client_web_app"),
                         onTap: _menuController.navigateToClientWebApp,
                       ),
                       MenuItem(
-                        icon: Icons.account_balance_wallet_outlined,
+                        iconAsset: 'assets/icons/menu/billing.svg',
                         title: AppTranslationsDelegate.of(context).text("billing_payment"),
                         onTap: _menuController.navigateToBillingPayment,
                       ),
                       MenuItem(
-                        icon: Icons.lock_outline,
+                        iconAsset: 'assets/icons/menu/lock.svg',
                         title: AppTranslationsDelegate.of(context).text("password_security"),
                         onTap: _menuController.navigateToPasswordSecurity,
                       ),
                       MenuItem(
-                        icon: Icons.star_outline,
+                        iconAsset: 'assets/icons/menu/star.svg',
                         title: AppTranslationsDelegate.of(context).text("membership_status"),
                         onTap: _menuController.navigateToMembershipStatus,
                       ),
                       MenuItem(
-                        icon: Icons.language_outlined,
+                        iconAsset: 'assets/icons/menu/language.svg',
                         title: AppTranslationsDelegate.of(context).text("app_language"),
                         onTap: _menuController.navigateToAppLanguage,
                       ),
                       MenuItem(
-                        icon: Icons.notifications_outlined,
+                        iconAsset: 'assets/icons/menu/icons.svg',
                         title: AppTranslationsDelegate.of(context).text("notifications"),
                         onTap: _menuController.navigateToNotifications,
                       ),
                       MenuItem(
-                        icon: Icons.visibility_outlined,
+                        iconAsset: 'assets/icons/menu/eye.svg',
                         title: AppTranslationsDelegate.of(context).text("account_visibility"),
                         onTap: _menuController.navigateToAccountVisibility,
                       ),
                       MenuItem(
-                        icon: Icons.edit_outlined,
+                        iconAsset: 'assets/icons/menu/edit.svg',
                         title: AppTranslationsDelegate.of(context).text("terms_conditions"),
                         onTap: _menuController.navigateToTermsConditions,
                       ),

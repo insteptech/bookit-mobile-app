@@ -180,7 +180,6 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
     forms.add(newForm);
     
     // Pre-fill the title with the service title
-    forms.first.titleController.text = widget.serviceData['title'] ?? '';
   }
 
   @override

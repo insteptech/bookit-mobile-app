@@ -64,17 +64,81 @@ class OnboardAddServiceController extends ChangeNotifier {
   }
 
   void toggleSelection(String id, List<CategoryModel> categories) {
-    if (_selectedIds.contains(id)) {
-      _selectedIds.remove(id);
-      // Remove child categories when parent is deselected
-      final children = categories.where((e) => e.parentId == id);
-      for (var child in children) {
-        _selectedIds.remove(child.id);
+    final List<CategoryModel> children =
+        categories.where((e) => e.parentId == id).toList();
+
+    final bool hasChildren = children.isNotEmpty;
+    final bool isCurrentlySelected = _selectedIds.contains(id);
+
+    if (hasChildren) {
+      // Parent selection logic: toggle parent + manage first child
+      final bool anyChildSelected =
+          children.any((child) => _selectedIds.contains(child.id));
+
+      if (isCurrentlySelected || anyChildSelected) {
+        // Deselect parent and all children
+        _selectedIds.remove(id);
+        for (final child in children) {
+          _selectedIds.remove(child.id);
+        }
+      } else {
+        // Select parent and the first child automatically
+        _selectedIds.add(id);
+        _selectedIds.add(children.first.id);
       }
     } else {
-      _selectedIds.add(id);
+      // Leaf selection toggles as usual
+      if (isCurrentlySelected) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
     }
     notifyListeners();
+  }
+
+  // Child selection toggle that keeps parent in sync
+  void toggleChildSelection(String childId, List<CategoryModel> categories) {
+    final CategoryModel child = categories.firstWhere(
+      (c) => c.id == childId,
+      orElse: () => CategoryModel(
+        id: childId,
+        parentId: null,
+        slug: '',
+        name: '',
+        level: 0,
+        isActive: true,
+      ),
+    );
+
+    final String? parentId = child.parentId;
+
+    if (_selectedIds.contains(childId)) {
+      _selectedIds.remove(childId);
+      // If no more children selected under this parent, unselect the parent
+      if (parentId != null) {
+        final siblings = categories.where((e) => e.parentId == parentId);
+        final bool anySiblingSelected =
+            siblings.any((s) => _selectedIds.contains(s.id));
+        if (!anySiblingSelected) {
+          _selectedIds.remove(parentId);
+        }
+      }
+    } else {
+      _selectedIds.add(childId);
+      // Ensure parent appears selected when any child is selected
+      if (parentId != null) {
+        _selectedIds.add(parentId);
+      }
+    }
+    notifyListeners();
+  }
+
+  // Visual state for parent tiles: selected if parent or any of its children are selected
+  bool isParentVisuallySelected(String parentId, List<CategoryModel> categories) {
+    if (_selectedIds.contains(parentId)) return true;
+    final children = categories.where((e) => e.parentId == parentId);
+    return children.any((c) => _selectedIds.contains(c.id));
   }
 
   void toggleExpansion(String id) {

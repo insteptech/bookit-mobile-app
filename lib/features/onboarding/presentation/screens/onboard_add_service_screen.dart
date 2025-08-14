@@ -40,66 +40,58 @@ class OnboardAddServiceScreen extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: level1.map((parent) {
-          final level2 = categories.where(
-            (e) => e.level == 2 && e.parentId == parent.id,
-          );
+          // Previously computed to control expansion; no longer needed since UI has no drop icon
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Level 1 parent category with expand/collapse functionality
+              // Level 1 parent category without drop icon; l2 auto-select logic handled in controller
               Row(
                 children: [
                   Expanded(
                     child: RadioButton(
                       heading: parent.name,
                       description: parent.description ?? "",
-                      rememberMe: controller.selectedIds.contains(parent.id),
+                      rememberMe: controller.isParentVisuallySelected(parent.id, categories.toList()),
                       onChanged: (value) {
                         controller.toggleSelection(parent.id, categories);
                       },
                       bgColor: theme.scaffoldBackgroundColor,
+                      // No expansion UX; tile tap mirrors checkbox selection
+                      onTileTap: () => controller.toggleSelection(parent.id, categories),
                     ),
                   ),
-                  if (level2.isNotEmpty)
-                    IconButton(
-                      icon: Icon(
-                        controller.expandedIds.contains(parent.id)
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                      ),
-                      onPressed: () {
-                        controller.toggleExpansion(parent.id);
-                      },
-                    ),
+                  // Drop icon removed per request when l2 is present
                 ],
               ),
               const SizedBox(height: 8),
-              
-              // Level 2 child categories (if expanded)
-              if (controller.expandedIds.contains(parent.id) && level2.isNotEmpty)
-                Container(
-                  margin: const EdgeInsets.only(left: 20),
-                  child: Column(
-                    children: level2
-                        .map(
-                          (child) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: RadioButton(
-                              heading: child.name,
-                              description: child.description ?? "",
-                              rememberMe: controller.selectedIds.contains(child.id),
-                              onChanged: (value) {
-                                controller.toggleSelection(child.id, categories);
-                              },
-                              bgColor: theme.scaffoldBackgroundColor,
-                            ),
+              // Show level 2 children as checklist when they exist; tapping a child selects it
+              if(controller.selectedIds.contains(parent.id))...[
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: Column(
+                  children: categories
+                      .where((e) => e.level == 2 && e.parentId == parent.id)
+                      .map(
+                        (child) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: RadioButton(
+                            heading: child.name,
+                            description: child.description ?? "",
+                            rememberMe: controller.selectedIds.contains(child.id),
+                            onChanged: (value) {
+                              controller.toggleChildSelection(child.id, categories);
+                            },
+                            bgColor: theme.scaffoldBackgroundColor,
+                            onTileTap: () => controller.toggleChildSelection(child.id, categories),
                           ),
-                        )
-                        .toList(),
-                  ),
+                        ),
+                      )
+                      .toList(),
                 ),
-              const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 8),
+              ],
             ],
           );
         }).toList(),

@@ -1,14 +1,17 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class PasswordInputField extends StatefulWidget {
   final String hintText;
   final TextEditingController controller;
+  final ValueChanged<String>? onChanged;
 
   const PasswordInputField({
     super.key,
     required this.hintText,
     required this.controller,
+    this.onChanged,
   });
 
   @override
@@ -34,6 +37,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
       child: TextField(
         controller: widget.controller,
         obscureText: _obscureText,
+        onChanged: widget.onChanged,
         decoration: InputDecoration(
           filled: true,
           fillColor: theme.scaffoldBackgroundColor,
@@ -68,9 +72,13 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
             vertical: 10,
           ),
           suffixIcon: IconButton(
-            icon: Icon(
-              _obscureText ? Icons.visibility_off : Icons.visibility,
-              color: Colors.grey,
+            icon: SvgPicture.asset(
+              _obscureText
+                  ? 'assets/icons/actions/eye_disabled.svg'
+                  : 'assets/icons/actions/eye.svg',
+              width: 20,
+              height: 20,
+              color: const Color(0xFF6C757D),
             ),
             onPressed: _toggleVisibility,
           ),
