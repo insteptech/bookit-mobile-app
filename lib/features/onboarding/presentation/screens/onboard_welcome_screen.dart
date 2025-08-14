@@ -79,7 +79,7 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
         }
       }
     } else {
-      currentStep = -1;
+      currentStep = 0;
       nextStep = onboardingSteps[currentStep]['id'];
     }
 

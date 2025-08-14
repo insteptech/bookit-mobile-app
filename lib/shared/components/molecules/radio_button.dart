@@ -69,7 +69,7 @@ class RadioButton extends StatelessWidget {
   ),
 ),
 
-              const SizedBox(width: 16),
+              const SizedBox(width: 5),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,6 +109,13 @@ class RadioButton extends StatelessWidget {
             ),
             ) 
           ),
+        // Full-tile tap target without ripple animation
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: disabled ? null : () => onChanged(true),
+          ),
+        ),
       ],
     );
   }

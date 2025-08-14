@@ -44,20 +44,27 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     NavigationService.go('/login');
   } else {
     try {
+      print("Fetching user details");
       final userService = UserService();
       final user = await userService.fetchUserDetails();
+      print("User: ${user.toJson()}");
 
       if(user.businessIds.isNotEmpty){
         final businessData = await userService.fetchBusinessDetails(businessId: user.businessIds[0]);
+        print("Business: ${businessData}");
 
         ref.read(businessProvider.notifier).state = businessData;
 
         if(businessData.isOnboardingComplete){
+          print("Onboarding complete");
           await ActiveBusinessService().saveActiveBusiness(user.businessIds[0]);
           NavigationService.go("/home_screen");
         } else {
+          print("Onboarding not complete");
           NavigationService.go('/onboarding_welcome');
         }
+      } else{
+        NavigationService.go('/onboarding_welcome');
       }
     } catch (e) {
       // If any API call fails (likely due to invalid token), redirect to login
