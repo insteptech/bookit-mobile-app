@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../app/theme/app_typography.dart';
+import 'back_icon.dart';
 
 class AppBarTitle extends StatelessWidget {
   final String title;
@@ -15,9 +16,9 @@ class AppBarTitle extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Transform.translate(
-              offset: Offset(-10, 0),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, size: 30),
+              offset: Offset(0, 0),
+              child: BackIcon(
+                size: 30,
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ),

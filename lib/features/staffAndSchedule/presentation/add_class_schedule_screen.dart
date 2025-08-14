@@ -5,6 +5,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/api_prov
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/class_schedule_selector.dart';
 import 'package:flutter/material.dart';
 
@@ -586,9 +587,9 @@ void _updateFormForLocation(String locationId) {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 70),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: const Icon(Icons.arrow_back, size: 32),
+                        BackIcon(
+                          size: 32,
+                          onPressed: () => Navigator.pop(context),
                         ),
                         const SizedBox(height: 9),
                         Text(

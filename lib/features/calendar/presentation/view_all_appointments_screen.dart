@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/features/calendar/widgets/upcoming_appointments.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -46,9 +47,9 @@ class _ViewAllAppointmentsScreenState extends ConsumerState<ViewAllAppointmentsS
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 70),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, size: 32),
+              BackIcon(
+                size: 32,
+                onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(height: 9),
               const Text("Appointments", style: AppTypography.headingLg),

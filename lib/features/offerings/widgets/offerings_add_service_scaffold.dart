@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 
 class OfferingsAddServiceScaffold extends StatelessWidget {
   final String title;
@@ -45,9 +46,9 @@ class OfferingsAddServiceScaffold extends StatelessWidget {
                     if (showBackButton) ...[
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: onBackPressed ?? () => Navigator.pop(context),
-                          child: Icon(Icons.arrow_back, size: AppConstants.backButtonIconSize),
+                        child: BackIcon(
+                          size: AppConstants.backButtonIconSize,
+                          onPressed: onBackPressed ?? () => Navigator.pop(context),
                         ),
                       ),
                       SizedBox(height: AppConstants.backButtonToTitleSpacingAlt),

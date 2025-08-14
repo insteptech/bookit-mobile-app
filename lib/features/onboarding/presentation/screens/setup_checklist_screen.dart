@@ -1,5 +1,6 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 
 class SetupChecklistScreen extends StatefulWidget {
@@ -72,9 +73,9 @@ class _SetupChecklistScreenState extends State<SetupChecklistScreen> {
                   const SizedBox(height: 70),
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.arrow_back, size: 32),
+                      BackIcon(
+                        size: 32,
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),

@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/calendar/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,9 +23,9 @@ class _ViewAllScheduleScreenState extends State<ViewAllScheduleScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 44),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, size: 32),
+              BackIcon(
+                size: 32,
+                onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(height: 9),
               const Text("Schedule", style: AppTypography.headingLg),

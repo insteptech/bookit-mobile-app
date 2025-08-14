@@ -5,6 +5,7 @@ import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/wi
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/utils/validation_service.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -117,9 +118,9 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.arrow_back, size: 32),
+                      BackIcon(
+                        size: 32,
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),

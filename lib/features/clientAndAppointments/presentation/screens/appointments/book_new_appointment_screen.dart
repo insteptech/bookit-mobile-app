@@ -11,6 +11,7 @@ import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
 import 'package:bookit_mobile_app/shared/calendar/appointments_calendar_day_wise.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -338,9 +339,9 @@ class _BookNewAppointmentScreenState
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.arrow_back, size: 32),
+                      BackIcon(
+                        size: 32,
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),

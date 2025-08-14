@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
@@ -47,12 +48,11 @@ class OnboardScaffoldLayout extends StatelessWidget {
                       if(!backButtonDisabled)
                       Row(
                         children: [
-                          GestureDetector(
-                            onTap: (){
+                          BackIcon(
+                            size: AppConstants.backButtonIconSize,
+                            onPressed: (){
                               context.pop();
                             },
-                            child: 
-                            Icon(Icons.arrow_back, size: AppConstants.backButtonIconSize,)
                           )
                         ],
                       ),

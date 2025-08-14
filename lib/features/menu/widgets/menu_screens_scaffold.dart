@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -52,9 +53,9 @@ class MenuScreenScaffold extends StatelessWidget {
               
               // Back button
               if (showBackButton)
-                GestureDetector(
-                  onTap: onBackPressed ?? () => context.pop(),
-                  child: Icon(Icons.arrow_back, size: AppConstants.backButtonIconSize),
+                BackIcon(
+                  size: AppConstants.backButtonIconSize,
+                  onPressed: onBackPressed ?? () => context.pop(),
                 ),
               
               if (showBackButton)
