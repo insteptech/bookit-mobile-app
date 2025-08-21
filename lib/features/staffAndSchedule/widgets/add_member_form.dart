@@ -13,6 +13,11 @@ class AddMemberForm extends StatefulWidget {
   final VoidCallback? onDelete;
   final bool? isClass;
   final Function(StaffProfile)? onDataChanged;
+  // Add initial values to preserve state
+  final String? initialName;
+  final String? initialEmail;
+  final String? initialPhone;
+  final String? initialGender;
 
   const AddMemberForm({
     super.key,
@@ -20,6 +25,10 @@ class AddMemberForm extends StatefulWidget {
     this.onDelete,
     this.onDataChanged,
     this.isClass,
+    this.initialName,
+    this.initialEmail,
+    this.initialPhone,
+    this.initialGender,
   });
 
   @override
@@ -56,6 +65,12 @@ class _AddMemberFormState extends State<AddMemberForm> {
   void initState() {
     super.initState();
     _setupSelectedCategories();
+    
+    // Initialize controllers with preserved values
+    _nameController.text = widget.initialName ?? '';
+    _emailController.text = widget.initialEmail ?? '';
+    _phoneController.text = widget.initialPhone ?? '';
+    
     _nameController.addListener(_onDataChanged);
     _emailController.addListener(_onDataChanged);
     _phoneController.addListener(_onDataChanged);
@@ -149,6 +164,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
         /// Gender
         GenderSelector(
           key: _genderSelectorKey,
+          initialValue: widget.initialGender,
           onSelectionChanged: _onDataChanged,
         ),
 

@@ -16,11 +16,23 @@ import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staf
 class ScheduleSelector extends StatefulWidget {
   final StaffScheduleController controller;
   final List<Map<String, dynamic>>? dropdownContent;
+  // Add parameters for state preservation
+  final List<bool>? initialSelectedDays;
+  final Map<int, dynamic>? initialTimeRanges;
+  final List<dynamic>? initialSelectedLocations;
+  final Function(List<bool>, Map<int, dynamic>, List<dynamic>)? onScheduleChanged;
+  // Callback for notifying parent about any schedule changes (for button state)
+  final VoidCallback? onScheduleUpdated;
 
   const ScheduleSelector({
     Key? key,
     required this.controller,
     this.dropdownContent,
+    this.initialSelectedDays,
+    this.initialTimeRanges,
+    this.initialSelectedLocations,
+    this.onScheduleChanged,
+    this.onScheduleUpdated,
   }) : super(key: key);
 
   @override
@@ -56,6 +68,31 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
   @override
   void initState() {
     super.initState();
+    // Initialize with preserved state if available
+    if (widget.initialSelectedDays != null) {
+      selectedDays = List.from(widget.initialSelectedDays!);
+    }
+    if (widget.initialTimeRanges != null) {
+      timeRanges = Map<int, TimeRange>.from(
+        widget.initialTimeRanges!.map((key, value) {
+          if (value is TimeRange) {
+            return MapEntry(key, value);
+          } else if (value is Map) {
+            // Handle case where TimeRange was serialized as Map
+            return MapEntry(key, TimeRange(
+              start: value['start'] ?? TimeOfDay.now(),
+              end: value['end'] ?? TimeOfDay.now(),
+            ));
+          }
+          return MapEntry(key, value);
+        })
+      );
+    }
+    if (widget.initialSelectedLocations != null) {
+      for (int i = 0; i < selectedLocations.length && i < widget.initialSelectedLocations!.length; i++) {
+        selectedLocations[i] = widget.initialSelectedLocations![i];
+      }
+    }
   }
 
   TimeOfDay _parseTimeString(String timeStr) {
@@ -98,6 +135,11 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
     }
     // Update the single schedule with the day schedules
     widget.controller.updateDaySchedule(daysSchedule);
+    
+    // Notify parent about schedule changes for state preservation
+    widget.onScheduleChanged?.call(selectedDays, timeRanges, selectedLocations);
+    // Notify parent about schedule updates for button state
+    widget.onScheduleUpdated?.call();
   }
   
   @override

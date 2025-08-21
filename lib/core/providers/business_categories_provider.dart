@@ -22,7 +22,7 @@ class BusinessCategoriesProvider extends ChangeNotifier {
   /// Get categories formatted for UI (id, name, isClass)
   List<Map<String, dynamic>> get categoriesForUI {
     return _businessCategories.map((category) => {
-      'id': category.category.id,
+      'id': category.id,
       'name': category.category.name,
       'isClass': category.category.isClass,
     }).toList();
