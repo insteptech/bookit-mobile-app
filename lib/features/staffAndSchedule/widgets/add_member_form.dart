@@ -1,9 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
-import 'package:bookit_mobile_app/shared/components/molecules/checkbox_list_item.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/delete_action.dart';
 
@@ -36,8 +34,8 @@ class _AddMemberFormState extends State<AddMemberForm> {
   final _profilePickerKey = GlobalKey<ProfilePhotoPickerState>();
   final _genderSelectorKey = GlobalKey<GenderSelectorState>();
 
-  List<Map<String, dynamic>> categories = [];
   Set<String> selectedCategoryIds = {};
+  final BusinessCategoriesProvider _categoriesProvider = BusinessCategoriesProvider.instance;
 
   // Location selector variables (integrated)
   List<Map<String, String>> locations = [];
@@ -49,32 +47,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
     return _nameController.text.trim().isNotEmpty &&
         _emailController.text.trim().isNotEmpty &&
         _phoneController.text.trim().isNotEmpty &&
-        gender.trim().isNotEmpty &&
-        selectedCategoryIds.isNotEmpty;
-  }
-
-  Future<void> fetchCategories() async {
-    try {
-      final Response response = await APIRepository.getUserDataForStaffRegistration();
-      final data = response.data;
-      if (data['success'] == true) {
-        final List<dynamic> categoryData = data['data']['level0_categories'];
-        setState(() {
-          categories = categoryData
-              .map((cat) => {
-                    'id': cat['id'].toString(),
-                    'name': cat['name'].toString(),
-                    'isClass': cat['is_class'] ?? false,
-                  })
-              .toList();
-        });
-      } else {
-        print(
-            '=== API Error: Failed to load categories - Status: ${data['status']}, Success: ${data['success']} ===');
-      }
-    } catch (e) {
-      print('=== Error fetching categories: $e ===');
-    }
+        gender.trim().isNotEmpty;
   }
 
 
@@ -82,16 +55,27 @@ class _AddMemberFormState extends State<AddMemberForm> {
   @override
   void initState() {
     super.initState();
-    fetchCategories();
+    _setupSelectedCategories();
     _nameController.addListener(_onDataChanged);
     _emailController.addListener(_onDataChanged);
     _phoneController.addListener(_onDataChanged);
+  }
+
+  void _setupSelectedCategories() {
+    // Auto-select categories based on isClass parameter
+    if (widget.isClass != null) {
+      final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
+      selectedCategoryIds.addAll(targetCategories.map((cat) => cat['id'].toString()));
+    }
   }
 
   void _onDataChanged() {
     if (widget.onDataChanged != null) {
       final profileImage = _profilePickerKey.currentState?.selectedImage;
       final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? '';
+
+      // Ensure categories are auto-selected based on isClass
+      _updateSelectedCategories();
 
       widget.onDataChanged!(
         StaffProfile(
@@ -104,6 +88,15 @@ class _AddMemberFormState extends State<AddMemberForm> {
           profileImage: profileImage,
         ),
       );
+    }
+  }
+
+  void _updateSelectedCategories() {
+    // Always ensure the correct categories are selected based on isClass
+    if (widget.isClass != null) {
+      selectedCategoryIds.clear();
+      final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
+      selectedCategoryIds.addAll(targetCategories.map((cat) => cat['id'].toString()));
     }
   }
 
@@ -161,38 +154,46 @@ class _AddMemberFormState extends State<AddMemberForm> {
 
         const SizedBox(height: 16),
 
-        /// Categories
+        /// Categories Display
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Select their categories", style: AppTypography.headingSm),
+            Text("Category", style: AppTypography.headingSm),
             const SizedBox(height: 8),
-            if (categories.isEmpty)
-              const Center(child: CircularProgressIndicator())
-            else
-              ...categories.where((category) {
-                return widget.isClass == null || category['isClass'] == widget.isClass;
-              }).map(
-                (category) => CheckboxListItem(
-                  title: category['name'] ?? '',
-                  isSelected: selectedCategoryIds.contains(category['id']),
-                  onChanged: (checked) {
-                    setState(() {
-                      if (checked) {
-                        selectedCategoryIds.add(category['id']);
-                      } else {
-                        selectedCategoryIds.remove(category['id']);
-                      }
-                    });
-                    _onDataChanged();
-                  },
-                ),
-              ),
+            _buildCategoryDisplay(),
           ],
         ),
 
         const SizedBox(height: 16),
       ],
+    );
+  }
+
+  Widget _buildCategoryDisplay() {
+    if (widget.isClass == null) {
+      return Text("No category specified", style: AppTypography.bodyMedium);
+    }
+
+    final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
+    
+    if (targetCategories.isEmpty) {
+      return Text(
+        widget.isClass! ? "No class categories available" : "No service categories available",
+        style: AppTypography.bodyMedium,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: targetCategories.map((category) => 
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Text(
+            "• ${category['id']}",
+            style: AppTypography.bodyMedium,
+          ),
+        ),
+      ).toList(),
     );
   }
 

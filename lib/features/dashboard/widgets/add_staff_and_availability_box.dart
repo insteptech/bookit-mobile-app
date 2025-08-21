@@ -21,7 +21,7 @@ class AddStaffAndAvailabilityBox extends StatelessWidget {
   if (isClass) {
     context.push("/add_staff?isClass=true");
   } else {
-    context.push("/add_staff");
+    context.push("/add_staff?isClass=false");
   }
 },
 

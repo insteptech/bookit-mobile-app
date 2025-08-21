@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/schedule_selector.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
@@ -38,10 +39,20 @@ class _SetScheduleFormState extends State<AddStaffScheduleTab> {
   bool hasClasses = false;
   bool hasServices = false;
 
+  void _fetchServices() async {
+    try {
+      final data = await APIRepository.getBusinessServiceCategories();
+      // print(data);
+    } catch (e) {
+      // Handle error
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _checkServiceTypes();
+    _fetchServices();
   }
 
   void _checkServiceTypes() {

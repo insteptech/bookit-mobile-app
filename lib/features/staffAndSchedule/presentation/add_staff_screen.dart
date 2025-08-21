@@ -3,6 +3,7 @@ import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/navigation_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_with_schedule_controller.dart';
@@ -35,13 +36,14 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   final StaffScheduleController _scheduleController = StaffScheduleController();
   late final AddStaffWithScheduleController _addStaffWithScheduleController;
   List<Map<String, dynamic>> _locations = [];
+  final BusinessCategoriesProvider _categoriesProvider = BusinessCategoriesProvider.instance;
 
 
   @override
   void initState() {
     super.initState();
-    // _fetchBusinessCategories();
     _fetchLocations();
+    _fetchBusinessCategories();
     _controller = AddStaffController();
     _addStaffWithScheduleController = AddStaffWithScheduleController(
       staffController: _controller,
@@ -52,6 +54,29 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       onSuccess: _handleSuccess,
       onError: _handleError,
     );
+    _setupAutoSelection();
+  }
+
+  void _fetchBusinessCategories() async {
+    if (!_categoriesProvider.hasCategories) {
+      await _categoriesProvider.fetchBusinessCategories();
+    }
+    print("fetching business service categories");
+    final data = await APIRepository.getBusinessServiceCategories();
+    print(data);
+  }
+
+  void _setupAutoSelection() {
+    // Auto-select categories based on is_class property
+    if (widget.isClass != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
+        for (final category in targetCategories) {
+          _scheduleController.toggleService(category['id']);
+        }
+        setState(() {});
+      });
+    }
   }
 
   @override
@@ -60,14 +85,6 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     super.dispose();
   }
 
-  // void _fetchBusinessCategories() async {
-  //   try {
-  //     final categories = await APIRepository.getBusinessCategories();
-  //     print("business categories: $categories");
-  //   } catch (error) {
-  //     _handleError(error.toString());
-  //   }
-  // }
 
   void _handleSuccess(String message) {
     if (!mounted) return;
@@ -160,7 +177,6 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                 style: AppTypography.headingLg,
               ),
               const SizedBox(height: 48),
-
               // Render add staff form
               Padding(
                 padding: const EdgeInsets.only(bottom: 32),
@@ -172,42 +188,8 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               ),
 
               AddStaffScheduleTab(
-                // services: services,
                 controller: _scheduleController,
-                category: [
-                  {
-                    'id': '1',
-                    'name': 'Haircut',
-                    'isClass': false,
-                  },
-                  {
-                    'id': '2',
-                    'name': 'Massage',
-                    'isClass': false,
-                  },
-                  {
-                    'id': '3',
-                    'name': 'Yoga Class',
-                    'isClass': true,
-                  },
-                ],
-                services: [
-                  {
-                    'id': '1',
-                    'name': 'Haircut',
-                    'isClass': false,
-                  },
-                  {
-                    'id': '2',
-                    'name': 'Massage',
-                    'isClass': false,
-                  },
-                  {
-                    'id': '3',
-                    'name': 'Yoga Class',
-                    'isClass': true,
-                  },
-                ],
+                category: _categoriesProvider.categoriesForUI,
                 onChange: () {},
                 onDelete: () {},
                 locations: _locations,
