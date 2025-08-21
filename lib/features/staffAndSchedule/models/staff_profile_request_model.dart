@@ -8,9 +8,9 @@ class StaffProfile {
   final String phoneNumber;
   final String gender;
   final List<String> categoryIds;
-  final List<String> locationIds;
+  final List<String>? locationIds;
   final File? profileImage;
-  final bool isAvailable;
+  final bool? isAvailable;
   final String userId; 
   String? profilePhotoUrl;
 
@@ -22,9 +22,9 @@ class StaffProfile {
     required this.phoneNumber,
     required this.gender,
     required this.categoryIds,
-    required this.locationIds,
+    this.locationIds,
     this.profileImage,
-    this.isAvailable = true,
+    this.isAvailable,
     this.profilePhotoUrl,
   });
 

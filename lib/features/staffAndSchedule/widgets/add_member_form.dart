@@ -50,8 +50,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
         _emailController.text.trim().isNotEmpty &&
         _phoneController.text.trim().isNotEmpty &&
         gender.trim().isNotEmpty &&
-        selectedCategoryIds.isNotEmpty &&
-        selectedLocationIds.isNotEmpty;
+        selectedCategoryIds.isNotEmpty;
   }
 
   Future<void> fetchCategories() async {
@@ -78,29 +77,12 @@ class _AddMemberFormState extends State<AddMemberForm> {
     }
   }
 
-  Future<void> fetchLocations() async {
-    try {
-      final response = await APIRepository.getBusinessLocations();
-      final data = response;
-      final List<dynamic> locationData = data['rows'];
-      setState(() {
-        locations = locationData
-            .map((loc) => {
-                  'id': loc['id'].toString(),
-                  'title': loc['title'].toString(),
-                })
-            .toList();
-      });
-    } catch (e) {
-      print('Error fetching locations: $e');
-    }
-  }
+
 
   @override
   void initState() {
     super.initState();
     fetchCategories();
-    fetchLocations(); // Added location fetching
     _nameController.addListener(_onDataChanged);
     _emailController.addListener(_onDataChanged);
     _phoneController.addListener(_onDataChanged);
@@ -119,7 +101,6 @@ class _AddMemberFormState extends State<AddMemberForm> {
           phoneNumber: _phoneController.text,
           gender: gender,
           categoryIds: selectedCategoryIds.toList(),
-          locationIds: selectedLocationIds.toList(), // Updated to use integrated locations
           profileImage: profileImage,
         ),
       );
@@ -211,35 +192,6 @@ class _AddMemberFormState extends State<AddMemberForm> {
         ),
 
         const SizedBox(height: 16),
-
-        /// Location Selector
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Choose location", style: AppTypography.headingSm),
-            const SizedBox(height: 8),
-
-            if (locations.isEmpty)
-              const Center(child: CircularProgressIndicator())
-            else
-              ...locations.map(
-                (location) => CheckboxListItem(
-                  title: location['title'] ?? '',
-                  isSelected: selectedLocationIds.contains(location['id']),
-                  onChanged: (checked) {
-                    setState(() {
-                      if (checked) {
-                        selectedLocationIds.add(location['id']!);
-                      } else {
-                        selectedLocationIds.remove(location['id']);
-                      }
-                    });
-                    _onDataChanged();
-                  },
-                ),
-              ),
-          ],
-        ),
       ],
     );
   }

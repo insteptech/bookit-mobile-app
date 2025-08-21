@@ -3,8 +3,7 @@ import 'package:bookit_mobile_app/core/utils/validators.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 
 class AddStaffController {
-  List<int> memberForms = [0];
-  Map<int, StaffProfile> staffProfiles = {};
+  StaffProfile? staffProfile;
   bool isLoading = false;
   
   // Callbacks for UI updates
@@ -22,56 +21,37 @@ class AddStaffController {
     this.onError = onError;
   }
 
-  void addMemberForm() {
-    memberForms.add(DateTime.now().millisecondsSinceEpoch);
+  // void addMemberForm() {
+  //   memberForms.add(DateTime.now().millisecondsSinceEpoch);
+  //   _notifyStateChanged();
+  // }
+
+  // void removeMemberForm(int id) {
+  //   if (memberForms.length <= 1) return;
+
+  //   memberForms.remove(id); 
+  //   staffProfiles.remove(id);
+  //   _notifyStateChanged();
+  // }
+
+  void updateStaffProfile(StaffProfile profile) {
+    staffProfile = profile;
     _notifyStateChanged();
   }
 
-  void removeMemberForm(int id) {
-    if (memberForms.length <= 1) return;
-
-    memberForms.remove(id);
-    staffProfiles.remove(id);
-    _notifyStateChanged();
-  }
-
-  void updateStaffProfile(int id, StaffProfile profile) {
-    staffProfiles[id] = profile;
-    _notifyStateChanged();
-  }
-
-  /// Validates if all required fields are filled for all staff members
+  /// Validates if all required fields are filled for the staff member
   bool get canSubmit {
-    // Check if we have profiles for all forms
-    if (staffProfiles.length != memberForms.length) {
-      // print('Cannot submit: profiles (${staffProfiles.length}) != forms (${memberForms.length})');
-      return false;
-    }
-    
-    // Check if all profiles have required fields filled
-    final allComplete = staffProfiles.values.every((profile) => _isProfileComplete(profile));
-    
-    if (!allComplete) {
-      // print('Cannot submit: Not all profiles are complete');
-      // print('Validation summary: ${getValidationSummary()}');
-    }
-    
-    return allComplete;
+    if (staffProfile == null) return false;
+    return _isProfileComplete(staffProfile!);
   }
 
   /// Gets a summary of validation status for debugging
   String getValidationSummary() {
-    final buffer = StringBuffer();
-    for (int formId in memberForms) {
-      if (staffProfiles.containsKey(formId)) {
-        final profile = staffProfiles[formId]!;
-        final missing = getMissingFields(formId);
-        buffer.writeln('Form $formId (${profile.name.isEmpty ? "Unnamed" : profile.name}): ${missing.isEmpty ? "Complete" : "Missing: ${missing.join(", ")}"}');
-      } else {
-        buffer.writeln('Form $formId: No profile data');
-      }
-    }
-    return buffer.toString();
+    if (staffProfile == null) return 'No profile data';
+    final missing = getMissingFields();
+    return missing.isEmpty
+        ? 'Complete'
+        : 'Missing: ${missing.join(", ")}' ;
   }
 
   /// Checks if a single staff profile has all required fields filled
@@ -81,8 +61,7 @@ class AddStaffController {
            isEmailInCorrectFormat(profile.email) &&
            isMobileNumberInCorrectFormat(profile.phoneNumber) &&
            profile.gender.trim().isNotEmpty &&
-           profile.categoryIds.isNotEmpty &&
-           profile.locationIds.isNotEmpty;
+           profile.categoryIds.isNotEmpty;
     
     // Debug logging
     if (!isComplete) {
@@ -98,68 +77,38 @@ class AddStaffController {
     return isComplete;
   }
 
-  /// Gets validation status for each staff member form
-  Map<int, bool> getValidationStatus() {
-    Map<int, bool> validationStatus = {};
-    for (int formId in memberForms) {
-      if (staffProfiles.containsKey(formId)) {
-        validationStatus[formId] = _isProfileComplete(staffProfiles[formId]!);
-      } else {
-        validationStatus[formId] = false;
-      }
-    }
-    return validationStatus;
-  }
+  // No longer needed: getValidationStatus for multiple forms
 
-  /// Gets missing fields for a specific staff member
-  List<String> getMissingFields(int formId) {
-    if (!staffProfiles.containsKey(formId)) {
+  /// Gets missing fields for the staff member
+  List<String> getMissingFields() {
+    if (staffProfile == null) {
       return ['All fields are required'];
     }
-
-    final profile = staffProfiles[formId]!;
+    final profile = staffProfile!;
     List<String> missing = [];
-
     if (profile.name.trim().isEmpty) missing.add('Name');
     if (profile.email.trim().isEmpty) missing.add('Email');
     if (profile.phoneNumber.trim().isEmpty) missing.add('Phone Number');
     if (profile.gender.trim().isEmpty) missing.add('Gender');
     if (profile.categoryIds.isEmpty) missing.add('Categories');
-    if (profile.locationIds.isEmpty) missing.add('Locations');
-
     return missing;
   }
 
-  Future<void> submitStaffProfiles() async {
-    await _submitStaffProfiles(false);
-  }
-
-  Future<void> saveAndExit() async {
-    await _submitStaffProfiles(true);
-  }
-
-  Future<void> _submitStaffProfiles(bool isSaveAndExit) async {
+  Future<void> submitStaffProfile() async {
     if (!canSubmit) return;
-
     isLoading = true;
     _notifyStateChanged();
-
     try {
       final response = await APIRepository.addMultipleStaff(
-        staffProfiles: staffProfiles.values.toList(),
+        staffProfiles: [staffProfile!],
       );
-
       if (response.statusCode == 200 || response.statusCode == 201) {
-        if (isSaveAndExit) {
-          onSuccess?.call('Staff members saved successfully');
-        } else {
-          onSuccess?.call('Staff members added successfully');
-        }
+        onSuccess?.call('Staff member added successfully');
       } else {
-        throw Exception('Failed to add staff members');
+        throw Exception('Failed to add staff member');
       }
     } catch (e) {
-      print("Error occurred while adding staff members: $e");
+      print("Error occurred while adding staff member: $e");
       onError?.call('Error: $e');
     } finally {
       isLoading = false;
@@ -173,8 +122,7 @@ class AddStaffController {
 
   /// Reset the controller to initial state
   void reset() {
-    memberForms = [0];
-    staffProfiles.clear();
+    staffProfile = null;
     isLoading = false;
     _notifyStateChanged();
   }

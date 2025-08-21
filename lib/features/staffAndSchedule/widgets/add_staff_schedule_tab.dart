@@ -1,37 +1,38 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/features/staffAndSchedule/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/schedule_selector.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/multi_select_item.dart';
-import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
+// import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:flutter/material.dart';
 
-class SetScheduleForm extends StatefulWidget {
-  final int index;
-  final List<Map<String, dynamic>> services;
+class AddStaffScheduleTab extends StatefulWidget {
+  final List<Map<String, dynamic>>? services;
   final StaffScheduleController controller;
-  final List<Map<String, String>> locations;
   final List<Map<String, dynamic>> category;
+  final List<Map<String, dynamic>>? locations;
   final VoidCallback onChange;
   final VoidCallback onDelete;
 
-  const SetScheduleForm({
+  const AddStaffScheduleTab({
     super.key,
-    required this.index,
-    required this.services,
+     this.services,
     required this.controller,
-    required this.locations,
+    this.locations,
+  // locations removed
     required this.category,
     required this.onChange,
     required this.onDelete,
   });
 
   @override
-  State<SetScheduleForm> createState() => _SetScheduleFormState();
+  State<AddStaffScheduleTab> createState() => _SetScheduleFormState();
 }
 
-class _SetScheduleFormState extends State<SetScheduleForm> {
+class _SetScheduleFormState extends State<AddStaffScheduleTab> {
   bool showAllClasses = false;
   bool showAllServices = false;
   bool hasClasses = false;
@@ -56,12 +57,8 @@ class _SetScheduleFormState extends State<SetScheduleForm> {
 
   @override
   Widget build(BuildContext context) {
-    final availableLocations = widget.controller.getAvailableLocations(widget.index, widget.locations);
+  // Location selection removed
     final theme = Theme.of(context);
-    
-    // Staff availability texts
-    final availableText = AppTranslationsDelegate.of(context).text("available");
-    final unavailableText = AppTranslationsDelegate.of(context).text("unavailable");
 
     // Services categorization
     final servicesOnly = widget.category.where((service) => service['isClass'] == false).toList();
@@ -76,31 +73,24 @@ class _SetScheduleFormState extends State<SetScheduleForm> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Show staff as",
+              "Staff availability",
               style: AppTypography.headingSm,
             ),
-            if (widget.index > 0)
-              GestureDetector(
-                onTap: widget.onDelete,
-                child: Icon(Icons.delete, color: theme.colorScheme.error, size: 24),
-              ),
+            CustomSwitch(
+              value: widget.controller.schedule.isAvailable,
+              onChanged: (val) {
+                setState(() {
+                  widget.controller.updateAvailability(val);
+                });
+              },
+            ),
           ],
         ),
+
         const SizedBox(height: 8),
-        
-        // Integrated StaffAvailabilityRadio content
-        RadioButtonCustom(
-          options: [availableText, unavailableText],
-          initialValue: widget.controller.entries[widget.index].isAvailable 
-              ? availableText
-              : unavailableText,
-          onChanged: (value) {
-            setState(() {
-              widget.controller.entries[widget.index].isAvailable = 
-                  value == availableText;
-            });
-          },
-        ),
+        if (!widget.controller.schedule.isAvailable)
+        Text("Your staff is currently not visible to your clients. To allow bookings change their status to available, and fill in their schedule.", style: AppTypography.bodyMedium.copyWith(color: AppColors.error),),
+
         
         const SizedBox(height: 24),
         
@@ -116,13 +106,13 @@ class _SetScheduleFormState extends State<SetScheduleForm> {
             ...visibleServices.map((service) {
               final id = service['id']!;
               final name = service['name']!;
-              final isSelected = widget.controller.entries[widget.index].selectedServices.contains(id);
+              final isSelected = widget.controller.schedule.selectedServices.contains(id);
               return CheckboxListItem(
                 title: name,
                 isSelected: isSelected,
                 onChanged: (checked) {
                   setState(() {
-                    widget.controller.toggleService(widget.index, id);
+                    widget.controller.toggleService(id);
                   });
                 },
               );
@@ -152,13 +142,13 @@ class _SetScheduleFormState extends State<SetScheduleForm> {
             ...visibleClasses.map((service) {
               final id = service['id']!;
               final name = service['name']!;
-              final isSelected = widget.controller.entries[widget.index].selectedServices.contains(id);
+              final isSelected = widget.controller.schedule.selectedServices.contains(id);
               return CheckboxListItem(
                 title: name,
                 isSelected: isSelected,
                 onChanged: (checked) {
                   setState(() {
-                    widget.controller.toggleService(widget.index, id);
+                    widget.controller.toggleService(id);
                   });
                 },
               );
@@ -179,37 +169,12 @@ class _SetScheduleFormState extends State<SetScheduleForm> {
         const SizedBox(height: 24),
         
         // Integrated LocationAndSchedule content
-        if (availableLocations.isNotEmpty) ...[
-          Text(
-            AppTranslationsDelegate.of(context).text("choose_location"),
-            style: AppTypography.headingSm,
-          ),
-          const SizedBox(height: 8),
-          RadioButtonCustom(
-            options: availableLocations.map((location) => location['title']!).toList(),
-            initialValue: availableLocations
-                .firstWhere(
-                  (location) => location['id'] == widget.controller.entries[widget.index].locationId,
-                  orElse: () => {'title': ''},
-                )['title'],
-            onChanged: (selectedTitle) {
-              final selectedLocation = availableLocations.firstWhere(
-                (location) => location['title'] == selectedTitle,
-              );
-              setState(() {
-                widget.controller.updateLocation(widget.index, selectedLocation['id']!);
-                widget.onChange();
-              });
-            },
-            isHorizontal: false,
-          ),
-        ],
+        // Location selector removed
         const SizedBox(height: 18),
-        // ScheduleSelector(
-        //   index: widget.index,
-        //   controller: widget.controller,
-        // ),
-        
+        ScheduleSelector(
+          controller: widget.controller,
+          dropdownContent: widget.locations
+        ),
         const SizedBox(height: 24),
       ],
     );

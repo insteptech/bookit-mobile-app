@@ -1,9 +1,10 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
 import 'package:flutter/material.dart';
 import 'dropdown_time_picker.dart';
-import 'package:bookit_mobile_app/features/staffAndSchedule/application/staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
 
 /// Schedule selector widget that handles time input for staff schedules.
 /// 
@@ -13,13 +14,13 @@ import 'package:bookit_mobile_app/features/staffAndSchedule/application/staff_sc
 /// - Backend communication uses UTC format (24-hour HH:mm:ss)
 /// - When receiving data from backend, converts UTC time back to local for display
 class ScheduleSelector extends StatefulWidget {
-  final int index;
   final StaffScheduleController controller;
+  final List<Map<String, dynamic>>? dropdownContent;
 
   const ScheduleSelector({
     Key? key,
-    required this.index,
     required this.controller,
+    this.dropdownContent,
   }) : super(key: key);
 
   @override
@@ -40,6 +41,9 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
   List<bool> selectedDays = List.generate(7, (_) => false);
   Map<int, TimeRange> timeRanges = {};
 
+  // Holds the selected location for each day (index 0-6)
+  final List<dynamic> selectedLocations = List.filled(7, null, growable: false);
+
   final List<String> allTimeOptions = List.generate(48, (index) {
     final hour = index ~/ 2;
     final minute = (index % 2) * 30;
@@ -52,57 +56,6 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
   @override
   void initState() {
     super.initState();
-    _initializeFromController();
-  }
-
-  void _initializeFromController() {
-    // Get the existing schedule from the controller
-    if (widget.index < widget.controller.entries.length) {
-      final entry = widget.controller.entries[widget.index];
-      final daySchedules = entry.daySchedules;
-      
-      // Initialize the UI state from the existing schedule
-      for (var schedule in daySchedules) {
-        final day = schedule['day'];
-        final from = schedule['from'];
-        final to = schedule['to'];
-        
-        if (day != null && from != null && to != null) {
-          // Find the day index
-          final dayIndex = fullDays.indexWhere(
-            (d) => d.toLowerCase() == day.toLowerCase()
-          );
-          
-          if (dayIndex != -1) {
-            try {
-              // Parse the time strings - backend sends UTC format (HH:mm:ss)
-              final startTime = _parseTimeFromBackend(from);
-              final endTime = _parseTimeFromBackend(to);
-              
-              setState(() {
-                selectedDays[dayIndex] = true;
-                timeRanges[dayIndex] = TimeRange(
-                  start: startTime,
-                  end: endTime,
-                );
-              });
-            } catch (e) {
-              print('Error parsing time for $day: $from - $to, Error: $e');
-            }
-          }
-        }
-      }
-    }
-  }
-
-  TimeOfDay _parseTimeFromBackend(String timeStr) {
-    // First try to parse as UTC format (HH:mm:ss) from backend and convert to local
-    try {
-      return parseUtcTimeFormatToLocal(timeStr); // Converts UTC to local time
-    } catch (e) {
-      // Fallback to existing parsing for legacy format
-      return _parseTimeString(timeStr);
-    }
   }
 
   TimeOfDay _parseTimeString(String timeStr) {
@@ -131,19 +84,20 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
 
   void _updateScheduleInController() {
     final List<Map<String, String>> daysSchedule = [];
-
     for (int index = 0; index < 7; index++) {
-      if (selectedDays[index] && timeRanges[index] != null) {
+      if (selectedDays[index] && timeRanges[index] != null && selectedLocations[index] != null) {
         final range = timeRanges[index]!;
+        final currentLoc = selectedLocations[index];
         daysSchedule.add({
+          "location" : currentLoc.toString(),
           "day": fullDays[index].toLowerCase(),
-          "from": timeOfDayToUtcFormatWithTimezone(range.start), // Now converts local to UTC
-          "to": timeOfDayToUtcFormatWithTimezone(range.end),     // Now converts local to UTC
+          "from": timeOfDayToUtcFormatWithTimezone(range.start),
+          "to": timeOfDayToUtcFormatWithTimezone(range.end),
         });
       }
     }
-
-    widget.controller.updateDaySchedule(widget.index, daysSchedule);
+    // Update the single schedule with the day schedules
+    widget.controller.updateDaySchedule(daysSchedule);
   }
   
   @override
@@ -172,6 +126,7 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
                       selectedDays[index] = !selectedDays[index];
                       if (!selectedDays[index]) {
                         timeRanges.remove(index);
+                        selectedLocations[index] = null;
                       }
                       _updateScheduleInController();
                     });
@@ -203,7 +158,9 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
         ...List.generate(7, (index) {
           if (!selectedDays[index]) return const SizedBox.shrink();
           final time = timeRanges[index];
-          return Padding(
+          return Column(
+            children: [
+              Padding(
             padding: const EdgeInsets.symmetric(vertical: 6.0),
             child: Row(
               children: [
@@ -261,13 +218,29 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
                     },
                   ),
                 ),
+
               ],
             ),
+          ),
+          DropDown(
+            items: widget.dropdownContent ?? [],
+            hintText: "Select location",
+            initialSelectedItem: selectedLocations[index],
+            onChanged: (val) {
+              setState(() {
+                selectedLocations[index] = val;
+                _updateScheduleInController();
+              });
+            },
+          )
+            ],
           );
         }),
       ],
     );
   }
+
+
 }
 
 class TimeRange {

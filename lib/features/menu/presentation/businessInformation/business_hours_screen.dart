@@ -205,10 +205,10 @@ class _BusinessHoursScreenState extends State<BusinessHoursScreen> {
               const SizedBox(height: 8),
               
               // Use your existing ScheduleSelector component
-              ScheduleSelector(
-                index: 0,
-                controller: scheduleController,
-              ),
+              // ScheduleSelector(
+              //   index: 0,
+              //   controller: scheduleController,
+              // ),
               
               const SizedBox(height: 24),
               

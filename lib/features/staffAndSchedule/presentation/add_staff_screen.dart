@@ -1,25 +1,27 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/navigation_service.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_with_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/add_staff_schedule_tab.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import '../widgets/add_member_form.dart';
 
-enum StaffScreenButtonMode {
-  continueToSchedule, 
-  saveOnly,         
-}
+enum StaffScreenButtonMode { continueToSchedule, saveOnly }
 
 class AddStaffScreen extends StatefulWidget {
-  final bool? isClass; 
+  final bool? isClass;
   final StaffScreenButtonMode buttonMode;
-  
+
   const AddStaffScreen({
-    super.key, 
-    this.isClass, 
+    super.key,
+    this.isClass,
     this.buttonMode = StaffScreenButtonMode.continueToSchedule, // Default mode
   });
 
@@ -30,11 +32,21 @@ class AddStaffScreen extends StatefulWidget {
 class _AddStaffScreenState extends State<AddStaffScreen> {
   late final AddStaffController _controller;
   bool _isSaveAndExit = false; // Track which action triggered the submission
+  final StaffScheduleController _scheduleController = StaffScheduleController();
+  late final AddStaffWithScheduleController _addStaffWithScheduleController;
+  List<Map<String, dynamic>> _locations = [];
+
 
   @override
   void initState() {
     super.initState();
+    // _fetchBusinessCategories();
+    _fetchLocations();
     _controller = AddStaffController();
+    _addStaffWithScheduleController = AddStaffWithScheduleController(
+      staffController: _controller,
+      scheduleController: _scheduleController,
+    );
     _controller.setCallbacks(
       onStateChanged: () => setState(() {}),
       onSuccess: _handleSuccess,
@@ -48,11 +60,20 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     super.dispose();
   }
 
+  // void _fetchBusinessCategories() async {
+  //   try {
+  //     final categories = await APIRepository.getBusinessCategories();
+  //     print("business categories: $categories");
+  //   } catch (error) {
+  //     _handleError(error.toString());
+  //   }
+  // }
+
   void _handleSuccess(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
     // Handle navigation based on which action was triggered
     if (_isSaveAndExit) {
       // For save and exit, just go back to previous screen
@@ -79,7 +100,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     // Only save if there's valid data to save
     if (_controller.canSubmit) {
       _isSaveAndExit = true;
-      await _controller.submitStaffProfiles();
+      await _controller.submitStaffProfile();
       // Navigation will be handled by _handleSuccess callback
     } else {
       // If no valid data, just exit
@@ -90,55 +111,110 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   void _handleError(String error) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${AppTranslationsDelegate.of(context).text("error")}: $error')),
+      SnackBar(
+        content: Text(
+          '${AppTranslationsDelegate.of(context).text("error")}: $error',
+        ),
+      ),
     );
+  }
+
+  void _fetchLocations() async {
+    try {
+      final locations = await APIRepository.getBusinessLocations();
+      setState(() {
+        _locations = List<Map<String, dynamic>>.from(locations['rows'].map((loc) => {
+          'id': loc['id'].toString(),
+          'name': loc['title'].toString(),
+        }));
+      });
+    } catch (error) {
+      _handleError(error.toString());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: SafeArea(
+        top:
+            false, // Avoid duplicating top padding since body already uses SafeArea
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(34, 2, 34, 2),
+          child: _buildActionButtons(),
+        ),
+      ),
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 70),
-              BackIcon(
-                size: 32,
-                onPressed: () => Navigator.pop(context),
+              const SizedBox(
+                height: AppConstants.scaffoldTopSpacingWithBackButton,
               ),
-              const SizedBox(height: 9),
+              BackIcon(size: 32, onPressed: () => Navigator.pop(context)),
               Text(
-                  AppTranslationsDelegate.of(context).text("add_staff"), 
-                style: AppTypography.headingLg
+                AppTranslationsDelegate.of(context).text("add_staff"),
+                style: AppTypography.headingLg,
               ),
               const SizedBox(height: 48),
-              // Render all member forms
-              ..._controller.memberForms.map(
-                (id) => Padding(
-                  padding: const EdgeInsets.only(bottom: 32),
-                  child: AddMemberForm(
-                    key: ValueKey(id),
-                    isClass: widget.isClass, // Pass the optional isClass parameter directly
-                    onAdd: _controller.addMemberForm,
-                    onDelete:
-                        _controller.memberForms.length > 1
-                            ? () => _controller.removeMemberForm(id)
-                            : null,
-                    onDataChanged: (profile) => _controller.updateStaffProfile(id, profile),
-                  ),
+
+              // Render add staff form
+              Padding(
+                padding: const EdgeInsets.only(bottom: 32),
+                child: AddMemberForm(
+                  isClass: widget.isClass,
+                  onDataChanged:
+                      (profile) => _controller.updateStaffProfile(profile),
                 ),
               ),
-              SecondaryButton(
-                onPressed: _controller.addMemberForm, 
-                text: AppTranslationsDelegate.of(context).text("add_another_staff_member"),
-                prefix: Icon(Icons.add_circle_outline, size: 22, color: Theme.of(context).colorScheme.primary),
+
+              AddStaffScheduleTab(
+                // services: services,
+                controller: _scheduleController,
+                category: [
+                  {
+                    'id': '1',
+                    'name': 'Haircut',
+                    'isClass': false,
+                  },
+                  {
+                    'id': '2',
+                    'name': 'Massage',
+                    'isClass': false,
+                  },
+                  {
+                    'id': '3',
+                    'name': 'Yoga Class',
+                    'isClass': true,
+                  },
+                ],
+                services: [
+                  {
+                    'id': '1',
+                    'name': 'Haircut',
+                    'isClass': false,
+                  },
+                  {
+                    'id': '2',
+                    'name': 'Massage',
+                    'isClass': false,
+                  },
+                  {
+                    'id': '3',
+                    'name': 'Yoga Class',
+                    'isClass': true,
+                  },
+                ],
+                onChange: () {},
+                onDelete: () {},
+                locations: _locations,
               ),
 
               // Action buttons
               const SizedBox(height: 24),
-              _buildActionButtons(),
             ],
           ),
         ),
@@ -147,40 +223,13 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
   Widget _buildActionButtons() {
-    switch (widget.buttonMode) {
-      case StaffScreenButtonMode.continueToSchedule:
-        return Column(
-          children: [
-            PrimaryButton(
-              text: _controller.isLoading 
-                ? AppTranslationsDelegate.of(context).text("adding_staff")
-                : AppTranslationsDelegate.of(context).text("continue_to_schedule_text"),
-              onPressed: _controller.isLoading ? null : _controller.submitStaffProfiles,
-              isDisabled: !_controller.canSubmit || _controller.isLoading,
-            ),
-            const SizedBox(height: 10),
-            Center(
-              child: TextButton(
-                onPressed: _controller.isLoading ? null : _handleSaveAndExit,
-                child: Text(
-                  AppTranslationsDelegate.of(context).text("save_and_exit"),
-                  style: AppTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: _controller.isLoading ? Colors.grey : null,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      case StaffScreenButtonMode.saveOnly:
-        return PrimaryButton(
-          text: _controller.isLoading 
-            ? AppTranslationsDelegate.of(context).text("adding_staff")
-            : "Save",
-          onPressed: _controller.isLoading ? null : _controller.submitStaffProfiles,
-          isDisabled: !_controller.canSubmit || _controller.isLoading,
-        );
-    }
+    return PrimaryButton(
+      text:
+          _controller.isLoading
+              ? AppTranslationsDelegate.of(context).text("adding_staff")
+              : "Save",
+      onPressed: _controller.isLoading ? null : _addStaffWithScheduleController.submit,
+      isDisabled: !_addStaffWithScheduleController.canSubmit,
+    );
   }
 }
