@@ -26,7 +26,6 @@ class DashboardController extends ChangeNotifier {
 
     try {
       final data = await APIRepository.getBusinessCategories();
-      
       // Parse the response
       final List<dynamic> categoriesData = data['data'] ?? [];
       _businessCategories = categoriesData
@@ -60,6 +59,11 @@ class DashboardController extends ChangeNotifier {
       } else {
         hasNonClassCategory = true;
       }
+      
+      // Check related categories for class types
+      if (category.category.related.isNotEmpty) {
+        hasClassCategory = true; // Related categories are typically class categories
+      }
     }
 
     if (hasClassCategory && hasNonClassCategory) {
@@ -78,5 +82,11 @@ class DashboardController extends ChangeNotifier {
     _isLoadingCategories = false;
     _error = null;
     notifyListeners();
+  }
+
+  /// Force refresh categories (for debugging)
+  Future<void> forceRefresh() async {
+    reset();
+    await fetchBusinessCategories();
   }
 }

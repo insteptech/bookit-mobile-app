@@ -138,3 +138,7 @@ String getSortedClassesByBusinessEndpoint(String businessId, String sortBy, Stri
 //...........Get specific class/service details
 String getServiceDetailsByIdEndpoint(String serviceId) => 
     "$baseUrl/business/service-detail/$serviceId";
+
+
+
+String addStaffWithScheduleEndpoint = "$baseUrl/profile/staff/add-with-schedule";

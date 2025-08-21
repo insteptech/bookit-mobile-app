@@ -94,7 +94,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
 
       widget.onDataChanged!(
         StaffProfile(
-          userId: '',
+          id: '',
           name: _nameController.text,
           email: _emailController.text,
           phoneNumber: _phoneController.text,
@@ -205,7 +205,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
         Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Text(
-            "• ${category['id']}",
+            "• ${category['name']}",
             style: AppTypography.bodyMedium,
           ),
         ),

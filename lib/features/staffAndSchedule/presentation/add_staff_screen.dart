@@ -22,11 +22,15 @@ enum StaffScreenButtonMode { continueToSchedule, saveOnly }
 
 class AddStaffScreen extends StatefulWidget {
   final bool? isClass;
+  final String? staffId;
+  final String? staffName;
   final StaffScreenButtonMode buttonMode;
 
   const AddStaffScreen({
     super.key,
     this.isClass,
+    this.staffId,
+    this.staffName,
     this.buttonMode = StaffScreenButtonMode.continueToSchedule, // Default mode
   });
 
@@ -74,9 +78,9 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
   void _fetchBusinessCategories() async {
-    if (!_categoriesProvider.hasCategories) {
+    // if (!_categoriesProvider.hasCategories) {
       await _categoriesProvider.fetchBusinessCategories();
-    }
+    // }
   }
 
   void _setupAutoSelection() {
@@ -194,9 +198,11 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         
         const SizedBox(height: AppConstants.headerToContentSpacing),
         
-        _buildTabSelector(),
-        
-        const SizedBox(height: AppConstants.sectionSpacing),
+        // Only show tab selector when isClass is not true
+        if (widget.isClass != true) ...[
+          _buildTabSelector(),
+          const SizedBox(height: AppConstants.sectionSpacing),
+        ],
         
         _buildTabContent(),
         
@@ -210,12 +216,19 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
   Widget _buildTitle(BuildContext context) {
-    return Text(
+    if(widget.staffId != null){
+      return Text(
+        widget.staffName ?? "",
+        style: AppTypography.headingLg,
+      );
+    } else{
+      return Text(
       widget.isClass == true 
         ? "Add coach" 
         : AppTranslationsDelegate.of(context).text("add_staff"),
       style: AppTypography.headingLg,
     );
+  }
   }
 
   Widget _buildTabSelector() {
@@ -311,7 +324,8 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
   Widget _buildTabContent() {
-    if (_selectedTab == StaffTab.staffInfo) {
+    // When isClass is true, always show staff info content
+    if (widget.isClass == true || _selectedTab == StaffTab.staffInfo) {
       return _buildStaffInfoContent();
     } else {
       return _buildScheduleContent();
@@ -338,26 +352,23 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
 
   Widget _buildScheduleContent() {
-    return Opacity(
-      opacity: _scheduleController.schedule.isAvailable ? 1.0 : 0.4,
-      child: AddStaffScheduleTab(
-        controller: _scheduleController,
-        category: _categoriesProvider.categoriesForUI,
-        onChange: () {
-          setState(() {});
-        },
-        onDelete: () {},
-        locations: _locations,
-        initialSelectedDays: _scheduleSelectedDays,
-        initialTimeRanges: _scheduleTimeRanges,
-        initialSelectedLocations: _scheduleSelectedLocations,
-        onScheduleChanged: (selectedDays, timeRanges, selectedLocations) {
-          // Update preserved state
-          _scheduleSelectedDays = List.from(selectedDays);
-          _scheduleTimeRanges = Map.from(timeRanges);
-          _scheduleSelectedLocations = List.from(selectedLocations);
-        },
-      ),
+    return AddStaffScheduleTab(
+      controller: _scheduleController,
+      category: _categoriesProvider.categoriesForUI,
+      onChange: () {
+        setState(() {});
+      },
+      onDelete: () {},
+      locations: _locations,
+      initialSelectedDays: _scheduleSelectedDays,
+      initialTimeRanges: _scheduleTimeRanges,
+      initialSelectedLocations: _scheduleSelectedLocations,
+      onScheduleChanged: (selectedDays, timeRanges, selectedLocations) {
+        // Update preserved state
+        _scheduleSelectedDays = List.from(selectedDays);
+        _scheduleTimeRanges = Map.from(timeRanges);
+        _scheduleSelectedLocations = List.from(selectedLocations);
+      },
     );
   }
 
@@ -405,7 +416,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           ],
           
           // Main action buttons
-          if (_selectedTab == StaffTab.staffInfo) ...[
+          if (widget.isClass == true || _selectedTab == StaffTab.staffInfo) ...[
             // Staff info tab buttons
             PrimaryButton(
               text: isLoading
@@ -417,9 +428,15 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   ? null
                   : controllerCanSubmit
                       ? () {
-                          setState(() {
-                            _selectedTab = StaffTab.schedule;
-                          });
+                          if (widget.isClass == true) {
+                            // For classes, save staff and navigate to class schedule
+                            _addStaffWithScheduleController.submit();
+                          } else {
+                            // For regular staff, switch to schedule tab
+                            setState(() {
+                              _selectedTab = StaffTab.schedule;
+                            });
+                          }
                         }
                       : null,
               isDisabled: !controllerCanSubmit,

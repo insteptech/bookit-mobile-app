@@ -141,105 +141,134 @@ class _SetScheduleFormState extends State<AddStaffScheduleTab> {
         
         const SizedBox(height: 24),
         
-        // Integrated ServicesOfferChecklistRow content
+        // Integrated ServicesOfferChecklistRow content - with opacity when unavailable
         if (hasServices) ...[
-          Text(
-            "Services they offer",
-            style: AppTypography.headingSm,
+          Opacity(
+            opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
+            child: Text(
+              "Services they offer",
+              style: AppTypography.headingSm,
+            ),
           ),
-          if (visibleServices.isEmpty)
-            const Center(child: Text("No services available"))
-          else
-            ...visibleServices.map((service) {
-              final id = service['id']!;
-              final name = service['name']!;
-              final isSelected = widget.controller.schedule.selectedServices.contains(id);
-              return CheckboxListItem(
-                title: name,
-                isSelected: isSelected,
-                isDisabled: !widget.controller.schedule.isAvailable,
-                onChanged: (checked) {
-                  if (widget.controller.schedule.isAvailable) {
-                    setState(() {
-                      widget.controller.toggleService(id);
-                    });
-                    widget.onChange(); // Notify parent to update button state
-                  }
-                },
-              );
-            }),
+          Opacity(
+            opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
+            child: Column(
+              children: [
+                if (visibleServices.isEmpty)
+                  const Center(child: Text("No services available"))
+                else
+                  ...visibleServices.map((service) {
+                    final id = service['id']!;
+                    final name = service['name']!;
+                    final isSelected = widget.controller.schedule.selectedServices.contains(id);
+                    return CheckboxListItem(
+                      title: name,
+                      isSelected: isSelected,
+                      isDisabled: !widget.controller.schedule.isAvailable,
+                      onChanged: (checked) {
+                        if (widget.controller.schedule.isAvailable) {
+                          setState(() {
+                            widget.controller.toggleService(id);
+                          });
+                          widget.onChange(); // Notify parent to update button state
+                        }
+                      },
+                    );
+                  }),
+              ],
+            ),
+          ),
           if (servicesOnly.length > 4) ...[
             const SizedBox(height: 8),
-            SecondaryButton(
-              onPressed: widget.controller.schedule.isAvailable 
-                ? () {
-                    setState(() {
-                      showAllServices = !showAllServices;
-                    });
-                  }
-                : null, 
-              text: showAllServices ? AppTranslationsDelegate.of(context).text("see_less") : AppTranslationsDelegate.of(context).text("see_all")
+            Opacity(
+              opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
+              child: SecondaryButton(
+                onPressed: widget.controller.schedule.isAvailable 
+                  ? () {
+                      setState(() {
+                        showAllServices = !showAllServices;
+                      });
+                    }
+                  : null, 
+                text: showAllServices ? AppTranslationsDelegate.of(context).text("see_less") : AppTranslationsDelegate.of(context).text("see_all")
+              ),
             ),
           ],
         ],
 
         if (hasClasses && hasServices) const SizedBox(height: 16),
         if (hasClasses) ...[
-          Text(
-            "Classes they offer",
-            style: AppTypography.headingSm,
+          Opacity(
+            opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
+            child: Text(
+              "Classes they offer",
+              style: AppTypography.headingSm,
+            ),
           ),
-          if (visibleClasses.isEmpty)
-            const Center(child: Text("No classes available"))
-          else
-            ...visibleClasses.map((service) {
-              final id = service['id']!;
-              final name = service['name']!;
-              final isSelected = widget.controller.schedule.selectedServices.contains(id);
-              return CheckboxListItem(
-                title: name,
-                isSelected: isSelected,
-                isDisabled: !widget.controller.schedule.isAvailable,
-                onChanged: (checked) {
-                  if (widget.controller.schedule.isAvailable) {
-                    setState(() {
-                      widget.controller.toggleService(id);
-                    });
-                    widget.onChange(); // Notify parent to update button state
-                  }
-                },
-              );
-            }),
+          Opacity(
+            opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
+            child: Column(
+              children: [
+                if (visibleClasses.isEmpty)
+                  const Center(child: Text("No classes available"))
+                else
+                  ...visibleClasses.map((service) {
+                    final id = service['id']!;
+                    final name = service['name']!;
+                    final isSelected = widget.controller.schedule.selectedServices.contains(id);
+                    return CheckboxListItem(
+                      title: name,
+                      isSelected: isSelected,
+                      isDisabled: !widget.controller.schedule.isAvailable,
+                      onChanged: (checked) {
+                        if (widget.controller.schedule.isAvailable) {
+                          setState(() {
+                            widget.controller.toggleService(id);
+                          });
+                          widget.onChange(); // Notify parent to update button state
+                        }
+                      },
+                    );
+                  }),
+              ],
+            ),
+          ),
           if (classesOnly.length > 4) ...[
             const SizedBox(height: 8),
-            SecondaryButton(
-              onPressed: widget.controller.schedule.isAvailable 
-                ? () {
-                    setState(() {
-                      showAllClasses = !showAllClasses;
-                    });
-                  }
-                : null, 
-              text: showAllClasses ? AppTranslationsDelegate.of(context).text("see_less") : AppTranslationsDelegate.of(context).text("see_all")
+            Opacity(
+              opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
+              child: SecondaryButton(
+                onPressed: widget.controller.schedule.isAvailable 
+                  ? () {
+                      setState(() {
+                        showAllClasses = !showAllClasses;
+                      });
+                    }
+                  : null, 
+                text: showAllClasses ? AppTranslationsDelegate.of(context).text("see_less") : AppTranslationsDelegate.of(context).text("see_all")
+              ),
             ),
           ],
         ],
         
         const SizedBox(height: 24),
         
-        // Integrated LocationAndSchedule content
+        // Integrated LocationAndSchedule content - with opacity when unavailable
         // Location selector removed
         const SizedBox(height: 18),
-        IgnorePointer(
-          ignoring: !widget.controller.schedule.isAvailable,
-          child: ScheduleSelector(
-            controller: widget.controller,
-            dropdownContent: widget.locations,
-            initialSelectedDays: widget.initialSelectedDays,
-            initialTimeRanges: widget.initialTimeRanges,
-            initialSelectedLocations: widget.initialSelectedLocations,
-            onScheduleChanged: widget.onScheduleChanged,
-            onScheduleUpdated: widget.onChange, // Notify parent when schedule changes
+        Opacity(
+          opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
+          child: IgnorePointer(
+            ignoring: !widget.controller.schedule.isAvailable,
+            child: ScheduleSelector(
+              controller: widget.controller,
+              dropdownContent: widget.locations,
+              initialSelectedDays: widget.initialSelectedDays,
+              initialTimeRanges: widget.initialTimeRanges,
+              initialSelectedLocations: widget.initialSelectedLocations,
+              onScheduleChanged: widget.onScheduleChanged,
+              onScheduleUpdated: widget.onChange, // Notify parent when schedule changes
+            ),
           ),
         ),
         const SizedBox(height: 24),

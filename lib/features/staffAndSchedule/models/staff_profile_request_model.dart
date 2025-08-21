@@ -11,12 +11,10 @@ class StaffProfile {
   final List<String>? locationIds;
   final File? profileImage;
   final bool? isAvailable;
-  final String userId; 
   String? profilePhotoUrl;
 
   StaffProfile({
     this.id,
-    required this.userId,
     required this.name,
     required this.email,
     required this.phoneNumber,
@@ -30,7 +28,7 @@ class StaffProfile {
 
   Map<String, dynamic> toJson() {
     return {
-      'user_id': userId,
+      'id': id,
       'name': name,
       'email': email,
       'phone_number': phoneNumber,

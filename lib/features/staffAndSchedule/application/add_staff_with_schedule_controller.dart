@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
@@ -42,10 +43,9 @@ class AddStaffWithScheduleController {
       }
       final schedule = scheduleController.getSchedulePayload();
       final payload = _buildPayload(staffProfile, schedule);
-
       print('Submitting staff with schedule: $payload');
-      // TODO: Replace with your API call
-      // await APIRepository.submitStaffWithSchedule(payload);
+      
+      await APIRepository.addStaffWithSchedule(payload);
       await Future.delayed(const Duration(seconds: 1)); // Simulate network
       onSuccess?.call('Staff and schedule saved successfully');
     } catch (e) {

@@ -74,6 +74,23 @@ class APIRepository {
     }
   }
 
+  //...........................Add staff with schedule..............................
+  static Future<Response> addStaffWithSchedule(
+    Map<String, dynamic> payload
+  ) async {
+    try {
+      final response = await _dio.post(
+        addStaffWithScheduleEndpoint,
+        data: payload
+      );
+      print(response);
+      return response;
+    } catch (e) {
+      print("Error while creating the staff and scheudle: $e");
+      throw Exception("Failed to create staff and schedule: $e");
+    }
+  }
+
   //..........................Fetch User Data for Staff Registration..................
 
   static Future<Response> getUserDataForStaffRegistration() async {
