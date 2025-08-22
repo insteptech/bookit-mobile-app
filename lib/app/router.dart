@@ -23,6 +23,8 @@ import 'package:bookit_mobile_app/features/menu/presentation/business_informatio
 import 'package:bookit_mobile_app/features/menu/presentation/client_web_app_screen.dart';
 import 'package:bookit_mobile_app/features/menu/presentation/membership_status_screen.dart';
 import 'package:bookit_mobile_app/features/menu/presentation/staff_members_screen.dart';
+import 'package:bookit_mobile_app/features/menu/presentation/staff_category_selection_screen.dart';
+import 'package:bookit_mobile_app/features/menu/presentation/staff_category_screen.dart';
 import 'package:bookit_mobile_app/features/menu/presentation/terms_and_conditions_screen.dart';
 import 'package:bookit_mobile_app/features/offerings/presentation/add_service_details.dart';
 import 'package:bookit_mobile_app/features/offerings/presentation/edit_offerings_screen.dart';
@@ -125,6 +127,7 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         final isClassParam = state.uri.queryParameters['isClass'];
         final buttonModeParam = state.uri.queryParameters['buttonMode'];
+        final categoryId = state.uri.queryParameters['categoryId'];
         // Handle isClass parameter - null if not provided, bool if provided
         bool? isClass;
         if (isClassParam != null) {
@@ -139,6 +142,7 @@ final GoRouter router = GoRouter(
         return AddStaffScreen(
           isClass: isClass, 
           buttonMode: buttonMode,
+          categoryId: categoryId,
         );
       }
     ),
@@ -147,6 +151,25 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: "/staff_list",
       builder: (context, state) => GetStaffListScreen(),
+    ),
+
+    //..................staff category selection screen..............
+    GoRoute(
+      path: "/staff_category_selection",
+      builder: (context, state) => const StaffCategorySelectionScreen(),
+    ),
+
+    //..................staff category screen..............
+    GoRoute(
+      path: "/staff_category",
+      builder: (context, state) {
+        final data = state.extra as Map<String, dynamic>;
+        return StaffCategoryScreen(
+          categoryId: data['categoryId'],
+          categoryName: data['categoryName'],
+          staffMembers: data['staffMembers'],
+        );
+      },
     ),
 
     //................set staff schedule.............
@@ -195,7 +218,7 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         final categoryId = state.uri.queryParameters['categoryId'] ?? '';
         final categoryName = state.uri.queryParameters['categoryName'] ?? '';
-        final isClass = state.uri.queryParameters['isClass'] == false;
+        final isClass = state.uri.queryParameters['isClass'] == 'true';
         return SelectServicesScreen(
           categoryId: categoryId,
           categoryName: categoryName,

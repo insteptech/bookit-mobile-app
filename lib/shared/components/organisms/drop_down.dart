@@ -116,27 +116,30 @@ class _DropDownState extends State<DropDown> {
                 BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 2, offset: const Offset(0, 2)),
               ],
             ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: widget.items.length,
-              separatorBuilder: (_, __) => Divider(
-                color: borderColor,
-                height: 1,
-              ),
-              itemBuilder: (context, index) {
-                final item = widget.items[index];
-                return ListTile(
-                  title: Text(
-                    item['name'],
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: theme.colorScheme.onSurface,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: widget.items.length,
+                separatorBuilder: (_, __) => Divider(
+                  color: borderColor,
+                  height: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final item = widget.items[index];
+                  return ListTile(
+                    title: Text(
+                      item['name'],
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
-                  ),
-                  onTap: () => _selectItem(item),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  dense: true,
-                );
-              },
+                    onTap: () => _selectItem(item),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    dense: true,
+                  );
+                },
+              ),
             ),
           ),
       ],

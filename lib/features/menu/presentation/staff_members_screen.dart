@@ -110,14 +110,40 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
   }
 
   void _onCategoryTap(StaffCategory category) {
-    // Could navigate to category-specific view
-    // For now, we'll just show a snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${category.categoryName} category tapped'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    // Navigate to category-specific staff view
+    context.push("/staff_category", extra: {
+      'categoryId': category.categoryId,
+      'categoryName': category.categoryName,
+      'staffMembers': category.staffMembers,
+    });
+  }
+
+  void _handleAddMember() {
+    if (staffData == null || staffData!.categories.isEmpty) {
+      // No categories available, show error
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No categories available. Please add a category first.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (staffData!.categories.length == 1) {
+      // Single category - navigate directly to add staff
+      final category = staffData!.categories.first;
+      final bool isClass = category.staffMembers.isNotEmpty 
+          ? category.staffMembers.first.forClass 
+          : false;
+      
+      context.push(
+        "/add_staff/?buttonMode=saveOnly&categoryId=${category.categoryId}&isClass=$isClass"
+      );
+    } else {
+      // Multiple categories - navigate to category selection screen
+      context.push("/staff_category_selection");
+    }
   }
 
   Widget _buildContent() {
@@ -224,9 +250,7 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
       placeHeaderWidgetAfterSubtitle: false,
       content: _buildContent(),
       buttonText: "Add member",
-      onButtonPressed: () {
-        context.push("/add_staff/?buttonMode=saveOnly");
-      },
+      onButtonPressed: _handleAddMember,
     );
   }
 }

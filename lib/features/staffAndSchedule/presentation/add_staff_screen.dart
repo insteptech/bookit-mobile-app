@@ -24,6 +24,7 @@ class AddStaffScreen extends StatefulWidget {
   final bool? isClass;
   final String? staffId;
   final String? staffName;
+  final String? categoryId;
   final StaffScreenButtonMode buttonMode;
 
   const AddStaffScreen({
@@ -31,6 +32,7 @@ class AddStaffScreen extends StatefulWidget {
     this.isClass,
     this.staffId,
     this.staffName,
+    this.categoryId,
     this.buttonMode = StaffScreenButtonMode.continueToSchedule, // Default mode
   });
 

@@ -33,9 +33,9 @@ class StaffCategorySection extends StatelessWidget {
                   style: AppTypography.headingSm,
                 ),
                 const Icon(
-                  Icons.arrow_forward,
-                  size: 20,
-                  color: Colors.grey,
+                  Icons.keyboard_arrow_right,
+                  size: 24,
+                  color: Color(0xFF202733),
                 ),
               ],
             ),
