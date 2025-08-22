@@ -109,9 +109,9 @@ class MenuScreenScaffold extends StatelessWidget {
               
               // Optional bottom button
               if (buttonText != null && onButtonPressed != null) ...[
-                SizedBox(height: AppConstants.bottomButtonSpacing),
+                // SizedBox(height: AppConstants.bottomButtonSpacing),
                 PrimaryButton(onPressed: onButtonPressed, isDisabled: isButtonDisabled ?? false, text: buttonText!),
-                SizedBox(height: AppConstants.bottomButtonMargin),
+                // SizedBox(height: AppConstants.bottomButtonMargin),
               ],
             ],
           ),

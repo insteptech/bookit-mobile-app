@@ -2,10 +2,12 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/api_prov
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
+import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 
 class AddStaffWithScheduleController {
   final AddStaffController staffController;
   final StaffScheduleController scheduleController;
+  final ActiveBusinessService _activeBusinessService = ActiveBusinessService();
 
   bool isLoading = false;
   Function(String message)? onSuccess;
@@ -42,7 +44,7 @@ class AddStaffWithScheduleController {
         return;
       }
       final schedule = scheduleController.getSchedulePayload();
-      final payload = _buildPayload(staffProfile, schedule);
+      final payload = await _buildPayload(staffProfile, schedule);
       print('Submitting staff with schedule: $payload');
       
       await APIRepository.addStaffWithSchedule(payload);
@@ -56,10 +58,95 @@ class AddStaffWithScheduleController {
     }
   }
 
-  Map<String, dynamic> _buildPayload(StaffProfile staff, Map<String, dynamic> schedule) {
-    return {
-      'staff': staff.toJson(),
-      'schedule': schedule,
+  Future<Map<String, dynamic>> _buildPayload(StaffProfile staff, Map<String, dynamic> schedule) async {
+    final businessId = await _activeBusinessService.getActiveBusiness();
+    
+    // Transform schedule data to match backend expectations
+    final daysSchedule = (schedule['days_schedule'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final services = (schedule['services'] as List?)?.cast<String>() ?? [];
+    
+    // Group schedules by location
+    Map<String, List<Map<String, String>>> locationSchedules = {};
+    
+    for (var daySchedule in daysSchedule) {
+      // Handle location data which might be nested in the daySchedule map
+      String locationId = '';
+      
+      if (daySchedule is Map<String, dynamic>) {
+        // If location is a nested map
+        if (daySchedule['location'] is Map) {
+          locationId = (daySchedule['location'] as Map)['id']?.toString() ?? '';
+        } else if (daySchedule['location'] is String) {
+          locationId = daySchedule['location'] as String;
+        }
+      }
+      
+      if (locationId.isNotEmpty) {
+        locationSchedules[locationId] ??= [];
+        locationSchedules[locationId]!.add({
+          'day': daySchedule['day']?.toString().toLowerCase() ?? '',
+          'from': _convertToAmPmFormat(daySchedule['from']?.toString() ?? ''),
+          'to': _convertToAmPmFormat(daySchedule['to']?.toString() ?? ''),
+        });
+      }
+    }
+    
+    // Build locations array for schedules
+    List<Map<String, dynamic>> locations = [];
+    for (var entry in locationSchedules.entries) {
+      locations.add({
+        'id': entry.key,
+        'services': services,
+        'days_schedule': entry.value,
+      });
+    }
+    
+    // Build the final payload
+    Map<String, dynamic> payload = {
+      'name': staff.name,
+      'email': staff.email,
+      'phone_number': staff.phoneNumber,
+      'gender': staff.gender,
+      'category_id': staff.categoryIds,
+      'schedules': {
+        'locations': locations,
+      },
     };
+    
+    // Add business_id if available
+    if (businessId != null) {
+      payload['business_id'] = businessId;
+    }
+    
+    // Add id if it's an update (staff has existing id)
+    if (staff.id != null) {
+      payload['id'] = staff.id;
+    }
+    
+    return payload;
+  }
+  
+  String _convertToAmPmFormat(String time24) {
+    if (time24.isEmpty) return '';
+    
+    try {
+      final parts = time24.split(':');
+      if (parts.length < 2) return time24;
+      
+      int hour = int.parse(parts[0]);
+      final minute = parts[1];
+      
+      if (hour == 0) {
+        return '12:$minute AM';
+      } else if (hour < 12) {
+        return '$hour:$minute AM';
+      } else if (hour == 12) {
+        return '12:$minute PM';
+      } else {
+        return '${hour - 12}:$minute PM';
+      }
+    } catch (e) {
+      return time24; // Return original if conversion fails
+    }
   }
 }
