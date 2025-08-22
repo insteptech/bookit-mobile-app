@@ -114,6 +114,24 @@ class APIRepository {
     }
   }
 
+  //............................get services and categories of the business.............
+  static Future<Response> getServicesAndCategoriesOfBusiness(String categoryId) async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final String fetchUrl =
+          getServicesAndCategoriesOfBusinessEndpoint(businessId, categoryId);
+      final response = await _dio.get(fetchUrl); 
+            //        // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getServicesAndCategoriesOfBusiness:\n$prettyJson");
+      return response;
+    } catch (e) {
+      throw Exception("Failed to fetch services and categories: ${e.toString()}");
+    }
+  }
+
   //...................................Fetch Staff List................................
   static Future<Response> getStaffList() async {
     try {

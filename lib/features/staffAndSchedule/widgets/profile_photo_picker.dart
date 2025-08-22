@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 
 class ProfilePhotoPicker extends StatefulWidget {
   final VoidCallback? onImageChanged;
@@ -33,57 +35,51 @@ class ProfilePhotoPickerState extends State<ProfilePhotoPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: _pickImage,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: theme.colorScheme.surface,
-                  backgroundImage:
-                      profileImage != null ? FileImage(profileImage!) : null,
-                  child:
-                      profileImage == null
-                          ? const Icon(Icons.person, size: 32)
-                          : null,
-                ),
-                if(profileImage == null)
-                Positioned(
-                  bottom: 12,
-                  right: 0,
-                  left: 0,
-                  child: Center(
-                    child: Text(
-                      "Photo",
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                if(profileImage == null)
-                Positioned(
-                  top: 11,
-                  right: 0,
-                  left: 0,
-                  child: Icon(
-                    Icons.upload_outlined,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: _pickImage,
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              image: AssetImage('assets/images/profile_picker_background.png'),
+              fit: BoxFit.cover,
             ),
           ),
-        ],
+          child: profileImage != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Image.file(
+                  profileImage!,
+                  fit: BoxFit.cover,
+                  width: 56,
+                  height: 56,
+                ),
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/actions/share.svg',
+                    width: 18,
+                    height: 18,
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Photo",
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Campton',
+                    ),
+                  ),
+                ],
+              ),
+        ),
       ),
     );
   }

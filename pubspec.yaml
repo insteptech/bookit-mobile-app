@@ -55,6 +55,7 @@ flutter:
     - assets/locale/
     - assets/images/logo.svg
     - assets/images/background.jpeg
+    - assets/images/profile_picker_background.png
     - assets/icons/apple.svg
     - assets/icons/facebook.svg
     - assets/icons/google.svg

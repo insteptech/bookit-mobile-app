@@ -205,7 +205,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
         Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Text(
-            "• ${category['name']}",
+            "• ${category['id']}",
             style: AppTypography.bodyMedium,
           ),
         ),

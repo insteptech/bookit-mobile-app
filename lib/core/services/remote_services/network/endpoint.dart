@@ -142,3 +142,7 @@ String getServiceDetailsByIdEndpoint(String serviceId) =>
 
 
 String addStaffWithScheduleEndpoint = "$baseUrl/profile/staff/add-with-schedule";
+
+//..............get services and categories of the busines
+String getServicesAndCategoriesOfBusinessEndpoint(String businessId, String categoryId) =>
+    "$baseUrl/business/$businessId/services/comprehensive?categoryId=$categoryId";
