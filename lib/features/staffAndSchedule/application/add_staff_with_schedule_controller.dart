@@ -73,11 +73,14 @@ class AddStaffWithScheduleController {
       String locationId = '';
       
       if (daySchedule is Map<String, dynamic>) {
-        // If location is a nested map
+        // If location is a nested map, extract the ID
         if (daySchedule['location'] is Map) {
           locationId = (daySchedule['location'] as Map)['id']?.toString() ?? '';
         } else if (daySchedule['location'] is String) {
-          locationId = daySchedule['location'] as String;
+          final locationString = daySchedule['location'] as String;
+          // Parse the string to extract the ID using regex
+          final idMatch = RegExp(r'id:\s*([^,}]+)').firstMatch(locationString);
+          locationId = idMatch?.group(1)?.trim() ?? '';
         }
       }
       
@@ -99,8 +102,11 @@ class AddStaffWithScheduleController {
         'services': services,
         'days_schedule': entry.value,
       });
-    }
+      }
     
+    // Extract location IDs as strings from the locationSchedules keys
+    List<String> locationIds = locationSchedules.keys.toList();
+
     // Build the final payload
     Map<String, dynamic> payload = {
       'name': staff.name,
@@ -108,6 +114,7 @@ class AddStaffWithScheduleController {
       'phone_number': staff.phoneNumber,
       'gender': staff.gender,
       'category_id': staff.categoryIds,
+      'location_id': locationIds,
       'schedules': {
         'locations': locations,
       },

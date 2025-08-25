@@ -19,6 +19,7 @@ class AddMemberForm extends StatefulWidget {
   final String? initialPhone;
   final String? initialGender;
   final List<String>? initialCategoryIds;
+  final String? initialId;
 
   const AddMemberForm({
     super.key,
@@ -31,6 +32,7 @@ class AddMemberForm extends StatefulWidget {
     this.initialPhone,
     this.initialGender,
     this.initialCategoryIds,
+    this.initialId,
   });
 
   @override
@@ -46,6 +48,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
   final _genderSelectorKey = GlobalKey<GenderSelectorState>();
 
   Set<String> selectedCategoryIds = {};
+  String? _currentGender;
   final BusinessCategoriesProvider _categoriesProvider = BusinessCategoriesProvider.instance;
 
   // Location selector variables (integrated)
@@ -69,16 +72,45 @@ class _AddMemberFormState extends State<AddMemberForm> {
     _setupSelectedCategories();
     
     // Initialize controllers with preserved values
-    _nameController.text = widget.initialName ?? '';
-    _emailController.text = widget.initialEmail ?? '';
-    _phoneController.text = widget.initialPhone ?? '';
+    _updateControllerValues();
     
     _nameController.addListener(_onDataChanged);
     _emailController.addListener(_onDataChanged);
     _phoneController.addListener(_onDataChanged);
   }
 
+  @override
+  void didUpdateWidget(AddMemberForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Update controllers if initial values have changed
+    if (oldWidget.initialName != widget.initialName ||
+        oldWidget.initialEmail != widget.initialEmail ||
+        oldWidget.initialPhone != widget.initialPhone ||
+        oldWidget.initialGender != widget.initialGender ||
+        oldWidget.initialCategoryIds != widget.initialCategoryIds ||
+        oldWidget.initialId != widget.initialId) {
+      _updateControllerValues();
+      _setupSelectedCategories(); // Re-setup categories if they changed
+    }
+  }
+
+  void _updateControllerValues() {
+    _nameController.text = widget.initialName ?? '';
+    _emailController.text = widget.initialEmail ?? '';
+    _phoneController.text = widget.initialPhone ?? '';
+    _currentGender = widget.initialGender;
+    
+    // Trigger onDataChanged to update the parent
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onDataChanged();
+    });
+  }
+
   void _setupSelectedCategories() {
+    // Clear existing selections
+    selectedCategoryIds.clear();
+    
     // Use initial category IDs if provided (for prefilled data)
     if (widget.initialCategoryIds != null && widget.initialCategoryIds!.isNotEmpty) {
       selectedCategoryIds.addAll(widget.initialCategoryIds!);
@@ -93,14 +125,18 @@ class _AddMemberFormState extends State<AddMemberForm> {
   void _onDataChanged() {
     if (widget.onDataChanged != null) {
       final profileImage = _profilePickerKey.currentState?.selectedImage;
-      final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? '';
+      // Try to get gender from the key first, then fallback to stored current gender
+      final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? _currentGender ?? '';
+      
+      // Update stored gender
+      _currentGender = gender;
 
       // Ensure categories are auto-selected based on isClass
       _updateSelectedCategories();
 
       widget.onDataChanged!(
         StaffProfile(
-          id: '',
+          id: widget.initialId,
           name: _nameController.text,
           email: _emailController.text,
           phoneNumber: _phoneController.text,
@@ -199,6 +235,36 @@ class _AddMemberFormState extends State<AddMemberForm> {
   }
 
   Widget _buildCategoryDisplay() {
+    // If we have prefilled category IDs, show them
+    if (widget.initialCategoryIds != null && widget.initialCategoryIds!.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: widget.initialCategoryIds!.map((categoryId) {
+          // Try to find the category name from the provider
+          final allCategories = _categoriesProvider.categoriesForUI;
+          Map<String, dynamic>? category;
+          
+          try {
+            category = allCategories.firstWhere(
+              (cat) => cat['id'].toString() == categoryId,
+            );
+          } catch (e) {
+            // Category not found, create a fallback
+            category = <String, dynamic>{'id': categoryId, 'name': 'Category $categoryId'};
+          }
+          
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              "• ${category['name'] ?? 'Unknown Category'}",
+              style: AppTypography.bodyMedium,
+            ),
+          );
+        }).toList(),
+      );
+    }
+    
+    // Fall back to isClass-based selection
     if (widget.isClass == null) {
       return Text("No category specified", style: AppTypography.bodyMedium);
     }
@@ -218,7 +284,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
         Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Text(
-            "• ${category['id']}",
+            "• ${category['name']}",
             style: AppTypography.bodyMedium,
           ),
         ),

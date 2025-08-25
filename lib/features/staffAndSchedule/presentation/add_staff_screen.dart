@@ -117,15 +117,26 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         });
 
         // Create StaffProfile from API data and update controller
-        final List<String> categoryIds = (staffData['categories'] as List<dynamic>?)
-            ?.map((cat) => cat['id'].toString())
-            .toList() ?? [];
+        final List<String> categoryIds = [];
+        try {
+          if (staffData['categories'] != null && staffData['categories'] is List) {
+            final categories = staffData['categories'] as List<dynamic>;
+            for (final cat in categories) {
+              if (cat != null && cat is Map && cat['id'] != null) {
+                categoryIds.add(cat['id'].toString());
+              }
+            }
+          }
+        } catch (e) {
+          // Handle category parsing errors gracefully
+          debugPrint('Error parsing categories: $e');
+        }
         
         // Store category IDs for later use
         _formCategoryIds = categoryIds;
 
         final staffProfile = StaffProfile(
-          id: staffData['id'],
+          id: widget.staffId, // Use the widget.staffId for editing
           name: _formName,
           email: _formEmail,
           phoneNumber: _formPhone,
@@ -136,11 +147,13 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
         _controller.updateStaffProfile(staffProfile);
         
-        // Mark data as loaded
-        _isDataLoaded = true;
-
         // Map schedule data if available
         _prefillScheduleData(staffData['schedules'] ?? [], staffData['services'] ?? []);
+        
+        // Mark data as loaded and trigger rebuild
+        setState(() {
+          _isDataLoaded = true;
+        });
 
       } else {
         _handleError('Failed to load staff data');
@@ -446,12 +459,14 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
   Widget _buildStaffInfoContent() {
     return AddMemberForm(
+      key: ValueKey('staff_form_${_isDataLoaded ? _formName : 'empty'}'), // Force rebuild when data loads
       isClass: widget.isClass,
       initialName: _formName,
       initialEmail: _formEmail,
       initialPhone: _formPhone,
       initialGender: _formGender,
       initialCategoryIds: _isDataLoaded ? _formCategoryIds : null,
+      initialId: widget.staffId, // Pass the staff ID for editing
       onDataChanged: (profile) {
         // Update preserved state
         _formName = profile.name;
@@ -459,9 +474,9 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         _formPhone = profile.phoneNumber;
         _formGender = profile.gender;
         
-        // Ensure we preserve category IDs from prefilled data
+        // Ensure we preserve category IDs from prefilled data and staff ID
         final updatedProfile = StaffProfile(
-          id: profile.id,
+          id: profile.id ?? widget.staffId, // Ensure staff ID is preserved
           name: profile.name,
           email: profile.email,
           phoneNumber: profile.phoneNumber,
