@@ -48,6 +48,8 @@ class BusinessCategoriesProvider extends ChangeNotifier {
 
     try {
       final data = await APIRepository.getBusinessCategories();
+
+      print("Business categories: $data");
       
       // Parse the response
       final List<dynamic> categoriesData = data['data'] ?? [];

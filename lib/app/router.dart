@@ -127,7 +127,9 @@ final GoRouter router = GoRouter(
       builder: (context, state) {
         final isClassParam = state.uri.queryParameters['isClass'];
         final buttonModeParam = state.uri.queryParameters['buttonMode'];
-        final categoryId = state.uri.queryParameters['categoryId'];
+        final categoryId = state.uri.queryParameters['categoryId']; 
+        final staffId = state.uri.queryParameters['staffId']; 
+        final staffName = state.uri.queryParameters['staffName'];
         // Handle isClass parameter - null if not provided, bool if provided
         bool? isClass;
         if (isClassParam != null) {
@@ -143,6 +145,8 @@ final GoRouter router = GoRouter(
           isClass: isClass, 
           buttonMode: buttonMode,
           categoryId: categoryId,
+          staffId: staffId,
+          staffName: staffName,
         );
       }
     ),

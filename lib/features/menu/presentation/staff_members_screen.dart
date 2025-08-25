@@ -103,10 +103,16 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
 
   void _onStaffMemberTap(StaffMember staffMember) {
     // Navigate to staff member details or schedule
-    context.push("/set_schedule", extra: {
-      'staffId': staffMember.id,
-      'staffName': staffMember.name,
-    });
+    // context.push("/set_schedule", extra: {
+    //   'staffId': staffMember.id,
+    //   'staffName': staffMember.name,
+    // });
+    // context.push("/add_staff", extra: {
+    //   'staffId': staffMember.id,
+    //   'staffName': staffMember.name,
+    // });
+    context.push("/add_staff/?staffId=${staffMember.id}&staffName=${Uri.encodeComponent(staffMember.name)}");
+    
   }
 
   void _onCategoryTap(StaffCategory category) {

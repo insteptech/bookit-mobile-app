@@ -24,7 +24,7 @@ class AddStaffScreen extends StatefulWidget {
   final bool? isClass;
   final String? staffId;
   final String? staffName;
-  final String? categoryId;
+  final String? categoryId; 
   final StaffScreenButtonMode buttonMode;
 
   const AddStaffScreen({
@@ -86,16 +86,8 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
   void _setupAutoSelection() {
-    // Auto-select categories based on is_class property
-    if (widget.isClass != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
-        for (final category in targetCategories) {
-          _scheduleController.toggleService(category['id']);
-        }
-        setState(() {});
-      });
-    }
+    // Auto-selection is no longer needed since services are now fetched dynamically from API
+    // based on the selected categories. Users can manually select which services they want to offer.
   }
 
   @override

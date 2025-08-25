@@ -3,7 +3,6 @@ import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
-import 'package:bookit_mobile_app/features/staffAndSchedule/services/staff_service.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/schedule_selector.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
@@ -48,14 +47,50 @@ class _SetScheduleFormState extends State<AddStaffScheduleTab> {
   bool showAllServices = false;
   bool hasClasses = false;
   bool hasServices = false;
+  List<Map<String, dynamic>> _apiServices = [];
+  bool _isLoadingServices = false;
+  String? _servicesError;
 
   void _fetchServices() async {
+    if (widget.category.isEmpty) return;
+    
+    setState(() {
+      _isLoadingServices = true;
+      _servicesError = null;
+    });
+    
     try {
-      await APIRepository.getBusinessServiceCategories();
-      // This is a placeholder for future implementation
-      // Services are now provided by the dummy service
+      // Get the category ID from the first category
+      final categoryId = widget.category.first['id'];
+      final response = await APIRepository.getServicesAndCategoriesOfBusiness(categoryId);
+      
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        final List<dynamic> services = response.data['data']['services'] ?? [];
+        _apiServices = [];
+        
+        // Extract serviceDetails from each business service
+        for (var service in services) {
+          final List<dynamic> serviceDetails = service['serviceDetails'] ?? [];
+          for (var detail in serviceDetails) {
+            final businessService = service['businessService'];
+            final category = businessService['category'];
+            _apiServices.add({
+              'id': detail['id'],
+              'name': detail['name'],
+              'description': detail['description'],
+              'isClass': category['is_class'] ?? false,
+              'durations': detail['durations'] ?? [],
+            });
+          }
+        }
+      }
     } catch (e) {
-      // Handle error
+      _servicesError = 'Failed to load services: $e';
+    } finally {
+      setState(() {
+        _isLoadingServices = false;
+      });
+      _checkServiceTypes(); // Update service types after loading
     }
   }
 
@@ -67,48 +102,27 @@ class _SetScheduleFormState extends State<AddStaffScheduleTab> {
   }
 
   void _checkServiceTypes() {
-    // Check the filtered services instead of categories
-    final allServices = StaffService.getAllDummyServices();
-    final hasClassCategories = widget.category.any((cat) => cat['isClass'] == true);
-    final hasServiceCategories = widget.category.any((cat) => cat['isClass'] == false);
-    
-    List<Map<String, dynamic>> filteredServices = allServices;
-    
-    if (hasClassCategories && !hasServiceCategories) {
-      filteredServices = allServices.where((service) => service['isClass'] == true).toList();
-    } else if (hasServiceCategories && !hasClassCategories) {
-      filteredServices = allServices.where((service) => service['isClass'] == false).toList();
+    // Check the API services if available, otherwise fall back to categories
+    if (_apiServices.isNotEmpty) {
+      hasServices = _apiServices.any((service) => service['isClass'] == false);
+      hasClasses = _apiServices.any((service) => service['isClass'] == true);
+    } else {
+      // Fallback to category-based logic
+      final hasClassCategories = widget.category.any((cat) => cat['isClass'] == true);
+      final hasServiceCategories = widget.category.any((cat) => cat['isClass'] == false);
+      hasServices = hasServiceCategories;
+      hasClasses = hasClassCategories;
     }
-
-    hasServices = filteredServices.any((service) => service['isClass'] == false);
-    hasClasses = filteredServices.any((service) => service['isClass'] == true);
   }
 
   @override
   Widget build(BuildContext context) {
-
-    // For now, use the existing category approach but with filtered services from our dummy data
-    // In future, this should be replaced with actual API call that filters services by category
-    final allServices = StaffService.getAllDummyServices();
+    // Use API services if available, otherwise use empty list
+    final allServices = _apiServices;
     
-    // Filter services to match the type indicated by widget.category
-    // For simplicity, if we have categories marked as classes, show class services, otherwise show massage services
-    final hasClassCategories = widget.category.any((cat) => cat['isClass'] == true);
-    final hasServiceCategories = widget.category.any((cat) => cat['isClass'] == false);
-    
-    List<Map<String, dynamic>> filteredServices = allServices;
-    
-    if (hasClassCategories && !hasServiceCategories) {
-      // Only show class services
-      filteredServices = allServices.where((service) => service['isClass'] == true).toList();
-    } else if (hasServiceCategories && !hasClassCategories) {
-      // Only show regular services
-      filteredServices = allServices.where((service) => service['isClass'] == false).toList();
-    }
-
     // Services categorization
-    final servicesOnly = filteredServices.where((service) => service['isClass'] == false).toList();
-    final classesOnly = filteredServices.where((service) => service['isClass'] == true).toList();
+    final servicesOnly = allServices.where((service) => service['isClass'] == false).toList();
+    final classesOnly = allServices.where((service) => service['isClass'] == true).toList();
     final visibleServices = showAllServices ? servicesOnly : servicesOnly.take(4).toList();
     final visibleClasses = showAllClasses ? classesOnly : classesOnly.take(4).toList();
 
@@ -142,7 +156,18 @@ class _SetScheduleFormState extends State<AddStaffScheduleTab> {
         const SizedBox(height: 24),
         
         // Integrated ServicesOfferChecklistRow content - with opacity when unavailable
-        if (hasServices) ...[
+        if (_isLoadingServices) ...[
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+          const SizedBox(height: 16),
+        ] else if (_servicesError != null) ...[
+          Text(
+            _servicesError!,
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.error),
+          ),
+          const SizedBox(height: 16),
+        ] else if (hasServices) ...[
           Opacity(
             opacity: widget.controller.schedule.isAvailable ? 1.0 : 0.4,
             child: Text(
