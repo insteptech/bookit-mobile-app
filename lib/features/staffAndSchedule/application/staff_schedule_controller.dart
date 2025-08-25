@@ -106,4 +106,56 @@ class StaffScheduleController {
         .where((loc) => !usedLocationIds.contains(loc['id']))
         .toList();
   }
+
+  /// Prefills schedule data from API response
+  void prefillScheduleData({
+    required List<bool> selectedDays,
+    required Map<int, dynamic> timeRanges,
+    required List<dynamic> selectedLocations,
+    List<String> services = const [],
+  }) {
+    // Clear existing entries
+    entries.clear();
+    
+    // Convert the schedule data to LocationScheduleEntry format
+    List<String> dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    
+    // Group schedules by location
+    Map<String?, List<Map<String, String>>> locationSchedules = {};
+    
+    for (int i = 0; i < selectedDays.length; i++) {
+      if (selectedDays[i] && timeRanges.containsKey(i)) {
+        final timeRange = timeRanges[i];
+        final location = selectedLocations[i];
+        final locationId = location != null ? location['id']?.toString() : null;
+        
+        if (!locationSchedules.containsKey(locationId)) {
+          locationSchedules[locationId] = [];
+        }
+        
+        locationSchedules[locationId]!.add({
+          'day': dayNames[i],
+          'from': timeRange['from'] ?? '',
+          'to': timeRange['to'] ?? '',
+        });
+      }
+    }
+    
+    // Create LocationScheduleEntry for each location
+    for (var entry in locationSchedules.entries) {
+      final locationEntry = LocationScheduleEntry(
+        locationId: entry.key,
+        isAvailable: true,
+      );
+      locationEntry.daySchedules = entry.value;
+      // Add services to each location entry
+      locationEntry.selectedServices.addAll(services);
+      entries.add(locationEntry);
+    }
+    
+    // Ensure at least one entry exists for UI
+    if (entries.isEmpty) {
+      addNewEntry();
+    }
+  }
 }

@@ -148,4 +148,4 @@ String getServicesAndCategoriesOfBusinessEndpoint(String businessId, String cate
     "$baseUrl/business/$businessId/services/comprehensive?categoryId=$categoryId";
 
 String getStaffDetailsAndScheduleByIdEndpoint(String staffId, String businessId) =>
-    "$baseUrl/$businessId/$staffId/comprehensive";
+    "$baseUrl/profile/staff/$businessId/$staffId/comprehensive";

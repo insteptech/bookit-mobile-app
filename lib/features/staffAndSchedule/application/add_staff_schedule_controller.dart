@@ -54,4 +54,32 @@ class StaffScheduleController {
     return schedule.selectedServices.isNotEmpty &&
         schedule.daySchedules.isNotEmpty;
   }
+
+  /// Prefills schedule data from API response
+  void prefillScheduleData({
+    required List<bool> selectedDays,
+    required Map<int, dynamic> timeRanges,
+    required List<dynamic> selectedLocations,
+    List<String> services = const [],
+  }) {
+    // Convert the schedule data to the format expected by the controller
+    List<Map<String, String>> daySchedules = [];
+    
+    List<String> dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    
+    for (int i = 0; i < selectedDays.length; i++) {
+      if (selectedDays[i] && timeRanges.containsKey(i)) {
+        final timeRange = timeRanges[i];
+        daySchedules.add({
+          'day': dayNames[i],
+          'from': timeRange['from'] ?? '',
+          'to': timeRange['to'] ?? '',
+        });
+      }
+    }
+    
+    schedule.daySchedules = daySchedules;
+    schedule.selectedServices.addAll(services);
+    schedule.isAvailable = daySchedules.isNotEmpty;
+  }
 }

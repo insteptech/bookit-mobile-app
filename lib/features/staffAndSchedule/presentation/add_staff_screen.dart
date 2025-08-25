@@ -8,6 +8,7 @@ import 'package:bookit_mobile_app/core/providers/business_categories_provider.da
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_with_schedule_controller.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/add_staff_schedule_tab.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 // import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
@@ -54,6 +55,8 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   String _formEmail = '';
   String _formPhone = '';
   String? _formGender;
+  List<String> _formCategoryIds = [];
+  bool _isDataLoaded = false;
   
   // State preservation for schedule data
   List<bool> _scheduleSelectedDays = List.generate(7, (_) => false);
@@ -77,12 +80,127 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       onError: _handleError,
     );
     _setupAutoSelection();
+    
+    // Prefill data if staffId is provided
+    if (widget.staffId != null) {
+      // Use a post-frame callback to ensure widgets are ready
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _prefillStaffData();
+      });
+    }
   }
 
   void _fetchBusinessCategories() async {
     // if (!_categoriesProvider.hasCategories) {
       await _categoriesProvider.fetchBusinessCategories();
     // }
+  }
+
+  Future<void> _prefillStaffData() async {
+    try {
+      final response = await APIRepository.getStaffDetailsAndScheduleById(widget.staffId!);
+      
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        final staffList = response.data['data']['staff'] as List<dynamic>?;
+        if (staffList == null || staffList.isEmpty) {
+          _handleError('No staff data found');
+          return;
+        }
+        final staffData = staffList[0];
+        
+        // Map staff info from API response to form state
+        setState(() {
+          _formName = staffData['name'] ?? '';
+          _formEmail = staffData['email'] ?? '';
+          _formPhone = staffData['phone_number'] ?? '';
+          _formGender = staffData['gender'];
+        });
+
+        // Create StaffProfile from API data and update controller
+        final List<String> categoryIds = (staffData['categories'] as List<dynamic>?)
+            ?.map((cat) => cat['id'].toString())
+            .toList() ?? [];
+        
+        // Store category IDs for later use
+        _formCategoryIds = categoryIds;
+
+        final staffProfile = StaffProfile(
+          id: staffData['id'],
+          name: _formName,
+          email: _formEmail,
+          phoneNumber: _formPhone,
+          gender: _formGender ?? '',
+          categoryIds: categoryIds.isNotEmpty ? categoryIds : (widget.categoryId != null ? [widget.categoryId!] : []),
+          profilePhotoUrl: staffData['profile_photo_url'],
+        );
+
+        _controller.updateStaffProfile(staffProfile);
+        
+        // Mark data as loaded
+        _isDataLoaded = true;
+
+        // Map schedule data if available
+        _prefillScheduleData(staffData['schedules'] ?? [], staffData['services'] ?? []);
+
+      } else {
+        _handleError('Failed to load staff data');
+      }
+    } catch (e) {
+      _handleError('Error loading staff data: ${e.toString()}');
+    }
+  }
+
+  void _prefillScheduleData(List<dynamic> schedules, List<dynamic> services) {
+    if (schedules.isEmpty) return;
+
+    // Map schedule data to form state
+    Map<String, int> dayIndexMap = {
+      'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+      'friday': 4, 'saturday': 5, 'sunday': 6
+    };
+
+    // Reset schedule state
+    _scheduleSelectedDays = List.generate(7, (_) => false);
+    _scheduleTimeRanges = {};
+    _scheduleSelectedLocations = List.filled(7, null, growable: false);
+
+    // Process each schedule entry
+    for (var schedule in schedules) {
+      final dayName = schedule['day']?.toLowerCase();
+      final dayIndex = dayIndexMap[dayName];
+      
+      if (dayIndex != null) {
+        _scheduleSelectedDays[dayIndex] = true;
+        _scheduleTimeRanges[dayIndex] = {
+          'from': schedule['from'],
+          'to': schedule['to'],
+        };
+        
+        // Find and set location
+        final locationId = schedule['location_id']?.toString();
+        if (locationId != null) {
+          final location = _locations.firstWhere(
+            (loc) => loc['id'] == locationId,
+            orElse: () => {'id': locationId, 'name': schedule['location']['title'] ?? 'Unknown Location'},
+          );
+          _scheduleSelectedLocations[dayIndex] = location;
+        }
+      }
+    }
+
+    // Extract service IDs from the API response
+    List<String> serviceIds = services
+        .map((service) => service['service_id']?.toString() ?? '')
+        .where((id) => id.isNotEmpty)
+        .toList();
+
+    // Update schedule controller with prefilled data
+    _scheduleController.prefillScheduleData(
+      selectedDays: _scheduleSelectedDays,
+      timeRanges: _scheduleTimeRanges,
+      selectedLocations: _scheduleSelectedLocations,
+      services: serviceIds,
+    );
   }
 
   void _setupAutoSelection() {
@@ -333,13 +451,29 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       initialEmail: _formEmail,
       initialPhone: _formPhone,
       initialGender: _formGender,
+      initialCategoryIds: _isDataLoaded ? _formCategoryIds : null,
       onDataChanged: (profile) {
         // Update preserved state
         _formName = profile.name;
         _formEmail = profile.email;
         _formPhone = profile.phoneNumber;
         _formGender = profile.gender;
-        _controller.updateStaffProfile(profile);
+        
+        // Ensure we preserve category IDs from prefilled data
+        final updatedProfile = StaffProfile(
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          phoneNumber: profile.phoneNumber,
+          gender: profile.gender,
+          categoryIds: profile.categoryIds.isEmpty && _formCategoryIds.isNotEmpty 
+              ? _formCategoryIds 
+              : profile.categoryIds,
+          profileImage: profile.profileImage,
+          profilePhotoUrl: profile.profilePhotoUrl,
+        );
+        
+        _controller.updateStaffProfile(updatedProfile);
       },
     );
   }

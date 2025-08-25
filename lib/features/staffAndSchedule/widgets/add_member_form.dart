@@ -18,6 +18,7 @@ class AddMemberForm extends StatefulWidget {
   final String? initialEmail;
   final String? initialPhone;
   final String? initialGender;
+  final List<String>? initialCategoryIds;
 
   const AddMemberForm({
     super.key,
@@ -29,6 +30,7 @@ class AddMemberForm extends StatefulWidget {
     this.initialEmail,
     this.initialPhone,
     this.initialGender,
+    this.initialCategoryIds,
   });
 
   @override
@@ -77,8 +79,12 @@ class _AddMemberFormState extends State<AddMemberForm> {
   }
 
   void _setupSelectedCategories() {
-    // Auto-select categories based on isClass parameter
-    if (widget.isClass != null) {
+    // Use initial category IDs if provided (for prefilled data)
+    if (widget.initialCategoryIds != null && widget.initialCategoryIds!.isNotEmpty) {
+      selectedCategoryIds.addAll(widget.initialCategoryIds!);
+    } 
+    // Otherwise, auto-select categories based on isClass parameter
+    else if (widget.isClass != null) {
       final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
       selectedCategoryIds.addAll(targetCategories.map((cat) => cat['id'].toString()));
     }
@@ -107,8 +113,15 @@ class _AddMemberFormState extends State<AddMemberForm> {
   }
 
   void _updateSelectedCategories() {
-    // Always ensure the correct categories are selected based on isClass
-    if (widget.isClass != null) {
+    // If we have initial category IDs (prefilled data), preserve them
+    if (widget.initialCategoryIds != null && widget.initialCategoryIds!.isNotEmpty) {
+      // Keep the prefilled categories, don't override them
+      if (selectedCategoryIds.isEmpty) {
+        selectedCategoryIds.addAll(widget.initialCategoryIds!);
+      }
+    }
+    // Otherwise, ensure the correct categories are selected based on isClass
+    else if (widget.isClass != null) {
       selectedCategoryIds.clear();
       final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
       selectedCategoryIds.addAll(targetCategories.map((cat) => cat['id'].toString()));
