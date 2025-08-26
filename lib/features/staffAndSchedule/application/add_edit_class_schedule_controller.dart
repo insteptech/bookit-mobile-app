@@ -242,17 +242,11 @@ class AddEditClassScheduleController extends ChangeNotifier {
   }
 
   bool get canSubmit {
-    final hasTitle = titleController.text.trim().isNotEmpty;
-    final hasDuration = durationController.text.trim().isNotEmpty;
-    final hasPrice = priceController.text.trim().isNotEmpty;
-    final hasBusinessId = _businessId != null;
-    final hasSchedule = _hasAtLeastOneSchedule();
-    
-    print('DEBUG canSubmit - Title: $hasTitle, Duration: $hasDuration, Price: $hasPrice, BusinessId: $hasBusinessId, HasSchedule: $hasSchedule');
-    print('DEBUG schedulesByLocation: $_schedulesByLocation');
-    print('DEBUG classAvailabilityByLocation: $_classAvailabilityByLocation');
-    
-    return hasTitle && hasDuration && hasPrice && hasBusinessId && hasSchedule;
+    return titleController.text.trim().isNotEmpty &&
+           durationController.text.trim().isNotEmpty &&
+           priceController.text.trim().isNotEmpty &&
+           _businessId != null &&
+           _hasAtLeastOneSchedule();
   }
 
   bool get canProceedToSchedule {
@@ -264,19 +258,13 @@ class AddEditClassScheduleController extends ChangeNotifier {
 
   bool _hasAtLeastOneSchedule() {
     // Check if there's at least one location with class availability enabled and complete schedules
-    for (var entry in _schedulesByLocation.entries) {
+    return _schedulesByLocation.entries.any((entry) {
       final locationId = entry.key;
       final schedules = entry.value;
       final isAvailable = _classAvailabilityByLocation[locationId] ?? false;
-      final hasCompleteSchedule = _hasCompleteScheduleForLocation(locationId);
       
-      print('DEBUG Location $locationId: Available=$isAvailable, ScheduleCount=${schedules.length}, Complete=$hasCompleteSchedule');
-      
-      if (isAvailable && schedules.isNotEmpty && hasCompleteSchedule) {
-        return true;
-      }
-    }
-    return false;
+      return isAvailable && schedules.isNotEmpty && _hasCompleteScheduleForLocation(locationId);
+    });
   }
 
   bool _hasCompleteScheduleForLocation(String locationId) {

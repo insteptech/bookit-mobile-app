@@ -125,19 +125,19 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
 
           // Warning message for incomplete schedule details (show when class available but incomplete)
           if (widget.classAvailable && !_hasCompleteSchedule()) ...[
-            const SizedBox(height: 8),
+            // const SizedBox(height: 2),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                border: Border.all(color: Colors.orange.shade300),
+                color: Theme.of(context).scaffoldBackgroundColor,
+                border: Border.all(color: AppColors.error),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
                 'please complete the schedule',
                 style: AppTypography.bodyMedium.copyWith(
-                  color: Colors.orange.shade700,
+                  color: AppColors.error,
                   fontSize: 12,
                 ),
               ),
@@ -301,11 +301,7 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
                           key: ValueKey('${widget.locationId}_${widget.classAvailable}'),
                           staffMembers: widget.staffMembers,
                           classDurationMinutes: widget.classDurationMinutes,
-                          initialSchedules: () {
-                            final converted = _convertSchedulesToSelectorFormat(widget.schedules);
-                            print('DEBUG Passing initialSchedules to selector: $converted');
-                            return converted;
-                          }(),
+                          initialSchedules: _convertSchedulesToSelectorFormat(widget.schedules),
                           onScheduleUpdate: (schedules) {
                             if (widget.classAvailable) {
                               final convertedSchedules = _convertSchedulesFromSelectorFormat(schedules);
@@ -325,37 +321,26 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
   }
 
   bool _hasCompleteSchedule() {
-    print('DEBUG _hasCompleteSchedule for ${widget.locationId}: ${widget.schedules}');
-    
-    if (widget.schedules.isEmpty) {
-      print('DEBUG No schedules found');
-      return false;
-    }
-    
-    for (var schedule in widget.schedules) {
-      final hasDay = schedule['day'] != null && schedule['day'].toString().isNotEmpty;
-      final hasStartTime = schedule['start_time'] != null && schedule['start_time'].toString().isNotEmpty;
-      final hasEndTime = schedule['end_time'] != null && schedule['end_time'].toString().isNotEmpty;
-      final hasInstructors = schedule['instructor_ids'] != null && (schedule['instructor_ids'] as List).isNotEmpty;
-      
-      print('DEBUG Schedule validation - Day: $hasDay, StartTime: $hasStartTime, EndTime: $hasEndTime, Instructors: $hasInstructors');
-      
-      if (!hasDay || !hasStartTime || !hasEndTime || !hasInstructors) {
-        return false;
-      }
-    }
-    
-    return true;
+    // Check if there are any schedules and if they have all required fields
+    return widget.schedules.isNotEmpty && 
+           widget.schedules.every((schedule) => 
+             schedule['day'] != null && 
+             schedule['day'].toString().isNotEmpty &&
+             schedule['start_time'] != null && 
+             schedule['start_time'].toString().isNotEmpty &&
+             schedule['end_time'] != null &&
+             schedule['end_time'].toString().isNotEmpty &&
+             schedule['instructor_ids'] != null &&
+             (schedule['instructor_ids'] as List).isNotEmpty
+           );
   }
 
   List<Map<String, String>> _convertSchedulesToSelectorFormat(List<Map<String, dynamic>> schedules) {
-    print('DEBUG Converting TO selector format: $schedules');
-    
-    final converted = schedules.map((schedule) {
+    return schedules.map((schedule) {
       final instructorIds = schedule['instructor_ids'] as List<dynamic>? ?? [];
       final staffId = instructorIds.isNotEmpty ? instructorIds.first.toString() : '';
       
-      final result = {
+      return {
         'id': schedule['id']?.toString() ?? '',
         'day': schedule['day']?.toString() ?? '',
         'from': schedule['start_time']?.toString() ?? '',
@@ -364,18 +349,11 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
         'instructors': (schedule['instructor_names'] as List<dynamic>?)?.join(',') ?? '',
         'instructor_ids': (schedule['instructor_ids'] as List<dynamic>?)?.join(',') ?? '',
       };
-      
-      print('DEBUG Converted TO selector: $result');
-      return result;
     }).toList();
-    
-    return converted;
   }
 
   List<Map<String, dynamic>> _convertSchedulesFromSelectorFormat(List<Map<String, dynamic>> schedules) {
-    print('DEBUG Converting from selector format: $schedules');
-    
-    final converted = schedules.map((schedule) {
+    return schedules.map((schedule) {
       // The selector can use different field names, handle both formats
       final startTime = schedule['startTime'] ?? schedule['from'];
       final endTime = schedule['endTime'] ?? schedule['to'];
@@ -403,7 +381,7 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
         instructorNames = schedule['instructors'].toString().split(',').where((name) => name.isNotEmpty).toList();
       }
 
-      final result = {
+      return {
         'id': schedule['id'],
         'day': schedule['day'],
         'start_time': startTime,
@@ -413,11 +391,6 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
         if (widget.spotsLimitEnabled && widget.spotsController.text.isNotEmpty)
           'spots_available': int.tryParse(widget.spotsController.text),
       };
-      
-      print('DEBUG Converted schedule: $result');
-      return result;
     }).toList();
-    
-    return converted;
   }
 }

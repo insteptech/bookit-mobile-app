@@ -275,7 +275,7 @@ class ClassScheduleSelectorState extends State<ClassScheduleSelector> {
                 }
               });
             } catch (e) {
-              print('Error parsing time for $day: $from - $to, Error: $e');
+              // Skip invalid time format
             }
           }
         }
