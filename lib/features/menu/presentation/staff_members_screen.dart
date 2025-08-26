@@ -111,8 +111,8 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
     //   'staffId': staffMember.id,
     //   'staffName': staffMember.name,
     // });
-    context.push("/add_staff/?staffId=${staffMember.id}&staffName=${Uri.encodeComponent(staffMember.name)}");
-    
+    context.push("/add_staff/?isClass=${staffMember.forClass}&staffId=${staffMember.id}&staffName=${Uri.encodeComponent(staffMember.name)}");
+
   }
 
   void _onCategoryTap(StaffCategory category) {

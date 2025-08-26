@@ -143,6 +143,7 @@ class _AddMemberFormState extends State<AddMemberForm> {
           gender: gender,
           categoryIds: selectedCategoryIds.toList(),
           profileImage: profileImage,
+          forClass: widget.isClass == true,
         ),
       );
     }

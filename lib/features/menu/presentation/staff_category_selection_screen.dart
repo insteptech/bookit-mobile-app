@@ -19,6 +19,7 @@ class _StaffCategorySelectionScreenState extends State<StaffCategorySelectionScr
   bool isLoading = true;
   StaffCategoryData? staffData;
   String? errorMessage;
+  Map<String, bool> categoryIsClassMap = {};
 
   @override
   void initState() {
@@ -33,12 +34,37 @@ class _StaffCategorySelectionScreenState extends State<StaffCategorySelectionScr
         errorMessage = null;
       });
 
-      final response = await APIRepository.getAllStaffList();
+      final response = await APIRepository.getUserDataForStaffRegistration();
       
       if (response.data != null && response.data['success'] == true) {
-        final staffResponse = StaffCategoryResponse.fromJson(response.data);
+        // Convert the new API response to the existing StaffCategoryData format
+        final responseData = response.data;
+        final categoriesData = responseData['data']['level0_categories'] as List<dynamic>;
+        
+        // Create StaffCategory objects from level0_categories
+        final categories = categoriesData.map((cat) {
+          final categoryId = cat['id'] as String;
+          final isClass = cat['is_class'] as bool;
+          
+          // Store the is_class information for later use
+          categoryIsClassMap[categoryId] = isClass;
+          
+          return StaffCategory(
+            categoryName: cat['name'],
+            categoryId: categoryId,
+            staffMembers: [], // Empty since this is just for category selection
+          );
+        }).toList();
+        
+        final staffCategoryData = StaffCategoryData(
+          businessId: responseData['data']['business_id'],
+          totalCategories: responseData['data']['total_level0_categories'],
+          totalStaff: 0, // Not relevant for category selection
+          categories: categories,
+        );
+        
         setState(() {
-          staffData = staffResponse.data;
+          staffData = staffCategoryData;
           isLoading = false;
         });
       } else {
@@ -64,9 +90,7 @@ class _StaffCategorySelectionScreenState extends State<StaffCategorySelectionScr
 
   void _onAddMember() {
     if (selectedCategory != null) {
-      final bool isClass = selectedCategory!.staffMembers.isNotEmpty 
-          ? selectedCategory!.staffMembers.first.forClass 
-          : false;
+      final bool isClass = categoryIsClassMap[selectedCategory!.categoryId] ?? false;
       
       context.push(
         '/add_staff/?buttonMode=saveOnly&categoryId=${selectedCategory!.categoryId}&isClass=$isClass',
@@ -141,28 +165,19 @@ class _StaffCategorySelectionScreenState extends State<StaffCategorySelectionScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Please choose category in which you want to add the staff member or coach',
-          style: AppTypography.bodyMedium.copyWith(
-            color: Colors.grey[600],
-          ),
-        ),
-        const SizedBox(height: 24),
         Expanded(
           child: ListView.builder(
             itemCount: staffData!.categories.length,
             itemBuilder: (context, index) {
               final category = staffData!.categories[index];
               final isSelected = selectedCategoryId == category.categoryId;
-              final bool isClass = category.staffMembers.isNotEmpty 
-                  ? category.staffMembers.first.forClass 
-                  : false;
+              final bool isClass = categoryIsClassMap[category.categoryId] ?? false;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: RadioButton(
                   heading: category.categoryName,
-                  description: isClass ? 'For classes' : 'For services',
+                  description: isClass ? 'Add coach for ${category.categoryName}' : 'Add staff member for ${category.categoryName} service',
                   rememberMe: isSelected,
                   onChanged: (_) => _onCategorySelected(category),
                   bgColor: Theme.of(context).scaffoldBackgroundColor,
@@ -179,11 +194,12 @@ class _StaffCategorySelectionScreenState extends State<StaffCategorySelectionScr
   Widget build(BuildContext context) {
     return MenuScreenScaffold(
       title: "Add staff member",
+      subtitle: "Please choose category in which you want to add the staff member or coach",
       showTitle: true,
       showBackButton: true,
       content: _buildContent(),
       buttonText: selectedCategory != null 
-          ? (selectedCategory!.staffMembers.isNotEmpty && selectedCategory!.staffMembers.first.forClass 
+          ? (categoryIsClassMap[selectedCategory!.categoryId] == true 
               ? "Add coach" 
               : "Add member")
           : "Add member",

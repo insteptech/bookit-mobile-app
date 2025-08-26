@@ -115,6 +115,7 @@ class AddStaffWithScheduleController {
       'gender': staff.gender,
       'category_id': staff.categoryIds,
       'location_id': locationIds,
+      'for_class': staff.forClass ?? false,
       'schedules': {
         'locations': locations,
       },

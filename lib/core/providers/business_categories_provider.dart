@@ -47,15 +47,30 @@ class BusinessCategoriesProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await APIRepository.getBusinessCategories();
-
-      print("Business categories: $data");
+      final response = await APIRepository.getUserDataForStaffRegistration();
       
-      // Parse the response
-      final List<dynamic> categoriesData = data['data'] ?? [];
-      _businessCategories = categoriesData
-          .map((item) => BusinessCategoryModel.fromJson(item))
-          .toList();
+      // Parse the new response structure
+      final responseData = response.data;
+      if (responseData['success'] == true && responseData['data'] != null) {
+        final List<dynamic> categoriesData = responseData['data']['level0_categories'] ?? [];
+        
+        // Convert the new format to the existing BusinessCategoryModel format
+        _businessCategories = categoriesData.map((item) {
+          // Create a compatible structure for BusinessCategoryModel
+          final categoryData = {
+            'id': item['id'],
+            'category': {
+              'id': item['id'],
+              'name': item['name'],
+              'is_class': item['is_class'],
+              'related': [], // No related categories in the new format
+            }
+          };
+          return BusinessCategoryModel.fromJson(categoryData);
+        }).toList();
+      } else {
+        _businessCategories = [];
+      }
       
       _isLoading = false;
       notifyListeners();

@@ -11,6 +11,7 @@ class StaffProfile {
   final List<String>? locationIds;
   final File? profileImage;
   final bool? isAvailable;
+  final bool? forClass;
   String? profilePhotoUrl;
 
   StaffProfile({
@@ -23,6 +24,7 @@ class StaffProfile {
     this.locationIds,
     this.profileImage,
     this.isAvailable,
+    this.forClass,
     this.profilePhotoUrl,
   });
 
@@ -36,6 +38,7 @@ class StaffProfile {
       'category_id': categoryIds,
       'location_id': locationIds,
       'is_available': isAvailable,
+      'for_class': forClass,
     };
   }
 }

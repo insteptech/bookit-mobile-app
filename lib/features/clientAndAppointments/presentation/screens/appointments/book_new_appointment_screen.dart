@@ -6,6 +6,7 @@ import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/utils/time_utils.dart' as time_utils;
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/appointments/book_new_appointment_screen_2.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
 import 'package:bookit_mobile_app/shared/calendar/appointments_calendar_day_wise.dart';
@@ -99,14 +100,21 @@ class _BookNewAppointmentScreenState
 
   // Helper function to calculate time difference in minutes
   int getTimeDifferenceInMinutes(String startTime, String endTime) {
+    print('DEBUG TIME 1: getTimeDifferenceInMinutes called with startTime: "$startTime", endTime: "$endTime"');
     final startParts = startTime.split(':');
     final endParts = endTime.split(':');
+    print('DEBUG TIME 2: startParts: $startParts, endParts: $endParts');
 
-    final startMinutes =
-        int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
-    final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
-
-    return endMinutes - startMinutes;
+    try {
+      final startMinutes =
+          int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+      final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+      print('DEBUG TIME 3: startMinutes: $startMinutes, endMinutes: $endMinutes');
+      return endMinutes - startMinutes;
+    } catch (e) {
+      print('DEBUG TIME 4: ERROR in getTimeDifferenceInMinutes - $e');
+      rethrow;
+    }
   }
 
   // Generate time slots based on duration
@@ -115,14 +123,17 @@ class _BookNewAppointmentScreenState
     String endTime,
     int durationMinutes,
   ) {
+    print('DEBUG SLOTS 1: generateTimeSlots called with startTime: "$startTime", endTime: "$endTime", durationMinutes: $durationMinutes');
     List<Map<String, String>> slots = [];
 
-    // Convert UTC times to local times for slot generation
-    final startTimeLocal = _convertUtcTimeToLocalTimeString(startTime);
-    final endTimeLocal = _convertUtcTimeToLocalTimeString(endTime);
+    // Convert time strings to standard 24-hour format for slot generation
+    final startTimeLocal = _convertTimeToStandardFormat(startTime);
+    final endTimeLocal = _convertTimeToStandardFormat(endTime);
+    print('DEBUG SLOTS 2: After UTC conversion - startTimeLocal: "$startTimeLocal", endTimeLocal: "$endTimeLocal"');
 
     final totalMinutes = getTimeDifferenceInMinutes(startTimeLocal, endTimeLocal);
     final numberOfSlots = totalMinutes ~/ durationMinutes;
+    print('DEBUG SLOTS 3: totalMinutes: $totalMinutes, numberOfSlots: $numberOfSlots');
 
     String currentStartTime = startTimeLocal;
 
@@ -137,21 +148,31 @@ class _BookNewAppointmentScreenState
     return slots;
   }
 
-  // Helper function to convert UTC time string to local time string
-  String _convertUtcTimeToLocalTimeString(String utcTimeString) {
+  // Helper function to convert UTC time string to local time format
+  String _convertTimeToStandardFormat(String utcTimeString) {
     try {
-      final parts = utcTimeString.split(':');
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
+      TimeOfDay utcTimeOfDay;
       
-      // Create a UTC DateTime with today's date and the given time
+      // Check if the time string contains AM/PM (12-hour format)
+      if (utcTimeString.toLowerCase().contains('am') || utcTimeString.toLowerCase().contains('pm')) {
+        // Use existing parseTime function from time_utils to get UTC TimeOfDay
+        utcTimeOfDay = time_utils.parseTime(utcTimeString.toLowerCase().replaceAll(' ', ''));
+      } else {
+        // Handle 24-hour format
+        final parts = utcTimeString.split(':');
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        utcTimeOfDay = TimeOfDay(hour: hour, minute: minute);
+      }
+      
+      // Convert UTC TimeOfDay to local DateTime and back to time string
       final now = DateTime.now().toUtc();
       final utcDateTime = DateTime.utc(
         now.year,
-        now.month,
+        now.month, 
         now.day,
-        hour,
-        minute,
+        utcTimeOfDay.hour,
+        utcTimeOfDay.minute,
       );
       
       // Convert to local time
@@ -159,7 +180,8 @@ class _BookNewAppointmentScreenState
       
       return '${localDateTime.hour.toString().padLeft(2, '0')}:${localDateTime.minute.toString().padLeft(2, '0')}:00';
     } catch (e) {
-      return utcTimeString; // Fallback to original string
+      // Fallback to original string if parsing fails
+      return utcTimeString;
     }
   }
 
@@ -180,12 +202,19 @@ class _BookNewAppointmentScreenState
 
     if (selectedServiceData.isEmpty) return [];
 
+    print('DEBUG 9: Looking for duration match. selectedDuration: "$selectedDuration"');
+    print('DEBUG 10: Available durations in selectedServiceData: ${selectedServiceData['durations']}');
+    
     final selectedDurationData = (selectedServiceData['durations'] as List)
         .firstWhere(
-          (duration) =>
-              duration['duration_minutes'].toString() == selectedDuration,
+          (duration) {
+            final durationStr = duration['duration_minutes'].toString();
+            print('DEBUG 11: Comparing "$durationStr" == "$selectedDuration"');
+            return durationStr == selectedDuration;
+          },
           orElse: () => <String, Object>{},
         );
+    print('DEBUG 12: selectedDurationData result: $selectedDurationData');
 
     if (selectedDurationData.isEmpty) return [];
 
@@ -558,8 +587,9 @@ class _BookNewAppointmentScreenState
 
                           if (selected.isNotEmpty &&
                               selected['durations'] != null) {
+                            final durations = selected['durations'] as List;
                             durationOptions = List<String>.from(
-                              (selected['durations'] as List).map(
+                              durations.map(
                                 (d) => d['duration_minutes'].toString(),
                               ),
                             );
@@ -576,11 +606,11 @@ class _BookNewAppointmentScreenState
                       RadioButtonCustom(
                         key: ValueKey('duration-$selectedService'), 
                         options: durationOptions, 
-                        initialValue: selectedDuration.isNotEmpty ? selectedDuration : null,
+                        initialValue: selectedDuration.isNotEmpty ? selectedDuration.replaceAll(' min', '') : null,
                         textSuffix: " min",
                         onChanged: (value) {
                           setState(() {
-                            selectedDuration = value; 
+                            selectedDuration = value.replaceAll(' min', '');
                           });
                         },
                       ),

@@ -79,9 +79,35 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
             return MapEntry(key, value);
           } else if (value is Map) {
             // Handle case where TimeRange was serialized as Map
+            // Parse UTC time strings and convert to local TimeOfDay
+            TimeOfDay startTime = TimeOfDay.now();
+            TimeOfDay endTime = TimeOfDay.now();
+            
+            try {
+              if (value['from'] != null) {
+                startTime = _convertUtcTimeStringToLocalTimeOfDay(value['from']);
+              } else if (value['start'] != null) {
+                startTime = _convertUtcTimeStringToLocalTimeOfDay(value['start']);
+              }
+            } catch (e) {
+              // Fallback to current time if parsing fails
+              startTime = TimeOfDay.now();
+            }
+            
+            try {
+              if (value['to'] != null) {
+                endTime = _convertUtcTimeStringToLocalTimeOfDay(value['to']);
+              } else if (value['end'] != null) {
+                endTime = _convertUtcTimeStringToLocalTimeOfDay(value['end']);
+              }
+            } catch (e) {
+              // Fallback to current time if parsing fails
+              endTime = TimeOfDay.now();
+            }
+            
             return MapEntry(key, TimeRange(
-              start: value['start'] ?? TimeOfDay.now(),
-              end: value['end'] ?? TimeOfDay.now(),
+              start: startTime,
+              end: endTime,
             ));
           }
           return MapEntry(key, value);
@@ -92,6 +118,44 @@ class _ScheduleSelectorState extends State<ScheduleSelector> {
       for (int i = 0; i < selectedLocations.length && i < widget.initialSelectedLocations!.length; i++) {
         selectedLocations[i] = widget.initialSelectedLocations![i];
       }
+    }
+  }
+
+  /// Converts UTC time string to local TimeOfDay
+  /// Handles both 12-hour format (e.g., "10:25 AM") and 24-hour format (e.g., "10:25:00")
+  TimeOfDay _convertUtcTimeStringToLocalTimeOfDay(String utcTimeStr) {
+    try {
+      TimeOfDay utcTimeOfDay;
+      
+      // Check if the time string contains AM/PM (12-hour format)
+      if (utcTimeStr.toLowerCase().contains('am') || utcTimeStr.toLowerCase().contains('pm')) {
+        // Parse 12-hour format
+        utcTimeOfDay = parseTime(utcTimeStr.toLowerCase().replaceAll(' ', ''));
+      } else {
+        // Handle 24-hour format
+        final parts = utcTimeStr.split(':');
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        utcTimeOfDay = TimeOfDay(hour: hour, minute: minute);
+      }
+      
+      // Convert UTC TimeOfDay to local TimeOfDay
+      final now = DateTime.now().toUtc();
+      final utcDateTime = DateTime.utc(
+        now.year,
+        now.month,
+        now.day,
+        utcTimeOfDay.hour,
+        utcTimeOfDay.minute,
+      );
+      
+      // Convert to local time
+      final localDateTime = utcDateTime.toLocal();
+      
+      return TimeOfDay(hour: localDateTime.hour, minute: localDateTime.minute);
+    } catch (e) {
+      // Fallback to current time if parsing fails
+      return TimeOfDay.now();
     }
   }
 

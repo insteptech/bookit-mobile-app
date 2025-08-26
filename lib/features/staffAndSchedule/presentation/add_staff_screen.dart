@@ -143,6 +143,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           gender: _formGender ?? '',
           categoryIds: categoryIds.isNotEmpty ? categoryIds : (widget.categoryId != null ? [widget.categoryId!] : []),
           profilePhotoUrl: staffData['profile_photo_url'],
+          forClass: widget.isClass == true,
         );
 
         _controller.updateStaffProfile(staffProfile);
@@ -486,6 +487,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
               : profile.categoryIds,
           profileImage: profile.profileImage,
           profilePhotoUrl: profile.profilePhotoUrl,
+          forClass: widget.isClass == true,
         );
         
         _controller.updateStaffProfile(updatedProfile);
