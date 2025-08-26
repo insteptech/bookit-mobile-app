@@ -263,6 +263,16 @@ class ClassScheduleSelectorState extends State<ClassScheduleSelector> {
                   start: startTime,
                   end: endTime,
                 );
+                
+                // Initialize staff selection from initial schedules
+                final staffId = schedule['staffId'];
+                final instructorIds = schedule['instructor_ids'];
+                
+                if (staffId != null && staffId.toString().isNotEmpty) {
+                  selectedStaffPerDay[dayIndex] = [staffId.toString()];
+                } else if (instructorIds != null && instructorIds.toString().isNotEmpty) {
+                  selectedStaffPerDay[dayIndex] = instructorIds.toString().split(',').where((id) => id.isNotEmpty).toList();
+                }
               });
             } catch (e) {
               print('Error parsing time for $day: $from - $to, Error: $e');

@@ -94,10 +94,25 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
           )
           .toList();
         if (mounted) {
-         context.push('/add_offering_service_details', extra: {
-           'services': servicesPayload,
-           'categoryName': widget.categoryName,
-         });
+          // Check if any of the selected services are classes
+          final hasClassServices = servicesPayload.any((service) => service['is_class'] == true);
+          
+          if (hasClassServices) {
+            // If there are class services, navigate to the new class and schedule screen
+            // For now, we'll take the first class service as the primary one
+            final classService = servicesPayload.firstWhere((service) => service['is_class'] == true);
+            
+            context.push('/add_edit_class_and_schedule', extra: {
+              'serviceData': classService,
+              'isEditing': false,
+            });
+          } else {
+            // For regular services, use the existing flow
+            context.push('/add_offering_service_details', extra: {
+              'services': servicesPayload,
+              'categoryName': widget.categoryName,
+            });
+          }
         }
     } catch (e) {
       if (mounted) {
