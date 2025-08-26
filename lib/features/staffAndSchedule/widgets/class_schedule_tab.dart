@@ -72,6 +72,9 @@ class ClassScheduleTab extends StatelessWidget {
                     onClassAvailabilityToggle: (available) {
                       controller.setLocationClassAvailability(locationId, available);
                     },
+                    onLocationPricingUpdate: (enabled, price, packagePerson, packageAmount) {
+                      controller.updateLocationPricing(locationId, enabled, price, packagePerson, packageAmount);
+                    },
                   ),
                 );
               }).toList(),

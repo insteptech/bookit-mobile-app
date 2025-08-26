@@ -46,6 +46,10 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
           selectedIds.remove(child.id);
         }
       } else {
+        // If it's a class category, allow only one selection
+        if (widget.isClass) {
+          selectedIds.clear(); // Clear all existing selections
+        }
         selectedIds.add(id);
       }
     });

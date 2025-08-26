@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
+import 'dart:convert';
 
 class AddEditClassScheduleController extends ChangeNotifier {
   bool _isLoading = false;
@@ -26,6 +27,7 @@ class AddEditClassScheduleController extends ChangeNotifier {
   final Map<String, bool> _spotsLimitEnabledByLocation = {};
   final Map<String, TextEditingController> _spotsControllersByLocation = {};
   final Map<String, bool> _classAvailabilityByLocation = {};
+  final Map<String, Map<String, dynamic>> _locationPricingData = {};
   
   bool _spotsLimitEnabled = false;
   final TextEditingController spotsController = TextEditingController();
@@ -56,6 +58,7 @@ class AddEditClassScheduleController extends ChangeNotifier {
   Map<String, TextEditingController> get spotsControllersByLocation => _spotsControllersByLocation;
   Map<String, bool> get classAvailabilityByLocation => _classAvailabilityByLocation;
   bool get spotsLimitEnabled => _spotsLimitEnabled;
+  Map<String, Map<String, dynamic>> get locationPricingData => _locationPricingData;
 
   void setSpotsLimitEnabled(bool enabled) {
     _spotsLimitEnabled = enabled;
@@ -236,6 +239,16 @@ class AddEditClassScheduleController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateLocationPricing(String locationId, bool enabled, double? price, int? packagePerson, double? packageAmount) {
+    _locationPricingData[locationId] = {
+      'enabled': enabled,
+      'price': price,
+      'packagePerson': packagePerson,
+      'packageAmount': packageAmount,
+    };
+    notifyListeners();
+  }
+
   List<Map<String, dynamic>> getStaffForLocation(String locationId) {
     // Return all staff members since one user can be available at multiple locations
     return _allStaffMembers;
@@ -291,7 +304,14 @@ class AddEditClassScheduleController extends ChangeNotifier {
       
       // Print payload instead of calling API (backend route is in development)
       print('=== FINAL PAYLOAD FOR BACKEND ===');
-      print('Payload: $payload');
+      final jsonString = const JsonEncoder.withIndent('  ').convert(payload);
+      
+      // Split large JSON into chunks to avoid Flutter print truncation
+      const int chunkSize = 800;
+      for (int i = 0; i < jsonString.length; i += chunkSize) {
+        final end = (i + chunkSize < jsonString.length) ? i + chunkSize : jsonString.length;
+        print(jsonString.substring(i, end));
+      }
       print('=====================================');
       
       // Simulate API delay
@@ -342,7 +362,7 @@ class AddEditClassScheduleController extends ChangeNotifier {
       
       // Only include locations where class availability is enabled and has schedules
       if (isAvailable && schedules.isNotEmpty) {
-        final locationSchedule = {
+        final locationSchedule = <String, dynamic>{
           'location_id': locationId,
           'class_available': true,
           'schedules': schedules.map((schedule) => {
@@ -354,6 +374,21 @@ class AddEditClassScheduleController extends ChangeNotifier {
               'spots_available': schedule['spots_available'],
           }).toList(),
         };
+
+        // Add location-specific pricing if enabled
+        final pricingData = _locationPricingData[locationId];
+        if (pricingData != null && pricingData['enabled'] == true) {
+          if (pricingData['price'] != null) {
+            locationSchedule['price_override'] = pricingData['price'];
+          }
+          if (pricingData['packagePerson'] != null) {
+            locationSchedule['package_person_override'] = pricingData['packagePerson'];
+          }
+          if (pricingData['packageAmount'] != null) {
+            locationSchedule['package_amount_override'] = pricingData['packageAmount'];
+          }
+        }
+
         locationSchedules.add(locationSchedule);
       }
     }

@@ -18,6 +18,7 @@ class LocationScheduleAccordion extends StatefulWidget {
   final Function(List<Map<String, dynamic>>) onScheduleUpdate;
   final Function(bool) onSpotsLimitToggle;
   final Function(bool) onClassAvailabilityToggle;
+  final Function(bool, double?, int?, double?) onLocationPricingUpdate;
 
   const LocationScheduleAccordion({
     super.key,
@@ -32,6 +33,7 @@ class LocationScheduleAccordion extends StatefulWidget {
     required this.onScheduleUpdate,
     required this.onSpotsLimitToggle,
     required this.onClassAvailabilityToggle,
+    required this.onLocationPricingUpdate,
   });
 
   @override
@@ -51,6 +53,11 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
     super.initState();
     // Auto-expand if there are existing schedules
     _isExpanded = widget.schedules.isNotEmpty;
+    
+    // Add listeners to controllers to notify pricing changes
+    _priceOverrideController.addListener(_notifyPricingUpdate);
+    _packagePersonController.addListener(_notifyPricingUpdate);
+    _packageAmountController.addListener(_notifyPricingUpdate);
   }
 
   @override
@@ -59,6 +66,20 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
     _packagePersonController.dispose();
     _packageAmountController.dispose();
     super.dispose();
+  }
+
+  void _notifyPricingUpdate() {
+    final price = _priceOverrideController.text.isNotEmpty 
+        ? double.tryParse(_priceOverrideController.text) 
+        : null;
+    final packagePerson = _packagePersonController.text.isNotEmpty 
+        ? int.tryParse(_packagePersonController.text) 
+        : null;
+    final packageAmount = _packageAmountController.text.isNotEmpty 
+        ? double.tryParse(_packageAmountController.text) 
+        : null;
+    
+    widget.onLocationPricingUpdate(_locationPricingEnabled, price, packagePerson, packageAmount);
   }
 
   @override
@@ -210,6 +231,7 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
                                   setState(() {
                                     _locationPricingEnabled = value;
                                   });
+                                  _notifyPricingUpdate();
                                 } : null,
                                 activeColor: AppColors.primary,
                               ),
