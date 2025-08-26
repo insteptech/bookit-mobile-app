@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
-import 'dart:convert';
 
 class AddEditClassScheduleController extends ChangeNotifier {
   bool _isLoading = false;
@@ -302,24 +301,16 @@ class AddEditClassScheduleController extends ChangeNotifier {
     try {
       final payload = _buildSavePayload();
       
-      // Print payload instead of calling API (backend route is in development)
-      print('=== FINAL PAYLOAD FOR BACKEND ===');
-      final jsonString = const JsonEncoder.withIndent('  ').convert(payload);
+      // Call the API
+      final response = await APIRepository.saveClassAndSchedule(payload: [payload]);
       
-      // Split large JSON into chunks to avoid Flutter print truncation
-      const int chunkSize = 800;
-      for (int i = 0; i < jsonString.length; i += chunkSize) {
-        final end = (i + chunkSize < jsonString.length) ? i + chunkSize : jsonString.length;
-        print(jsonString.substring(i, end));
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _isSubmitting = false;
+        notifyListeners();
+        return true;
+      } else {
+        throw Exception('API call failed with status: ${response.statusCode}');
       }
-      print('=====================================');
-      
-      // Simulate API delay
-      await Future.delayed(const Duration(seconds: 1));
-
-      _isSubmitting = false;
-      notifyListeners();
-      return true;
     } catch (e) {
       _errorMessage = e.toString();
       _isSubmitting = false;

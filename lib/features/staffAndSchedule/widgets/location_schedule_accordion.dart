@@ -116,7 +116,7 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
                     const Icon(
                       Icons.location_on_outlined,
                       size: 20,
-                      color: AppColors.primary,
+                      // color: AppColors.primary,
                     ),
 
                     const SizedBox(width: AppConstants.smallContentSpacing),
@@ -127,7 +127,7 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
                         widget.locationTitle,
                         style: AppTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          // color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -136,7 +136,7 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
                     Icon(
                       _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
                       size: 20,
-                      color: AppColors.primary,
+                      // color: AppColors.primary,
                     ),
                   ],
                 ),
@@ -181,7 +181,7 @@ class _LocationScheduleAccordionState extends State<LocationScheduleAccordion> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(AppConstants.contentSpacing),
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

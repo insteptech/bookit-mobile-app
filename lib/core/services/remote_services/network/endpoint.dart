@@ -149,3 +149,8 @@ String getServicesAndCategoriesOfBusinessEndpoint(String businessId, String cate
 
 String getStaffDetailsAndScheduleByIdEndpoint(String staffId, String businessId) =>
     "$baseUrl/profile/staff/$businessId/$staffId/comprehensive";
+
+//................Save class and their shedule....................
+String saveClassAndScheduleEndpoint = "$baseUrl/classes/with-schedule";
+
+

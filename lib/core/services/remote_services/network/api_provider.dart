@@ -625,4 +625,24 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     }
   }
 
+  //...................Save classess and its schedule...............
+    static Future<Response> saveClassAndSchedule({
+    required List<Map<String, dynamic>> payload,
+  }) async {
+    try {
+      final response = await _dio.post(
+        saveClassAndScheduleEndpoint, 
+        data: payload,
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response;
+    } catch (e) {
+      throw Exception("Failed to save class and schedule: ${e.toString()}");
+    }
+  }
+
 }
