@@ -48,9 +48,6 @@ class _AppLanguageScreenState extends State<AppLanguageScreen> {
                   orElse: () => {'name': AppTranslationsDelegate.of(context).text("select_language")},
                 )['name'],
                 onChanged: (selectedLanguage) async {
-                  final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
-                  final locale = Locale(selectedLanguage['code'], selectedLanguage['code'] == 'ar' ? 'SA' : 'US');
-                  await languageProvider.changeLanguage(locale);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -59,6 +56,9 @@ class _AppLanguageScreenState extends State<AppLanguageScreen> {
                       ),
                     );
                   }
+                  final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+                  final locale = Locale(selectedLanguage['code'], selectedLanguage['code'] == 'ar' ? 'SA' : 'US');
+                  await languageProvider.changeLanguage(locale);
                 },
               ),
               const Spacer(),
