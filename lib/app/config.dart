@@ -2,9 +2,9 @@ class AppConfig {
   static String domainName =
       'https://spondan.com/spn23/chat'; //** Replace with your domain name
 
-  static String apiBaseUrl = 'http://192.168.1.35:5001/api/v1';
+  // static String apiBaseUrl = 'http://192.168.1.35:5001/api/v1';
   // static String apiBaseUrl = 'https://e53e8cb43b6d.ngrok-free.app/api/v1';
-  // static String apiBaseUrl = 'http://192.168.1.104:3007/api/v1';
+  static String apiBaseUrl = 'http://192.168.1.19:3007/api/v1';
 
   // static String apiBaseUrl = 'http://13.60.57.127/api/v1';
   // static String apiBaseUrl = 'https://api.bookit-app.com/api/v1';

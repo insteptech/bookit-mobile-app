@@ -27,7 +27,7 @@ class _BusinessPhotoGalleryScreenState extends State<BusinessPhotoGalleryScreen>
   List<GalleryPhoto> photos = [];
   
   // Toggle between empty and populated state for demo
-  bool showDemoPhotos = false;
+  bool showDemoPhotos = true;
   
   // Delete mode state
   bool isDeleteMode = false;
@@ -104,10 +104,74 @@ class _BusinessPhotoGalleryScreenState extends State<BusinessPhotoGalleryScreen>
           GestureDetector(
             onTap: _exitDeleteMode,
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
                 color: Colors.black.withValues(alpha: 0.3),
                 child: const SizedBox.expand(),
+              ),
+            ),
+          ),
+          
+        // Enlarged photo popup when in delete mode
+        if (isDeleteMode && selectedPhotoForDelete != null)
+          Positioned(
+            left: 35,
+            top: 454,
+            child: Container(
+              width: 198,
+              height: 198,
+              decoration: BoxDecoration(
+                color: AppColors.secondary,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: _getSelectedPhoto() != null && _getSelectedPhoto()!.imageUrl != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        _getSelectedPhoto()!.imageUrl!,
+                        fit: BoxFit.cover,
+                        width: 198,
+                        height: 198,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+          
+        // Delete button below the enlarged photo
+        if (isDeleteMode && selectedPhotoForDelete != null)
+          Positioned(
+            left: 39,
+            top: 342,
+            child: Container(
+              width: 194,
+              padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
+              decoration: BoxDecoration(
+                color: AppColors.lightGrayBoxColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Delete",
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _deletePhoto(selectedPhotoForDelete!),
+                    child: SvgPicture.asset(
+                      'assets/icons/actions/trash_medium.svg',
+                      width: 16,
+                      height: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -174,10 +238,10 @@ class _BusinessPhotoGalleryScreenState extends State<BusinessPhotoGalleryScreen>
   }
   
   Widget _buildAddPhotosButton() {
-    return Center(
-      child: SecondaryButton(
+    return SecondaryButton(
         onPressed: _addPhoto,
         text: "Add photos",
+        textWeight: FontWeight.w600,
         prefix: Container(
           width: 18,
           height: 18,
@@ -194,8 +258,7 @@ class _BusinessPhotoGalleryScreenState extends State<BusinessPhotoGalleryScreen>
             color: AppColors.primary,
           ),
         ),
-      ),
-    );
+      );
   }
   
   Widget _buildPhotoGrid(ThemeData theme) {
@@ -243,70 +306,41 @@ class _BusinessPhotoGalleryScreenState extends State<BusinessPhotoGalleryScreen>
     });
   }
   
+  GalleryPhoto? _getSelectedPhoto() {
+    if (selectedPhotoForDelete == null) return null;
+    return photos.firstWhere((photo) => photo.id == selectedPhotoForDelete, orElse: () => photos.first);
+  }
+  
   Widget _buildPhotoItem(GalleryPhoto photo, ThemeData theme) {
-    final isSelected = selectedPhotoForDelete == photo.id;
-    
     return GestureDetector(
       onLongPress: photo.hasImage ? () => _enterDeleteMode(photo.id) : null,
       child: Container(
-        width: 148,
-        height: 148,
         decoration: BoxDecoration(
           color: photo.hasImage ? AppColors.secondary2 : AppColors.secondary,
           borderRadius: BorderRadius.circular(16),
         ),
         child: photo.hasImage && photo.imageUrl != null
-            ? Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      photo.imageUrl!,
-                      fit: BoxFit.cover,
-                      width: 148,
-                      height: 148,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 148,
-                          height: 148,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary2,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  // Delete button overlay when selected
-                  if (isSelected)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: GestureDetector(
-                        onTap: () => _deletePhoto(photo.id),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  photo.imageUrl!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary2,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                    ),
-                ],
+                    );
+                  },
+                ),
               )
             : InkWell(
                 onTap: _addPhoto,
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  width: 148,
-                  height: 148,
                   decoration: BoxDecoration(
                     color: AppColors.secondary,
                     borderRadius: BorderRadius.circular(16),

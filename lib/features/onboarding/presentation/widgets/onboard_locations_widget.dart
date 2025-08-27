@@ -83,8 +83,16 @@ class _OnboardLocationsWidgetState extends ConsumerState<OnboardLocationsWidget>
             lng: loc is Map 
                 ? (loc['longitude'] as num?)?.toDouble() 
                 : loc.longitude?.toDouble(),
+            notifyChanges: false, // Don't notify during initialization
           );
         }
+        
+        // Defer the initial notification until after build is complete
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _validateForms();
+          }
+        });
       } else {
         setState(() {
           isFirstTimeVisit = true;
