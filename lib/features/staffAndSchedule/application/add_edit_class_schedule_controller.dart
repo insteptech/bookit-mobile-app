@@ -167,7 +167,11 @@ class AddEditClassScheduleController extends ChangeNotifier {
         return;
       }
       
-      _allStaffMembers = profiles.cast<Map<String, dynamic>>();
+      // Filter staff members who are available for classes (for_class: true)
+      _allStaffMembers = profiles
+          .cast<Map<String, dynamic>>()
+          .where((staff) => staff['for_class'] == true)
+          .toList();
     } catch (e) {
       throw Exception('Failed to fetch staff members: $e');
     }

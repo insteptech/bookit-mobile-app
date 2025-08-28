@@ -331,9 +331,9 @@ class APIRepository {
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
           //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business offerings: ${e.toString()}");
@@ -388,9 +388,9 @@ class APIRepository {
       final response = await _dio.get(getStaffListByBusinessIdEndpoint(businessId));
 
     //              // Pretty print JSON
-    // final encoder = const JsonEncoder.withIndent('  ');
-    // final prettyJson = encoder.convert(response.data);
-    // debugPrint("Full response from getStaffListByBusinessId:\n$prettyJson");
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from getStaffListByBusinessId:\n$prettyJson");
         return response;
 
     }

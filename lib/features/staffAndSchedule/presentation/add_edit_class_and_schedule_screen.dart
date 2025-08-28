@@ -269,7 +269,7 @@ class _AddEditClassAndScheduleScreenState extends State<AddEditClassAndScheduleS
         return ClassDetailsTab();
       case ClassTab.classSchedule:
         return ClassScheduleTab();
-    }
+    } 
   }
 
   bool _canProceed(AddEditClassScheduleController controller) {
