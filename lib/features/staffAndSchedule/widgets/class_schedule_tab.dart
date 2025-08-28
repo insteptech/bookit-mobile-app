@@ -41,6 +41,34 @@ class ClassScheduleTab extends StatelessWidget {
           );
         }
 
+        if (controller.allStaffMembers.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.person_off,
+                  size: 64,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(height: AppConstants.contentSpacing),
+                Text(
+                  'No coach available',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+                Text(
+                  'Please add coach to schedule the class',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

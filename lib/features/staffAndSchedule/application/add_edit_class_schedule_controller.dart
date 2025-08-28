@@ -282,7 +282,7 @@ class AddEditClassScheduleController extends ChangeNotifier {
            durationController.text.trim().isNotEmpty &&
            priceController.text.trim().isNotEmpty &&
            _businessId != null &&
-           _hasAtLeastOneSchedule();
+           _hasValidScheduleConfiguration();
   }
 
   bool get canProceedToSchedule {
@@ -292,15 +292,21 @@ class AddEditClassScheduleController extends ChangeNotifier {
            _businessId != null;
   }
 
-  bool _hasAtLeastOneSchedule() {
-    // Check if there's at least one location with class availability enabled and complete schedules
-    return _schedulesByLocation.entries.any((entry) {
+  bool _hasValidScheduleConfiguration() {
+    // Allow saving even if all class availability is false (no schedules required)
+    // But if any location has class availability enabled, it must have complete schedules
+    for (var entry in _schedulesByLocation.entries) {
       final locationId = entry.key;
-      final schedules = entry.value;
       final isAvailable = _classAvailabilityByLocation[locationId] ?? false;
       
-      return isAvailable && schedules.isNotEmpty && _hasCompleteScheduleForLocation(locationId);
-    });
+      // If class availability is enabled for this location, it must have complete schedules
+      if (isAvailable && !_hasCompleteScheduleForLocation(locationId)) {
+        return false;
+      }
+    }
+    
+    // All enabled locations have valid schedules (or no locations are enabled)
+    return true;
   }
 
   bool _hasCompleteScheduleForLocation(String locationId) {

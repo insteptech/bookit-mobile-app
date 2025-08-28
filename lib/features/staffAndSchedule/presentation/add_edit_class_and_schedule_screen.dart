@@ -288,6 +288,10 @@ class _AddEditClassAndScheduleScreenState extends State<AddEditClassAndScheduleS
     if (_selectedTab == ClassTab.classDetails) {
       return 'Class schedule';
     } else {
+      // Check if no coaches are available for class scheduling
+      if (controller.allStaffMembers.isEmpty) {
+        return widget.isEditing ? 'Update class without schedule' : 'Add class without schedule';
+      }
       return widget.isEditing ? 'Update' : 'Save';
     }
   }
