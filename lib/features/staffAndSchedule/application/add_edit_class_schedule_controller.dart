@@ -321,6 +321,18 @@ class AddEditClassScheduleController extends ChangeNotifier {
     try {
       final payload = _buildSavePayload();
       
+      // Print payload for debugging
+      final isUpdate = _existingClassData != null;
+      print('=== ${isUpdate ? 'UPDATE' : 'NEW SAVE'} CLASS PAYLOAD ===');
+      print('Form Data:');
+      print('  Title: "${titleController.text}"');
+      print('  Description: "${descriptionController.text}"');
+      print('  Description.trim(): "${descriptionController.text.trim()}"');
+      print('  Duration: "${durationController.text}"');
+      print('  Price: "${priceController.text}"');
+      print('Payload: ${payload.toString()}');
+      print('=======================================');
+      
       // Call the API
       final response = await APIRepository.saveClassAndSchedule(payload: [payload]);
       
@@ -340,10 +352,10 @@ class AddEditClassScheduleController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _buildSavePayload() {
+    print('Building payload - description value: "${descriptionController.text.trim()}"');
+    
     final serviceDetail = {
       'business_id': _businessId,
-      'name': titleController.text.trim(),
-      'description': descriptionController.text.trim(),
       'is_class': true,
       'is_archived': false,
       'tags': [],
@@ -361,9 +373,17 @@ class AddEditClassScheduleController extends ChangeNotifier {
         }
       ],
       if (_serviceData != null) ..._serviceData!,
-      // Add id field when updating
+      // Add form values AFTER serviceData to ensure they take precedence
+      'name': titleController.text.trim(),
+      'description': descriptionController.text.trim(),
+      // Add id and category_id when updating
       if (_existingClassData != null) 'id': _existingClassData!['id'],
+      if (_existingClassData != null && _existingClassData!['category_id'] != null) 
+        'category_id': _existingClassData!['category_id'],
     };
+    
+    print('ServiceDetail after building: ${serviceDetail.toString()}');
+    print('_serviceData: ${_serviceData.toString()}');
 
     // Build location schedules
     final List<Map<String, dynamic>> locationSchedules = [];
