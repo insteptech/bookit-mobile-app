@@ -14,12 +14,14 @@ enum ClassTab { classDetails, classSchedule }
 class AddEditClassAndScheduleScreen extends StatefulWidget {
   final Map<String, dynamic>? serviceData;
   final String? classId;
+  final String? className;
   final bool isEditing;
 
   const AddEditClassAndScheduleScreen({
     super.key,
     this.serviceData,
     this.classId,
+    this.className,
     this.isEditing = false,
   });
 
@@ -125,7 +127,7 @@ class _AddEditClassAndScheduleScreenState extends State<AddEditClassAndScheduleS
                           
                           // Title
                           Text(
-                            widget.isEditing ? 'Edit Class' : 'Class details',
+                            widget.isEditing ? 'Edit ${widget.className}' : 'Class details',
                             style: AppTypography.headingLg,
                           ),
                           

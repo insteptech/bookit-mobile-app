@@ -331,9 +331,9 @@ class APIRepository {
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
           //        // Pretty print JSON
-    // final encoder = const JsonEncoder.withIndent('  ');
-    // final prettyJson = encoder.convert(response.data);
-    // debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business offerings: ${e.toString()}");
@@ -642,6 +642,16 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
       return response;
     } catch (e) {
       throw Exception("Failed to save class and schedule: ${e.toString()}");
+    }
+  }
+
+  //..................Get class and schedule ......................
+  static Future<Response> getClassAndSchedule(String classId){
+    try {
+      final response = _dio.get(getClassAndScheduleDataEndpoint(classId));
+      return response;
+    } catch (e) {
+      throw Exception("Error fetching data $e");
     }
   }
 

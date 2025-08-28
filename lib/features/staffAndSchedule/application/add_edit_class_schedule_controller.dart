@@ -127,7 +127,11 @@ class AddEditClassScheduleController extends ChangeNotifier {
 
   Future<void> _fetchBusinessId() async {
     try {
-      _businessId = await ActiveBusinessService().getActiveBusiness() as String;
+      final businessId = await ActiveBusinessService().getActiveBusiness();
+      if (businessId == null) {
+        throw Exception('No active business found');
+      }
+      _businessId = businessId.toString();
     } catch (e) {
       throw Exception('Failed to fetch business ID: $e');
     }
@@ -136,11 +140,17 @@ class AddEditClassScheduleController extends ChangeNotifier {
   Future<void> _fetchLocations() async {
     try {
       final response = await APIRepository.getBusinessLocations();
-      _locations = (response['rows'] as List<dynamic>)
+      final rows = response['rows'] as List<dynamic>?;
+      if (rows == null) {
+        _locations = [];
+        return;
+      }
+      
+      _locations = rows
           .map((loc) => {
-                'id': loc['id'].toString(),
-                'title': loc['title'].toString(),
-                'location_id': loc['id'].toString(),
+                'id': (loc['id'] ?? '').toString(),
+                'title': (loc['title'] ?? '').toString(),
+                'location_id': (loc['id'] ?? '').toString(),
               })
           .toList();
     } catch (e) {
@@ -151,8 +161,13 @@ class AddEditClassScheduleController extends ChangeNotifier {
   Future<void> _fetchStaffMembers() async {
     try {
       final response = await APIRepository.getStaffListByBusinessId();
-      _allStaffMembers = (response.data['data']['profiles'] as List<dynamic>)
-          .cast<Map<String, dynamic>>();
+      final profiles = response.data?['data']?['profiles'] as List<dynamic>?;
+      if (profiles == null) {
+        _allStaffMembers = [];
+        return;
+      }
+      
+      _allStaffMembers = profiles.cast<Map<String, dynamic>>();
     } catch (e) {
       throw Exception('Failed to fetch staff members: $e');
     }
@@ -160,9 +175,9 @@ class AddEditClassScheduleController extends ChangeNotifier {
 
   Future<void> _fetchExistingClassData(String classId) async {
     try {
-      final response = await APIRepository.getClassDetails(classId);
-      if (response['data'] != null) {
-        _existingClassData = response['data']['data'];
+      final response = await APIRepository.getClassAndSchedule(classId);
+      if (response.data != null && response.data['data'] != null) {
+        _existingClassData = response.data['data']['data'];
       }
     } catch (e) {
       throw Exception('Failed to fetch class data: $e');
@@ -188,31 +203,36 @@ class AddEditClassScheduleController extends ChangeNotifier {
 
     final data = _existingClassData!;
     
-    // Fill class details
-    if (data['service_details'] != null && data['service_details'].isNotEmpty) {
-      final serviceDetail = data['service_details'][0];
-      titleController.text = serviceDetail['name'] ?? '';
-      descriptionController.text = serviceDetail['description'] ?? '';
-      
-      if (serviceDetail['durations'] != null && serviceDetail['durations'].isNotEmpty) {
-        final duration = serviceDetail['durations'][0];
-        durationController.text = duration['duration_minutes']?.toString() ?? '';
-        priceController.text = duration['price']?.toString() ?? '';
-        packagePersonController.text = duration['package_person']?.toString() ?? '';
-        packageAmountController.text = duration['package_amount']?.toString() ?? '';
-      }
+    // Fill class details from the new API response structure
+    titleController.text = data['service_name'] ?? '';
+    descriptionController.text = data['service_description'] ?? '';
+    
+    // Fill duration and pricing from durations array
+    if (data['durations'] != null && data['durations'].isNotEmpty) {
+      final duration = data['durations'][0];
+      durationController.text = duration['duration_minutes']?.toString() ?? '';
+      priceController.text = duration['price']?.toString() ?? '';
+      packagePersonController.text = duration['package_person']?.toString() ?? '';
+      packageAmountController.text = duration['package_amount']?.toString() ?? '';
     }
 
-    // Organize schedules by location
-    if (data['schedules'] != null) {
-      _schedulesByLocation.clear();
-      for (var location in _locations) {
-        _schedulesByLocation[location['id']] = [];
-      }
+    // Initialize schedules for all locations
+    _schedulesByLocation.clear();
+    _classAvailabilityByLocation.clear();
+    for (var location in _locations) {
+      final locationId = location['id'];
+      _schedulesByLocation[locationId] = [];
+      _classAvailabilityByLocation[locationId] = false;
+    }
 
+    // Organize schedules by location from the new API response structure
+    if (data['schedules'] != null) {
       for (var schedule in data['schedules']) {
-        final locationId = schedule['location']?['id'];
-        if (locationId != null && _schedulesByLocation.containsKey(locationId)) {
+        final locationId = schedule['location']?['id']?.toString();
+        if (locationId != null && locationId.isNotEmpty && _schedulesByLocation.containsKey(locationId)) {
+          // Enable class availability for locations that have schedules
+          _classAvailabilityByLocation[locationId] = true;
+          
           _schedulesByLocation[locationId]!.add({
             'id': schedule['id'],
             'day': schedule['day_of_week'],
@@ -220,11 +240,11 @@ class AddEditClassScheduleController extends ChangeNotifier {
             'end_time': schedule['end_time'],
             'instructor_ids': (schedule['instructors'] as List<dynamic>?)
                 ?.map((i) => i['id']?.toString())
-                .where((id) => id != null)
+                .where((id) => id != null && id.isNotEmpty)
                 .toList() ?? [],
             'instructor_names': (schedule['instructors'] as List<dynamic>?)
                 ?.map((i) => i['name']?.toString())
-                .where((name) => name != null)
+                .where((name) => name != null && name.isNotEmpty)
                 .toList() ?? [],
             'spots_available': schedule['spots_available'],
           });
@@ -341,6 +361,8 @@ class AddEditClassScheduleController extends ChangeNotifier {
         }
       ],
       if (_serviceData != null) ..._serviceData!,
+      // Add id field when updating
+      if (_existingClassData != null) 'id': _existingClassData!['id'],
     };
 
     // Build location schedules
@@ -363,6 +385,8 @@ class AddEditClassScheduleController extends ChangeNotifier {
             'instructor_ids': schedule['instructor_ids'] ?? [],
             if (schedule['spots_available'] != null) 
               'spots_available': schedule['spots_available'],
+            // Include schedule ID when updating
+            if (schedule['id'] != null) 'id': schedule['id'],
           }).toList(),
         };
 

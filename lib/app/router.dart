@@ -254,6 +254,7 @@ final GoRouter router = GoRouter(
         return AddEditClassAndScheduleScreen(
           serviceData: extras?['serviceData'] as Map<String, dynamic>?,
           classId: extras?['classId'] as String?,
+          className: extras?['className'] as String?,
           isEditing: extras?['isEditing'] as bool? ?? false,
         );
       },

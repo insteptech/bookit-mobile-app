@@ -478,9 +478,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             children: [
               Text(
                 categoryName,
-                style: AppTypography.headingSm.copyWith(
-                  color: Colors.black,
-                ),
+                style: AppTypography.headingSm.copyWith(color: Colors.black),
               ),
               // Show expand/collapse icon for all categories with services
               Icon(
@@ -495,7 +493,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         if (isExpanded) ...[
           const SizedBox(height: 12),
           ...serviceDetails.map<Widget>(
-            (service) => _buildServiceCard(service, isClass, categoryName),
+            (service) => _buildServiceCard(service, offering, isClass, categoryName),
           ),
         ],
         const SizedBox(height: 16),
@@ -505,6 +503,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
 
   Widget _buildServiceCard(
     ServiceDetail service,
+    OfferingItem offering,
     bool isClass,
     String categoryName,
   ) {
@@ -528,9 +527,24 @@ class _OfferingsScreenState extends State<OfferingsScreen>
       // Class card design - with image placeholder and expandable content
       return GestureDetector(
         onTap: () {
-          // Navigate to edit screen with service detail ID
-          final serviceDetailId = service.id;
-          context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          // Navigate to edit screen - use offering ID for classes, service detail ID for services
+          if (isClass) {
+            // For classes, use the root offering ID
+            final classId = offering.id;
+            final className = service.name;
+            context.push(
+              '/add_edit_class_and_schedule',
+              extra: {
+                'classId': classId, 
+                'className': className, 
+                'isEditing': true
+              },
+            );
+          } else {
+            // For services, use service detail ID (existing behavior)
+            final serviceDetailId = service.id;
+            context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          }
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 24),
@@ -623,9 +637,24 @@ class _OfferingsScreenState extends State<OfferingsScreen>
       // Service card design - rounded border, simple layout
       return GestureDetector(
         onTap: () {
-          // Navigate to edit screen with service detail ID
-          final serviceDetailId = service.id;
-          context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          // Navigate to edit screen - use offering ID for classes, service detail ID for services
+          if (isClass) {
+            // For classes, use the root offering ID
+            final classId = offering.id;
+            final className = service.name;
+            context.push(
+              '/add_edit_class_and_schedule',
+              extra: {
+                'classId': classId, 
+                'className': className, 
+                'isEditing': true
+              },
+            );
+          } else {
+            // For services, use service detail ID (existing behavior)
+            final serviceDetailId = service.id;
+            context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          }
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -678,10 +707,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                     ],
                     if (durationText.isNotEmpty) ...[
                       const SizedBox(height: 24),
-                      Text(
-                        durationText,
-                        style: AppTypography.bodyMedium 
-                      ),
+                      Text(durationText, style: AppTypography.bodyMedium),
                     ],
                   ],
                 ),
@@ -755,63 +781,67 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                       focusNode: _searchFocusNode,
                       hintText: 'Search here',
                     ),
-                      // Design-specific spacing below search based on category count
-                      Consumer<OfferingsController>(
-                        builder: (context, controller, _) {
-                          final rootCategoryNames = controller.rootCategoryNames;
-                          if (rootCategoryNames.length > 1) {
-                            _initOrUpdateTabController(rootCategoryNames.length);
-                            return Column(
-                              children: [
-                                const SizedBox(height: 16),
-                                Container(
-                                  width: double.infinity,
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide.none,
-                                    ),
-                                  ),
-                                  child: TabBar(
-                                    controller: _tabController,
-                                    isScrollable: true,
-                                    tabAlignment: TabAlignment.start,
-                                    // Figma: underline #790077 at 1.5px under selected tab
-                                    indicatorColor: AppColors.primary,
-                                    labelColor: AppColors.primary,
-                                    unselectedLabelColor: Colors.black,
-                                    indicatorWeight: 1.5,
-                                    indicatorSize: TabBarIndicatorSize.label,
-                                    labelPadding: EdgeInsets.only(right: 32),
-                                    dividerColor: Colors.transparent,
-                                    overlayColor: WidgetStateProperty.all(Colors.transparent),
-                                    splashFactory: NoSplash.splashFactory,
-                                    labelStyle: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                    unselectedLabelStyle: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
-                                    ),
-                                    onTap: (index) {
-                                      _scrollToCategoryAtIndex(index, controller.groupedOfferings);
-                                    },
-                                    tabs: rootCategoryNames
-                                        .map((name) => Tab(text: name))
-                                        .toList(),
-                                  ),
+                    // Design-specific spacing below search based on category count
+                    Consumer<OfferingsController>(
+                      builder: (context, controller, _) {
+                        final rootCategoryNames = controller.rootCategoryNames;
+                        if (rootCategoryNames.length > 1) {
+                          _initOrUpdateTabController(rootCategoryNames.length);
+                          return Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              Container(
+                                width: double.infinity,
+                                decoration: const BoxDecoration(
+                                  border: Border(bottom: BorderSide.none),
                                 ),
-                                // Add 24 inside header so with header bottom padding (24) total becomes 48
-                                SizedBox(height: AppConstants.sectionSpacing),
-                              ],
-                            );
-                          } else if (rootCategoryNames.length == 1) {
-                            // Add 24 inside header so with header bottom padding (24) total becomes 48
-                            return SizedBox(height: AppConstants.sectionSpacing);
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      ),
+                                child: TabBar(
+                                  controller: _tabController,
+                                  isScrollable: true,
+                                  tabAlignment: TabAlignment.start,
+                                  // Figma: underline #790077 at 1.5px under selected tab
+                                  indicatorColor: AppColors.primary,
+                                  labelColor: AppColors.primary,
+                                  unselectedLabelColor: Colors.black,
+                                  indicatorWeight: 1.5,
+                                  indicatorSize: TabBarIndicatorSize.label,
+                                  labelPadding: EdgeInsets.only(right: 32),
+                                  dividerColor: Colors.transparent,
+                                  overlayColor: WidgetStateProperty.all(
+                                    Colors.transparent,
+                                  ),
+                                  splashFactory: NoSplash.splashFactory,
+                                  labelStyle: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                  unselectedLabelStyle: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                  ),
+                                  onTap: (index) {
+                                    _scrollToCategoryAtIndex(
+                                      index,
+                                      controller.groupedOfferings,
+                                    );
+                                  },
+                                  tabs:
+                                      rootCategoryNames
+                                          .map((name) => Tab(text: name))
+                                          .toList(),
+                                ),
+                              ),
+                              // Add 24 inside header so with header bottom padding (24) total becomes 48
+                              SizedBox(height: AppConstants.sectionSpacing),
+                            ],
+                          );
+                        } else if (rootCategoryNames.length == 1) {
+                          // Add 24 inside header so with header bottom padding (24) total becomes 48
+                          return SizedBox(height: AppConstants.sectionSpacing);
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   ],
                 ),
               ),
