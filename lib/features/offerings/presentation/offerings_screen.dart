@@ -406,7 +406,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                   ),
           isDisabled: controller.isLoading,
           text: controller.isLoading ? "Loading..." : buttonText,
-          // isHollow: true,
+          isHollow: true,
         );
       },
     );

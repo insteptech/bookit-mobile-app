@@ -114,7 +114,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
       for (var classData in response['data']['data']) {
         if (classData['full_data'] != null && classData['full_data']['schedules'] != null) {
           for (var schedule in classData['full_data']['schedules']) {
-            if (schedule['day_of_week'] == dayName) {
+            if (schedule['day_of_week'].toString().toLowerCase() == dayName.toLowerCase()) {
               allClasses.add({
                 'service_name': classData['service_name'],
                 'category_id': schedule['class_id'],
@@ -315,7 +315,14 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
           );
           return;
         }
-        context.push("/add_class_schedule", extra: {'className': serviceName, 'classId': serviceId});
+        context.push(
+          '/add_edit_class_and_schedule',
+          extra: {
+            'classId': serviceId, 
+            'className': serviceName, 
+            'isEditing': true
+          },
+        );
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 16),
