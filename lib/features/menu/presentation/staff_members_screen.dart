@@ -124,31 +124,59 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
     });
   }
 
-  void _handleAddMember() {
-    if (staffData == null || staffData!.categories.isEmpty) {
-      // No categories available, show error
+  Future<void> _handleAddMember() async {
+    try {
+      // Fetch business categories instead of using staff categories
+      final response = await APIRepository.getBusinessLevel0Categories();
+      
+      if (!mounted) return;
+      
+      if (response.data != null && response.data['success'] == true) {
+        final responseData = response.data;
+        final categoriesData = responseData['data']['level0_categories'] as List<dynamic>;
+        
+        if (categoriesData.isEmpty) {
+          // No categories available, show error
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No categories available. Please add a category first.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        
+        if (categoriesData.length == 1) {
+          // Single category - navigate directly to add staff
+          final category = categoriesData.first;
+          final String categoryId = category['id'] as String;
+          final bool isClass = category['is_class'] as bool;
+          
+          context.push(
+            "/add_staff/?buttonMode=saveOnly&categoryId=$categoryId&isClass=$isClass"
+          );
+        } else {
+          // Multiple categories - navigate to category selection screen
+          context.push("/staff_category_selection");
+        }
+      } else {
+        // Failed to fetch categories
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load categories. Please try again.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Error fetching categories
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No categories available. Please add a category first.'),
+        SnackBar(
+          content: Text('Error loading categories: ${e.toString()}'),
           duration: Duration(seconds: 2),
         ),
       );
-      return;
-    }
-
-    if (staffData!.categories.length == 1) {
-      // Single category - navigate directly to add staff
-      final category = staffData!.categories.first;
-      final bool isClass = category.staffMembers.isNotEmpty 
-          ? category.staffMembers.first.forClass 
-          : false;
-      
-      context.push(
-        "/add_staff/?buttonMode=saveOnly&categoryId=${category.categoryId}&isClass=$isClass"
-      );
-    } else {
-      // Multiple categories - navigate to category selection screen
-      context.push("/staff_category_selection");
     }
   }
 

@@ -622,9 +622,10 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
             // Schedule tab button
             PrimaryButton(
               text: isLoading
-                  ? AppTranslationsDelegate.of(context).text("adding_staff")
+                  ? "Saving..."
                   : "Save",
               onPressed: isLoading ? null : isDisabled ? null : () {
+                _isSaveAndExit = true; // Set flag to navigate back after save
                 if (!scheduleIsAvailable) {
                   // If availability is OFF, save only staff info
                   _addStaffWithScheduleController.submit();
@@ -633,7 +634,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   _addStaffWithScheduleController.submit();
                 }
               },
-              isDisabled: isDisabled,
+              isDisabled: isDisabled || isLoading,
             ),
           ],
         ],
