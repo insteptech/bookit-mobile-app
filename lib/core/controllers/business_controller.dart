@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
+import 'package:bookit_mobile_app/core/services/cache_service.dart';
+import 'package:flutter/foundation.dart';
 
 // State classes
 class BusinessState {
@@ -37,75 +39,133 @@ class BusinessState {
 
 // Business Controller
 class BusinessController extends StateNotifier<BusinessState> {
+  final CacheService _cacheService = CacheService();
+  
   BusinessController() : super(const BusinessState());
 
   Future<void> fetchBusinessCategories() async {
-    //Todo: refine this logic, its not making the fresh calls
-    // if (state.isLoaded) return; // Don't fetch if already loaded
-
-    state = state.copyWith(isLoading: true, error: null);
+    // Start with cached data if available and not loading
+    if (!state.isLoading) {
+      await _loadCachedBusinessType();
+    }
+    
+    // Don't set loading if we already have cached data to avoid UI flicker
+    if (state.businessCategories.isEmpty) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
     
     try {
-      // Add timeout to prevent indefinite loading
-      final data = await APIRepository.getBusinessServiceCategories()
+      final response = await APIRepository.getBusinessLevel0Categories()
           .timeout(const Duration(seconds: 10));
       
-      // Extract business_services from the nested structure
-      final businessServices = data['data']?['data']?['business_services'] ?? [];
-      final businessType = _determineBusinessType(businessServices);
+      final businessData = response.data;
+      final categories = businessData['data']['level0_categories'] as List? ?? [];
+      final businessType = _determineBusinessTypeFromLevel0Categories(categories);
       
-      state = state.copyWith(
-        businessCategories: businessServices,
-        businessType: businessType,
-        isLoading: false,
-        isLoaded: true,
-      );
+      // Check if data has changed compared to cached version
+      final cachedData = await _cacheService.getCachedBusinessType();
+      final hasDataChanged = _hasBusinessDataChanged(cachedData, businessData);
       
-      // print("Business categories fetched: ${businessServices.length} categories");
-  
+      if (hasDataChanged || state.businessCategories.isEmpty) {
+        // Cache the new data
+        await _cacheService.cacheBusinessType(businessData);
+        
+        state = state.copyWith(
+          businessCategories: categories,
+          businessType: businessType,
+          isLoading: false,
+          isLoaded: true,
+        );
+        
+        debugPrint("Business categories updated: ${categories.length} categories, type: $businessType");
+      } else {
+        // Data hasn't changed, just update loading state
+        state = state.copyWith(isLoading: false, isLoaded: true);
+        debugPrint("Business data unchanged, using cached data");
+      }
+      
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         isLoaded: true,
         error: e.toString(),
       );
-      print("Error fetching business categories: $e");
+      debugPrint("Error fetching business categories: $e");
     }
   }
 
-  BusinessType _determineBusinessType(List<dynamic> businessServices) {
-    if (businessServices.isEmpty) {
+  Future<void> _loadCachedBusinessType() async {
+    final cachedData = await _cacheService.getCachedBusinessType();
+    if (cachedData != null) {
+      final categories = cachedData['data']['level0_categories'] as List? ?? [];
+      final businessType = _determineBusinessTypeFromLevel0Categories(categories);
+      
+      state = state.copyWith(
+        businessCategories: categories,
+        businessType: businessType,
+        isLoaded: true,
+      );
+      
+      debugPrint("Loaded cached business type: $businessType");
+    }
+  }
+
+  bool _hasBusinessDataChanged(Map<String, dynamic>? cachedData, Map<String, dynamic> newData) {
+    if (cachedData == null) return true;
+    
+    final cachedCategories = cachedData['data']['level0_categories'] as List? ?? [];
+    final newCategories = newData['data']['level0_categories'] as List? ?? [];
+    
+    if (cachedCategories.length != newCategories.length) return true;
+    
+    // Simple comparison based on IDs and key fields
+    for (int i = 0; i < newCategories.length; i++) {
+      final cached = cachedCategories.firstWhere(
+        (item) => item['id'] == newCategories[i]['id'],
+        orElse: () => {},
+      );
+      
+      if (cached.isEmpty) return true; // New category
+      
+      if (cached['name'] != newCategories[i]['name'] ||
+          cached['is_class'] != newCategories[i]['is_class']) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  BusinessType _determineBusinessTypeFromLevel0Categories(List<dynamic> categories) {
+    if (categories.isEmpty) {
       return BusinessType.both; // Default fallback
     }
 
     bool hasClassCategory = false;
     bool hasNonClassCategory = false;
 
-    for (final serviceData in businessServices) {
-      final category = serviceData['category'];
-      final isClass = serviceData['is_class'];
+    for (final categoryData in categories) {
+      final isClass = categoryData['is_class'] as bool? ?? false;
       
-      if (category != null) {
-        if (isClass == true) {
-          hasClassCategory = true;
-          // print("Found class category: ${category['name']}");
-        } else {
-          hasNonClassCategory = true;
-          // print("Found non-class category: ${category['name']}");
-        }
+      if (isClass) {
+        hasClassCategory = true;
+        debugPrint("Found class category: ${categoryData['name']}");
+      } else {
+        hasNonClassCategory = true;
+        debugPrint("Found non-class category: ${categoryData['name']}");
       }
     }
 
     BusinessType result;
     if (hasClassCategory && hasNonClassCategory) {
       result = BusinessType.both;
-      print("Business type determined: BOTH");
+      debugPrint("Business type determined: BOTH");
     } else if (hasClassCategory) {
       result = BusinessType.classOnly;
-      print("Business type determined: CLASS ONLY");
+      debugPrint("Business type determined: CLASS ONLY");
     } else {
       result = BusinessType.appointmentOnly;
-      print("Business type determined: APPOINTMENT ONLY");
+      debugPrint("Business type determined: APPOINTMENT ONLY");
     }
     
     return result;
@@ -113,6 +173,10 @@ class BusinessController extends StateNotifier<BusinessState> {
 
   void reset() {
     state = const BusinessState();
+  }
+
+  Future<void> clearCache() async {
+    await _cacheService.clearBusinessTypeCache();
   }
 }
 

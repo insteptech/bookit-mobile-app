@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/controllers/appointments_controller.dart';
+import 'package:bookit_mobile_app/core/controllers/staff_controller.dart';
 import 'package:bookit_mobile_app/core/utils/appointment_utils.dart';
 import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/add_staff_and_availability_box.dart';
@@ -20,6 +21,7 @@ class AppointmentSectionWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appointmentsState = ref.watch(appointmentsControllerProvider);
+    final staffState = ref.watch(staffControllerProvider);
     final isLoading = appointmentsState.isLoading;
     final allAppointments = appointmentsState.allStaffAppointments;
     final todaysAppointments = appointmentsState.todaysStaffAppointments;
@@ -43,6 +45,7 @@ class AppointmentSectionWidget extends ConsumerWidget {
         const SizedBox(height: 8),
         _buildAppointmentContent(
           context,
+          staffState,
           isLoading: isLoading,
           allAppointments: allAppointments,
           todaysAppointments: todaysAppointments,
@@ -53,7 +56,8 @@ class AppointmentSectionWidget extends ConsumerWidget {
   }
 
   Widget _buildAppointmentContent(
-    BuildContext context, {
+    BuildContext context,
+    staffState, {
     required bool isLoading,
     required List<Map<String, dynamic>> allAppointments,
     required List<Map<String, dynamic>> todaysAppointments,
@@ -71,8 +75,8 @@ class AppointmentSectionWidget extends ConsumerWidget {
       );
     }
 
-    // Check if there are any staff members - using utility function for robust checking
-    if (!hasStaffMembers(allAppointments)) {
+    // Check if there are any appointment staff members using the staff controller
+    if (!staffState.hasAppointmentStaff) {
       return Column(
         children: [
           const SizedBox(height: 16),
