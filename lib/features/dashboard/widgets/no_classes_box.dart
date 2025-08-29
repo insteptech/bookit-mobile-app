@@ -46,7 +46,8 @@ class NoClassesBox extends StatelessWidget {
             ),
           ],
         ),
-        )
+        ),
+        SizedBox(height: 10,)
       ],
     );
   }
