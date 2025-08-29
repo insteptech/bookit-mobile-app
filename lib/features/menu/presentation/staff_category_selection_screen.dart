@@ -34,7 +34,7 @@ class _StaffCategorySelectionScreenState extends State<StaffCategorySelectionScr
         errorMessage = null;
       });
 
-      final response = await APIRepository.getUserDataForStaffRegistration();
+      final response = await APIRepository.getBusinessLevel0Categories();
       
       if (response.data != null && response.data['success'] == true) {
         // Convert the new API response to the existing StaffCategoryData format

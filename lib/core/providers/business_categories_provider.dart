@@ -47,7 +47,7 @@ class BusinessCategoriesProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await APIRepository.getUserDataForStaffRegistration();
+      final response = await APIRepository.getBusinessLevel0Categories();
       
       // Parse the new response structure
       final responseData = response.data;

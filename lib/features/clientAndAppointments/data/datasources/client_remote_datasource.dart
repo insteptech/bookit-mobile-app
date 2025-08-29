@@ -158,7 +158,7 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
         // Appointment data (required)
         'business_id': appointmentData['business_id'],
         'location_id': appointmentData['location_id'],
-        'booked_by': appointmentData['booked_by'],
+        // 'booked_by': appointmentData['booked_by'],
         'business_service_id': appointmentData['business_service_id'],
         'practitioner': appointmentData['practitioner'],
         'start_from': appointmentData['start_from'],

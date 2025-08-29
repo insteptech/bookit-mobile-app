@@ -93,7 +93,7 @@ class APIRepository {
 
   //..........................Fetch User Data for Staff Registration..................
 
-  static Future<Response> getUserDataForStaffRegistration() async {
+  static Future<Response> getBusinessLevel0Categories()async {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = userDetails.id;
@@ -137,6 +137,7 @@ class APIRepository {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = userDetails.id;
+      print("User id: $userId");
 
       final String fetchUrl = "$getStaffListByUserIdEndpoint/$userId";
       final response = await _dio.get(fetchUrl);
