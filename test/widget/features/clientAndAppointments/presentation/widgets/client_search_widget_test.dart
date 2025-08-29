@@ -5,17 +5,20 @@ import 'package:mockito/mockito.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/client_search_widget.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/domain/usecases/get_clients.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/domain/usecases/create_client.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/domain/usecases/create_client_and_book_appointment.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/application/controllers/client_controller.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/application/state/client_state.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
 
 class MockGetClients extends Mock implements GetClients {}
 class MockCreateClient extends Mock implements CreateClient {}
+class MockCreateClientAndBookAppointment extends Mock implements CreateClientAndBookAppointment {}
 
 void main() {
   group('ClientSearchWidget Tests', () {
     late MockGetClients mockGetClients;
     late MockCreateClient mockCreateClient;
+    late MockCreateClientAndBookAppointment mockCreateClientAndBookAppointment;
     late TextEditingController textController;
     late FocusNode focusNode;
     late LayerLink layerLink;
@@ -24,6 +27,7 @@ void main() {
     setUp(() {
       mockGetClients = MockGetClients();
       mockCreateClient = MockCreateClient();
+      mockCreateClientAndBookAppointment = MockCreateClientAndBookAppointment();
       textController = TextEditingController();
       focusNode = FocusNode();
       layerLink = LayerLink();
@@ -42,6 +46,7 @@ void main() {
           clientControllerProvider.overrideWith((ref) => ClientController(
             mockGetClients,
             mockCreateClient,
+            mockCreateClientAndBookAppointment,
           )),
         ],
         child: MaterialApp(

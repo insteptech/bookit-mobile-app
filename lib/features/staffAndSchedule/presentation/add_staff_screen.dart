@@ -10,6 +10,7 @@ import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staf
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staff_with_schedule_controller.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/add_staff_schedule_tab.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 // import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
@@ -36,6 +37,14 @@ class AddStaffScreen extends StatefulWidget {
     this.categoryId,
     this.buttonMode = StaffScreenButtonMode.continueToSchedule, // Default mode
   });
+
+  // Override buttonMode getter to always return continueToSchedule for classes
+  StaffScreenButtonMode get effectiveButtonMode {
+    if (isClass == true) {
+      return StaffScreenButtonMode.continueToSchedule;
+    }
+    return buttonMode;
+  }
 
   @override
   State<AddStaffScreen> createState() => _AddStaffScreenState();
@@ -75,6 +84,11 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       scheduleController: _scheduleController,
     );
     _controller.setCallbacks(
+      onStateChanged: () => setState(() {}),
+      onSuccess: _handleSuccess,
+      onError: _handleError,
+    );
+    _addStaffWithScheduleController.setCallbacks(
       onStateChanged: () => setState(() {}),
       onSuccess: _handleSuccess,
       onError: _handleError,
@@ -167,7 +181,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   void _prefillScheduleData(List<dynamic> schedules, List<dynamic> services) {
     if (schedules.isEmpty) return;
 
-    // Map schedule data to form state
+    // Map schedule data to form state 
     Map<String, int> dayIndexMap = {
       'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
       'friday': 4, 'saturday': 5, 'sunday': 6
@@ -234,16 +248,28 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+    
+    
     // Handle navigation based on which action was triggered
     if (_isSaveAndExit) {
       // For save and exit, just go back to previous screen
       Navigator.pop(context);
     } else {
       // For continue to schedule, handle navigation based on button mode
-      if (widget.buttonMode == StaffScreenButtonMode.continueToSchedule) {
+      if (widget.effectiveButtonMode == StaffScreenButtonMode.continueToSchedule) {
         // Navigate based on whether this is for a class or regular staff
         if (widget.isClass == true) {
-          NavigationService.push("/add_class_schedule");
+          // Navigate to class selection screen with the category ID
+          if (widget.categoryId != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ClassSelectionScreen(categoryId: widget.categoryId!),
+              ),
+            );
+          } else {
+            NavigationService.push("/add_class_schedule");
+          }
         } else {
           NavigationService.pushStaffList();
         }
@@ -574,8 +600,9 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   : controllerCanSubmit
                       ? () {
                           if (widget.isClass == true) {
-                            // For classes, save staff and navigate to class schedule
-                            _addStaffWithScheduleController.submit();
+                            // For classes, save staff profile only (no schedule required)
+                            _isSaveAndExit = false;
+                            _controller.submitStaffProfile();
                           } else {
                             // For regular staff, switch to schedule tab
                             setState(() {

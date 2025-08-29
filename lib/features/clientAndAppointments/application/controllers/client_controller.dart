@@ -1,15 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/usecases/get_clients.dart';
 import '../../domain/usecases/create_client.dart';
+import '../../domain/usecases/create_client_and_book_appointment.dart';
 import '../state/client_state.dart';
 
 class ClientController extends StateNotifier<ClientState> {
   final GetClients _getClients;
   final CreateClient _createClient;
+  final CreateClientAndBookAppointment _createClientAndBookAppointment;
 
   ClientController(
     this._getClients,
     this._createClient,
+    this._createClientAndBookAppointment,
   ) : super(const ClientState());
 
   void updateSearchQuery(String query) {
@@ -100,6 +103,53 @@ class ClientController extends StateNotifier<ClientState> {
         'phone_number': client.phoneNumber,
         'full_name': client.fullName,
       };
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> createClientAndBookAppointment({
+    required String fullName,
+    required String email,
+    required String phone,
+    required Map<String, dynamic> appointmentData,
+    String? gender,
+    DateTime? dateOfBirth,
+    String? preferredLanguage,
+    String? statusReason,
+    String? classId,
+    String? rescheduledFrom,
+    bool? isCancelled,
+    String? preferredContactMethod,
+    bool? marketingConsent,
+    String? clientNotes,
+  }) async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+      
+      final result = await _createClientAndBookAppointment(
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        appointmentData: appointmentData,
+        gender: gender,
+        dateOfBirth: dateOfBirth,
+        preferredLanguage: preferredLanguage,
+        statusReason: statusReason,
+        classId: classId,
+        rescheduledFrom: rescheduledFrom,
+        isCancelled: isCancelled,
+        preferredContactMethod: preferredContactMethod,
+        marketingConsent: marketingConsent,
+        clientNotes: clientNotes,
+      );
+      
+      state = state.copyWith(isLoading: false);
+      return result;
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

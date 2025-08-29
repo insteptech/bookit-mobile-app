@@ -142,6 +142,11 @@ final GoRouter router = GoRouter(
           buttonMode = StaffScreenButtonMode.saveOnly;
         }
         
+        // Override buttonMode for classes - classes always need to continue to schedule (class selection)
+        if (isClass == true) {
+          buttonMode = StaffScreenButtonMode.continueToSchedule;
+        }
+        
         return AddStaffScreen(
           isClass: isClass, 
           buttonMode: buttonMode,

@@ -202,6 +202,11 @@ class APIRepository {
     try {
       final url = fetchAppointmentsEndpoint(locationId);
       final response = await _dio.get(url);
+          //        // Pretty print JSON
+    final encoder = const JsonEncoder.withIndent('  ');
+    final prettyJson = encoder.convert(response.data);
+    debugPrint("Full response from get appointments:\n$prettyJson");
+
 
       return response.data['data'];
     } catch (e) {
@@ -277,12 +282,12 @@ class APIRepository {
   }
 
   //..............................Create a new client account.......................
-  static Future<Response> createClientAccount({
+  static Future<Response> createClientAccountAndBookAppointment({
     required Map<String, dynamic> payload,
   }) async {
     try {
       final response = await _dio.post(
-        createClientAccountEndpoint,
+        createClientAccountAndAppointmentEndpoint,
         data: payload,
       );
       return response;

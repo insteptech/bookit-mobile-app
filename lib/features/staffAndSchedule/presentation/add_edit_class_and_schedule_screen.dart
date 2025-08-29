@@ -316,7 +316,8 @@ class _AddEditClassAndScheduleScreenState extends State<AddEditClassAndScheduleS
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context);
+        // Navigate back to home screen after saving
+        Navigator.of(context).popUntil((route) => route.isFirst);
       } else if (controller.errorMessage != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

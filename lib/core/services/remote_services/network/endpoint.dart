@@ -79,7 +79,7 @@ String getClientSearchUrl({
 String bookAppointmentEndpoint = "$baseUrl/appointments";
 
 //.......................Create a new client accoutn............
-String createClientAccountEndpoint = "$baseUrl/profile/client";
+String createClientAccountAndAppointmentEndpoint = "$baseUrl/profile/client-appointment";
 
 //..........................Get business categories...................................
 String getBusinessCategoriesEndpoint(String businessId) =>
@@ -155,5 +155,7 @@ String saveClassAndScheduleEndpoint = "$baseUrl/classes/with-schedule";
 
 //..................Get class and schedule data..........................
 String getClassAndScheduleDataEndpoint(String classId) => "$baseUrl/classes/$classId/with-schedules";
+
+
 
 

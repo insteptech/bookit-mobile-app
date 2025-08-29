@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
@@ -23,6 +24,16 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  
+  bool _isFormValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_validateForm);
+    _emailController.addListener(_validateForm);
+    _phoneController.addListener(_validateForm);
+  }
 
   @override
   void dispose() {
@@ -30,6 +41,18 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+  
+  void _validateForm() {
+    final isValid = _nameController.text.trim().isNotEmpty &&
+       ValidationService.isValidEmail( _emailController.text.trim()) &&
+       ValidationService.isValidPhone( _phoneController.text.trim());
+    
+    if (isValid != _isFormValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
   }
 
   String? _getFormErrors() {
@@ -47,49 +70,49 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error),
-          backgroundColor: Colors.orange,
         ),
       );
       return;
     }
 
     try {
-      // TODO: Implement client creation when backend route is available
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Client creation API not yet implemented on backend'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      
-      // For now, just pop back without creating a client
-      Navigator.pop(context);
-      
-      // When the API is implemented, uncomment the following:
-      /*
       final clientController = ref.read(clientControllerProvider.notifier);
-      final newClient = await clientController.createClient(
-        name: _nameController.text.trim(),
+      
+      // Prepare appointment data from partialPayload
+      final appointmentData = {
+        'business_id': widget.partialPayload['business_id'],
+        'location_id': widget.partialPayload['location_id'],
+        'booked_by': widget.partialPayload['booked_by'],
+        'business_service_id': widget.partialPayload['business_service_id'],
+        'practitioner': widget.partialPayload['practitioner'],
+        'start_from': widget.partialPayload['start_from'],
+        'end_at': widget.partialPayload['end_at'],
+        'date': widget.partialPayload['date'],
+        'status': 'confirmed',
+      };
+
+      final result = await clientController.createClientAndBookAppointment(
+        fullName: _nameController.text.trim(),
         email: _emailController.text.trim(),
         phone: _phoneController.text.trim(),
+        appointmentData: appointmentData,
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Client created successfully!'),
+            content: Text('Client created and appointment booked successfully!'),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, newClient);
+        Navigator.pop(context, result);
       }
-      */
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to create client: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            content: Text('Failed to create client and book appointment: ${e.toString()}'),
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -184,11 +207,11 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 2),
               child: PrimaryButton(
-                onPressed: clientState.isLoading ? null : _saveAndConfirm,
-                isDisabled: clientState.isLoading,
-                text: clientState.isLoading ? "Creating..." : "Create Client",
+                onPressed: (clientState.isLoading || !_isFormValid) ? null : _saveAndConfirm,
+                isDisabled: clientState.isLoading || !_isFormValid,
+                text: clientState.isLoading ? "Creating..." : "Confirm booking",
               ),
             ),
           ],
