@@ -1,13 +1,14 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/controllers/classes_controller.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/no_classes_box.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class ClassScheduleCalendar extends StatefulWidget {
+class ClassScheduleCalendar extends ConsumerStatefulWidget {
   final bool? showCalendarHeader;
   final String? locationId;
   final int? numberOfClasses;
@@ -20,122 +21,24 @@ class ClassScheduleCalendar extends StatefulWidget {
   });
 
   @override
-  State<ClassScheduleCalendar> createState() => _ClassScheduleCalendarState();
+  ConsumerState<ClassScheduleCalendar> createState() => _ClassScheduleCalendarState();
 }
 
-class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
-  List<dynamic> selectedDayClasses = [];
-  bool isLoading = true;
+class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
   DateTime currentDate = DateTime.now();
   DateTime selectedDate = DateTime.now();
   
   @override
   void initState() {
     super.initState();
-    _fetchClassesForDate(selectedDate);
+    // Fetch classes for the initial selected date
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchClassesForDate(selectedDate);
+    });
   }
 
-  Future<void> _fetchClassesForDate(DateTime date) async {
-    try {
-      setState(() => isLoading = true);
-      
-      String dayName = DateFormat('EEEE').format(date);
-      
-      // Use pagination if numberOfClasses is provided
-      if (widget.numberOfClasses != null) {
-        await _fetchClassesForPagination(date);
-      } else {
-        // Fetch all classes
-        if (widget.locationId != null && widget.locationId!.isNotEmpty) {
-          final response = await APIRepository.getClassSchedulesByLocationAndDay(
-            widget.locationId!, 
-            dayName
-          );
-          _processClassesForDate(response, dayName);
-        } else {
-          // Fetch all classes regardless of location when locationId is not provided
-          await _fetchAllClassesOfTheDay(date);
-        }
-      }
-    } catch (e) {
-      print("Error fetching classes: $e");
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> _fetchClassesForPagination(DateTime date) async {
-    try {
-      setState(() => isLoading = true);
-
-      String dayName = DateFormat('EEEE').format(date);
-      int page = 1;
-      int limit = widget.numberOfClasses ?? 10;
-
-      if (widget.locationId != null && widget.locationId!.isNotEmpty) {
-        final response = await APIRepository.getClassScheduleByPaginationAndLocationAndDay(
-          page,
-          limit,
-          widget.locationId!,
-          dayName,
-        );
-        _processClassesForDate(response, dayName);
-      } else {
-        // When no location ID is provided, fetch all classes for the day
-        await _fetchAllClassesOfTheDay(date);
-      }
-    } catch (e) {
-      print("Error fetching classes with pagination: $e");
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  //fetch all classes despite locaion
-  Future<void> _fetchAllClassesOfTheDay(DateTime date) async {
-    try {
-      setState(() => isLoading = true);
-      String dayName = DateFormat('EEEE').format(date);
-      final response = await APIRepository.getClassesByBusinessAndDay(
-        dayName
-      );
-      _processClassesForDate(response, dayName);
-    } catch (e) {
-      print("Error fetching all classes: $e");
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  void _processClassesForDate(dynamic response, String dayName) {
-    if (response != null && response['data'] != null) {
-      List<dynamic> allClasses = [];
-      
-      for (var classData in response['data']['data']) {
-        if (classData['full_data'] != null && classData['full_data']['schedules'] != null) {
-          for (var schedule in classData['full_data']['schedules']) {
-            if (schedule['day_of_week'].toString().toLowerCase() == dayName.toLowerCase()) {
-              allClasses.add({
-                'service_name': classData['service_name'],
-                'category_id': schedule['class_id'],
-                'schedule': schedule,
-                'full_data': classData['full_data'],
-              });
-            }
-          }
-        }
-      }
-      
-      // Sort by start time
-      allClasses.sort((a, b) => a['schedule']['start_time'].compareTo(b['schedule']['start_time']));
-      
-      setState(() {
-        // If numberOfClasses is provided, limit the results, otherwise show all
-        selectedDayClasses = widget.numberOfClasses != null 
-          ? allClasses.take(widget.numberOfClasses!).toList()
-          : allClasses;
-      });
-    }
+  void _fetchClassesForDate(DateTime date) {
+    ref.read(classesControllerProvider.notifier).fetchClassesForDate(widget.locationId, date);
   }
 
   void _onDaySelected(DateTime date) {
@@ -143,6 +46,20 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
       selectedDate = date;
     });
     _fetchClassesForDate(date);
+  }
+
+  List<dynamic> _getSelectedDayClasses() {
+    final allClasses = ref.watch(classesForDateProvider({
+      'locationId': widget.locationId,
+      'date': selectedDate,
+    }));
+    
+    // If numberOfClasses is provided, limit the results, otherwise show all
+    if (widget.numberOfClasses != null && allClasses.isNotEmpty) {
+      return allClasses.take(widget.numberOfClasses!).toList();
+    }
+    
+    return allClasses;
   }
 
   String _formatTime(String timeString) {
@@ -195,8 +112,8 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
     }
   }
 
-  Widget _buildWeekCalendar() {
-    if (widget.showCalendarHeader != true) return SizedBox.shrink();
+  Widget _buildWeekCalendar({bool isRefreshing = false}) {
+    if (widget.showCalendarHeader != true) return const SizedBox.shrink();
     
     List<Widget> dayWidgets = [];
     DateTime startOfWeek = currentDate.subtract(Duration(days: currentDate.weekday % 7));
@@ -260,16 +177,27 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
     return Column(
       children: [
-        Text(
-          _getHeaderText(),
-          style: AppTypography.bodySmall.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _getHeaderText(),
+              style: AppTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            if (isRefreshing)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+          ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Row(children: dayWidgets),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -303,7 +231,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
     Color? statusColor;
     if (schedule['package_person'] != null && schedule['package_person'] <= 10) {
       status = 'Full';
-      statusColor = Colors.blue;
+      statusColor = AppColors.primary;
     }
     // Add more status logic as needed
 
@@ -439,13 +367,17 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(classesLoadingProvider);
+    final isRefreshing = ref.watch(classesRefreshingProvider);
+    final selectedDayClasses = _getSelectedDayClasses();
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildWeekCalendar(),
+        _buildWeekCalendar(isRefreshing: isRefreshing),
         
-        if (isLoading)
-          Center(
+        if (isLoading && selectedDayClasses.isEmpty)
+          const Center(
             child: CircularProgressIndicator(),
           )
         else if (selectedDayClasses.isEmpty)
@@ -453,7 +385,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
         else ...[
           ListView.builder(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: selectedDayClasses.length,
             itemBuilder: (context, index) {
               return _buildClassCard(selectedDayClasses[index]);

@@ -23,6 +23,7 @@ class AppointmentSectionWidget extends ConsumerWidget {
     final appointmentsState = ref.watch(appointmentsControllerProvider);
     final staffState = ref.watch(staffControllerProvider);
     final isLoading = appointmentsState.isLoading;
+    final isRefreshing = appointmentsState.isRefreshing;
     final allAppointments = appointmentsState.allStaffAppointments;
     final todaysAppointments = appointmentsState.todaysStaffAppointments;
 
@@ -39,7 +40,20 @@ class AppointmentSectionWidget extends ConsumerWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const Icon(Icons.arrow_forward),
+            Row(
+              children: [
+                if (isRefreshing)
+                  const Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                const Icon(Icons.arrow_forward),
+              ],
+            ),
           ],
         ),
         const SizedBox(height: 8),

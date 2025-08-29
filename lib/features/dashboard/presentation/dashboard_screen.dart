@@ -5,7 +5,7 @@ import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/controllers/appointments_controller.dart';
 import 'package:bookit_mobile_app/core/controllers/business_controller.dart';
 import 'package:bookit_mobile_app/core/controllers/staff_controller.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/controllers/classes_controller.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/location_selector_widget.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/dashboard_content_widget.dart';
 import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
@@ -101,7 +101,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       // Business is class only
       if (staffState.hasClassStaff) {
         // Staff for classes exist - fetch class schedules
-        await APIRepository.getAllClassesDetails();
+        final classesController = ref.read(classesControllerProvider.notifier);
+        await classesController.fetchClassesForDate(activeLocation, DateTime.now());
       }
       // If no class staff, UI will show "add coach and schedule class" box
     } else if (businessType == BusinessType.both) {
@@ -114,7 +115,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
       
       if (staffState.hasClassStaff) {
-        futures.add(APIRepository.getAllClassesDetails());
+        final classesController = ref.read(classesControllerProvider.notifier);
+        futures.add(classesController.fetchClassesForDate(activeLocation, DateTime.now()));
       }
       
       if (futures.isNotEmpty) {
@@ -155,7 +157,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Future<void> fetchClasses(String locationId) async {
     try {
-      await APIRepository.getAllClassesDetails();
+      final classesController = ref.read(classesControllerProvider.notifier);
+      await classesController.fetchClassesForDate(locationId, DateTime.now());
     } catch (e) {
       debugPrint("Error fetching classes: $e");
     }
