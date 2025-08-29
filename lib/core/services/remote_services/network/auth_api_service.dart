@@ -1,6 +1,7 @@
 import 'package:bookit_mobile_app/core/models/business_model.dart';
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/cache_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint.dart';
 import 'package:dio/dio.dart';
 import '../../token_service.dart';
@@ -207,6 +208,11 @@ class UserService {
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
+        
+        // Cache the business data
+        final cacheService = CacheService();
+        await cacheService.cacheBusinessData(businessId, data);
+        
         return BusinessModel.fromJson(data);
       } else {
         throw Exception('Failed to fetch business details');
@@ -254,7 +260,14 @@ Future<UserModel> fetchUserDetails() async {
 
       if (response.statusCode == 200) {
         final user = UserModel.fromJson(response.data);
+        
+        // Save to both AuthStorageService and CacheService
         await AuthStorageService().saveUserDetails(user);
+        
+        // Cache user data
+        final cacheService = CacheService();
+        await cacheService.cacheUserData(response.data);
+        
         return user;
       } else {
         throw Exception(

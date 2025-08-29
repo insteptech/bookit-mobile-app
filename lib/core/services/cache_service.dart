@@ -6,6 +6,10 @@ class CacheService {
   static const String _staffDataKey = 'cached_staff_data';
   static const String _businessTypeCacheTimeKey = 'business_type_cache_time';
   static const String _staffCacheTimeKey = 'staff_cache_time';
+  static const String _businessDataKey = 'cached_business_data';
+  static const String _businessDataCacheTimeKey = 'business_data_cache_time';
+  static const String _userDataKey = 'cached_user_data';
+  static const String _userDataCacheTimeKey = 'user_data_cache_time';
   static const String _appointmentsKey = 'cached_appointments';
   static const String _appointmentsCacheTimeKey = 'appointments_cache_time';
   static const String _classesKey = 'cached_classes';
@@ -146,10 +150,75 @@ class CacheService {
     }
   }
 
+  // Business Data Caching
+  Future<void> cacheBusinessData(String businessId, Map<String, dynamic> businessData) async {
+    final cacheKey = '${_businessDataKey}_$businessId';
+    final cacheTimeKey = '${_businessDataCacheTimeKey}_$businessId';
+    
+    final jsonString = jsonEncode(businessData);
+    await _storage.write(cacheKey, jsonString);
+    await _storage.write(cacheTimeKey, DateTime.now().millisecondsSinceEpoch.toString());
+  }
+
+  Future<Map<String, dynamic>?> getCachedBusinessData(String businessId) async {
+    final cacheKey = '${_businessDataKey}_$businessId';
+    final jsonString = await _storage.read(cacheKey);
+    if (jsonString != null) {
+      return jsonDecode(jsonString);
+    }
+    return null;
+  }
+
+  Future<bool> isBusinessDataCacheValid(String businessId, {Duration maxAge = const Duration(hours: 12)}) async {
+    final cacheTimeKey = '${_businessDataCacheTimeKey}_$businessId';
+    final cacheTimeString = await _storage.read(cacheTimeKey);
+    if (cacheTimeString == null) return false;
+    
+    final cacheTime = DateTime.fromMillisecondsSinceEpoch(int.parse(cacheTimeString));
+    return DateTime.now().difference(cacheTime) < maxAge;
+  }
+
+  Future<void> clearBusinessDataCache([String? businessId]) async {
+    if (businessId != null) {
+      await _storage.delete('${_businessDataKey}_$businessId');
+      await _storage.delete('${_businessDataCacheTimeKey}_$businessId');
+    }
+  }
+
+  // User Data Caching
+  Future<void> cacheUserData(Map<String, dynamic> userData) async {
+    final jsonString = jsonEncode(userData);
+    await _storage.write(_userDataKey, jsonString);
+    await _storage.write(_userDataCacheTimeKey, DateTime.now().millisecondsSinceEpoch.toString());
+  }
+
+  Future<Map<String, dynamic>?> getCachedUserData() async {
+    final jsonString = await _storage.read(_userDataKey);
+    if (jsonString != null) {
+      return jsonDecode(jsonString);
+    }
+    return null;
+  }
+
+  Future<bool> isUserDataCacheValid({Duration maxAge = const Duration(hours: 6)}) async {
+    final cacheTimeString = await _storage.read(_userDataCacheTimeKey);
+    if (cacheTimeString == null) return false;
+    
+    final cacheTime = DateTime.fromMillisecondsSinceEpoch(int.parse(cacheTimeString));
+    return DateTime.now().difference(cacheTime) < maxAge;
+  }
+
+  Future<void> clearUserDataCache() async {
+    await _storage.delete(_userDataKey);
+    await _storage.delete(_userDataCacheTimeKey);
+  }
+
   Future<void> clearAllCache() async {
     await clearBusinessTypeCache();
     await clearStaffCache();
     await clearAppointmentsCache();
     await clearClassesCache();
+    await clearBusinessDataCache();
+    await clearUserDataCache();
   }
 }
