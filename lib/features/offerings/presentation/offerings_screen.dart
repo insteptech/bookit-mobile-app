@@ -58,6 +58,49 @@ class _OfferingsScreenState extends State<OfferingsScreen>
 
   Future<void> _fetchOfferings() async {
     await _controller.fetchOfferings();
+    _autoExpandCategoriesWithServices();
+  }
+
+  void _autoExpandCategoriesWithServices() {
+    if (!_controller.hasOfferings) return;
+    
+    setState(() {
+      _expandedCategories.clear();
+      for (final group in _controller.groupedOfferings) {
+        for (final offering in group.offerings) {
+          if (offering.serviceDetails.isNotEmpty) {
+            _expandedCategories.add(offering.id);
+          }
+        }
+      }
+    });
+  }
+
+  void _addCategoryToHierarchy(
+    Map<String, Map<String, dynamic>> categoryHierarchy,
+    CategoryDetails category,
+    OfferingItem? offering,
+  ) {
+    final categoryKey = '${category.id}|${category.name}|${category.level}';
+
+    if (!categoryHierarchy.containsKey(categoryKey)) {
+      categoryHierarchy[categoryKey] = {
+        'id': category.id,
+        'name': category.name,
+        'level': category.level,
+        'parent': category.parent,
+        'offerings': <OfferingItem>[],
+        'children': <String>[],
+      };
+    }
+
+    // Add offering if provided
+    if (offering != null) {
+      final offeringsList = categoryHierarchy[categoryKey]!['offerings'] as List<OfferingItem>;
+      if (!offeringsList.contains(offering)) {
+        offeringsList.add(offering);
+      }
+    }
   }
 
   Widget _buildOfferingsContent() {
@@ -172,30 +215,19 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     // Create a hierarchical structure to properly handle nesting
     final Map<String, Map<String, dynamic>> categoryHierarchy = {};
 
-    // First, organize all categories in the hierarchy
+    // First, organize all categories in the hierarchy, including parent categories
     for (final offering in offerings) {
       final category = offering.category;
-      final categoryId = category.id;
-      final categoryName = category.name;
-      final categoryLevel = category.level;
-      final parentCategory = category.parent;
-
-      final categoryKey = '$categoryId|$categoryName|$categoryLevel';
-
-      if (!categoryHierarchy.containsKey(categoryKey)) {
-        categoryHierarchy[categoryKey] = {
-          'id': categoryId,
-          'name': categoryName,
-          'level': categoryLevel,
-          'parent': parentCategory,
-          'offerings': <OfferingItem>[],
-          'children': <String>[],
-        };
+      
+      // Add the current category
+      _addCategoryToHierarchy(categoryHierarchy, category, offering);
+      
+      // Add all parent categories in the chain
+      CategoryDetails? currentParent = category.parent;
+      while (currentParent != null) {
+        _addCategoryToHierarchy(categoryHierarchy, currentParent, null);
+        currentParent = currentParent.parent;
       }
-
-      (categoryHierarchy[categoryKey]!['offerings'] as List<OfferingItem>).add(
-        offering,
-      );
     }
 
     // Build parent-child relationships
@@ -207,9 +239,10 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         final parentKey =
             '${parentCategory.id}|${parentCategory.name}|${parentCategory.level}';
         if (categoryHierarchy.containsKey(parentKey)) {
-          (categoryHierarchy[parentKey]!['children'] as List<String>).add(
-            entry.key,
-          );
+          final childrenList = categoryHierarchy[parentKey]!['children'] as List<String>;
+          if (!childrenList.contains(entry.key)) {
+            childrenList.add(entry.key);
+          }
         }
       }
     }
