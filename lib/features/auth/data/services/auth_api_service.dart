@@ -1,6 +1,8 @@
 import 'package:bookit_mobile_app/core/models/business_model.dart';
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/cache_service.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
 import 'package:dio/dio.dart';
@@ -117,7 +119,15 @@ class AuthService {
 
   /// Logout
   Future<void> logout() async {
+    // Clear token
     await _tokenService.clearToken();
+    
+    // Clear all cache data
+    final cacheService = CacheService();
+    await cacheService.clearAllCache();
+    
+    // Clear business categories provider
+    BusinessCategoriesProvider.instance.clear();
   }
 
   //...........................initiate password reset............................

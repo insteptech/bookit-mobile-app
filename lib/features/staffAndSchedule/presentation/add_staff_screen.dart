@@ -260,11 +260,17 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
         // Navigate based on whether this is for a class or regular staff
         if (widget.isClass == true) {
           // Navigate to class selection screen with the category ID
-          if (widget.categoryId != null) {
+          // Get category ID from widget or from the staff profile's first category
+          String? categoryIdToUse = widget.categoryId;
+          if (categoryIdToUse == null && _controller.staffProfile?.categoryIds.isNotEmpty == true) {
+            categoryIdToUse = _controller.staffProfile!.categoryIds.first;
+          }
+          
+          if (categoryIdToUse != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ClassSelectionScreen(categoryId: widget.categoryId!),
+                builder: (context) => ClassSelectionScreen(categoryId: categoryIdToUse!),
               ),
             );
           } else {
@@ -553,6 +559,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       final controllerCanSubmit = _controller.canSubmit;
       final scheduleControllerIsValid = _scheduleController.isValid();
       final isLoading = _controller.isLoading;
+      final isScheduleLoading = _addStaffWithScheduleController.isLoading;
       
       // Updated logic: 
       // - If staff availability is OFF, only require staff form completion
@@ -621,10 +628,10 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           ] else ...[
             // Schedule tab button
             PrimaryButton(
-              text: isLoading
+              text: isScheduleLoading
                   ? "Saving..."
                   : "Save",
-              onPressed: isLoading ? null : isDisabled ? null : () {
+              onPressed: isScheduleLoading ? null : isDisabled ? null : () {
                 _isSaveAndExit = true; // Set flag to navigate back after save
                 if (!scheduleIsAvailable) {
                   // If availability is OFF, save only staff info
@@ -634,7 +641,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
                   _addStaffWithScheduleController.submit();
                 }
               },
-              isDisabled: isDisabled || isLoading,
+              isDisabled: isDisabled || isScheduleLoading,
             ),
           ],
         ],

@@ -3,22 +3,26 @@ import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
+import 'package:bookit_mobile_app/core/services/cache_service.dart';
 import 'package:bookit_mobile_app/core/services/navigation_service.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
+import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_item.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_section.dart';
 import 'package:bookit_mobile_app/features/menu/controllers/menu_controller.dart' as menu_ctrl;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-class MenuScreen extends StatefulWidget {
+class MenuScreen extends ConsumerStatefulWidget {
   const MenuScreen({super.key});
 
   @override
-  State<MenuScreen> createState() => _MenuScreenState();
+  ConsumerState<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> {
+class _MenuScreenState extends ConsumerState<MenuScreen> {
   late final menu_ctrl.MenuController _menuController;
   String _appVersion = '';
 
@@ -158,8 +162,25 @@ class _MenuScreenState extends State<MenuScreen> {
                     children: [
                       OutlinedButton(
                         onPressed: () async {
+                          print("🔒 Logging out - clearing all data");
+                          
+                          // Clear token and active business
                           await TokenService().clearToken();
                           await ActiveBusinessService().clearActiveBusiness();
+                          
+                          // Clear all cache data
+                          final cacheService = CacheService();
+                          await cacheService.clearAllCache();
+                          print("🗑️ Cache cleared on logout");
+                          
+                          // Clear business categories provider
+                          BusinessCategoriesProvider.instance.clear();
+                          print("🗑️ Business categories provider cleared");
+                          
+                          // Clear Riverpod business provider
+                          ref.read(businessProvider.notifier).state = null;
+                          print("🗑️ Business provider cleared");
+                          
                           NavigationService.go("/login");
                         },
                         style: OutlinedButton.styleFrom(

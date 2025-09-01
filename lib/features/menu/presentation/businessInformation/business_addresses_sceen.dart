@@ -120,6 +120,7 @@ class _BusinessAddressesScreenState extends ConsumerState<BusinessAddressesScree
             backgroundColor: Colors.green,
           ),
         );
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {

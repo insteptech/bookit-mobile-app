@@ -377,10 +377,17 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
         _buildWeekCalendar(isRefreshing: isRefreshing),
         
         if (isLoading && selectedDayClasses.isEmpty)
-          const Center(
+         Container(
+        height: 160,
+        color: AppColors.lightGrayBoxColor,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: const Center(
             child: CircularProgressIndicator(),
           )
-        else if (selectedDayClasses.isEmpty)
+      )
+          
+        else if (selectedDayClasses.isEmpty) 
           NoClassesBox(message: _getHeaderText().toLowerCase())
         else ...[
           ListView.builder(

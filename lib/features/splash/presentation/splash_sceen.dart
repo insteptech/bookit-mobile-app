@@ -23,7 +23,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAndRedirect();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndRedirect();
+    });
   }
 
   void logout()async{

@@ -27,7 +27,9 @@ class ClassDetailsTab extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 image: const DecorationImage(
-                  image: AssetImage('assets/images/profile_picker_background.png'),
+                  image: AssetImage(
+                    'assets/images/profile_picker_background.png',
+                  ),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -51,42 +53,36 @@ class ClassDetailsTab extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: AppConstants.sectionSpacing),
-            
+
             // Service dropdown (read-only display)
             Text(
-              controller.serviceData?['title'] ?? controller.serviceData?['name'] ?? 'Service',
+              controller.serviceData?['title'] ??
+                  controller.serviceData?['name'] ??
+                  'Service',
               style: AppTypography.headingMd,
             ),
-            
+
             const SizedBox(height: AppConstants.contentSpacing),
-            
+
             // Class title section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Class title',
-                  style: AppTypography.headingSm,
-                ),
-                Icon(
-                  Icons.delete_outline,
-                  size: 18,
-                  color: AppColors.primary,
-                ),
+                Text('Class title', style: AppTypography.headingSm),
               ],
             ),
-            
+
             const SizedBox(height: AppConstants.labelToFieldSpacing),
-            
+
             InputField(
               hintText: 'Class title',
               controller: controller.titleController,
             ),
-            
+
             const SizedBox(height: AppConstants.fieldToFieldSpacing),
-            
+
             // Description section
             Text(
               'Write a short description',
@@ -94,25 +90,22 @@ class ClassDetailsTab extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            
+
             const SizedBox(height: AppConstants.labelToFieldSpacing),
-            
+
             InputField(
               hintText: 'Class description',
               controller: controller.descriptionController,
               maxLines: 3,
             ),
-            
+
             const SizedBox(height: AppConstants.sectionSpacing),
-            
+
             // Duration section
-            Text(
-              'Duration',
-              style: AppTypography.headingSm,
-            ),
-            
+            Text('Duration', style: AppTypography.headingSm),
+
             const SizedBox(height: AppConstants.contentSpacing),
-            
+
             Row(
               children: [
                 const SmallFixedTextBox(text: "minutes"),
@@ -126,92 +119,62 @@ class ClassDetailsTab extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: AppConstants.sectionSpacing),
-            
+
             // Cost section
-            Text(
-              'Cost',
-              style: AppTypography.headingSm,
-            ),
-            
+            Text('Cost', style: AppTypography.headingSm),
+
             const SizedBox(height: AppConstants.contentSpacing),
-            
+
             // Price per session row with label and inputs
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Price per session label
                 SizedBox(
                   width: 132,
                   child: Text(
                     'Price per session',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: const Color(0xFF202733),
-                    ),
+                    style: AppTypography.bodyMedium,
                   ),
                 ),
                 const SizedBox(width: AppConstants.smallContentSpacing),
                 // EGP currency box
-                SizedBox(
-                  width: 88,
-                  child: Container(
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: const Color(0xFFCED4DA)),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0x0D212529),
-                          blurRadius: 1,
-                        ),
-                        BoxShadow(
-                          color: const Color(0x0F212529),
-                          blurRadius: 2,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        'EGP',
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: const Color(0xFF202733),
-                        ),
+                Row(
+                  children: [
+                    SmallFixedTextBox(text: "EGP"),
+                    const SizedBox(width: AppConstants.smallContentSpacing),
+                    // Price input box
+                    SizedBox(
+                      width: 88,
+                      child: NumericInputBox(
+                        controller: controller.priceController,
+                        hintText: '000',
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: AppConstants.smallContentSpacing),
-                // Price input box
-                SizedBox(
-                  width: 88,
-                  child: NumericInputBox(
-                    controller: controller.priceController,
-                    hintText: '000',
-                  ),
+                  ],
                 ),
               ],
             ),
-            
+
             const SizedBox(height: AppConstants.smallContentSpacing),
-            
+
             // Class pack row with label and inputs
             Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
               children: [
                 // Class pack label
                 SizedBox(
                   width: 132,
-                  child: Text(
-                    'Class pack',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: const Color(0xFF202733),
-                    ),
-                  ),
+                  child: Text('Class pack', style: AppTypography.bodyMedium),
                 ),
                 const SizedBox(width: AppConstants.smallContentSpacing),
                 // First input (X)
-                SizedBox(
+                Row(
+                  children: [
+                    SizedBox(
                   width: 88,
                   child: NumericInputBox(
                     controller: controller.packagePersonController,
@@ -227,19 +190,18 @@ class ClassDetailsTab extends StatelessWidget {
                     hintText: '000',
                   ),
                 ),
+                  ],
+                )
               ],
             ),
-            
+
             const SizedBox(height: AppConstants.sectionSpacing),
-            
+
             // Spots Available section
-            Text(
-              'Spots Available',
-              style: AppTypography.headingSm,
-            ),
-            
+            Text('Spots Available', style: AppTypography.headingSm),
+
             const SizedBox(height: AppConstants.smallContentSpacing),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -256,7 +218,7 @@ class ClassDetailsTab extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             if (controller.spotsLimitEnabled) ...[
               const SizedBox(height: AppConstants.contentSpacing),
               SizedBox(
