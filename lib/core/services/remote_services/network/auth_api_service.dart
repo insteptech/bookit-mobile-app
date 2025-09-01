@@ -196,7 +196,7 @@ class UserService {
   Future<BusinessModel> fetchBusinessDetails({
     required String businessId,
   }) async {
-    print("Fetching business details");
+    print("🌐 UserService: Fetching business details from API for ID: $businessId");
     final token = await TokenService().getToken();
     if (token == null) throw Exception('No token found');
     
@@ -210,8 +210,10 @@ class UserService {
         final data = response.data['data'];
         
         // Cache the business data
+        print("💾 UserService: Saving business data to cache");
         final cacheService = CacheService();
         await cacheService.cacheBusinessData(businessId, data);
+        print("✅ UserService: Business data cached successfully");
         
         return BusinessModel.fromJson(data);
       } else {
@@ -249,6 +251,7 @@ class UserService {
 // }
 
 Future<UserModel> fetchUserDetails() async {
+    print("🌐 UserService: Fetching user details from API");
     final token = await TokenService().getToken();
     if (token == null) throw Exception('User not logged in');
 
@@ -265,8 +268,10 @@ Future<UserModel> fetchUserDetails() async {
         await AuthStorageService().saveUserDetails(user);
         
         // Cache user data
+        print("💾 UserService: Saving user data to cache");
         final cacheService = CacheService();
         await cacheService.cacheUserData(response.data);
+        print("✅ UserService: User data cached successfully");
         
         return user;
       } else {
