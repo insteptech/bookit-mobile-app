@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
@@ -137,7 +138,7 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
                 children: [
-                  const SizedBox(height: 70),
+                  const SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [

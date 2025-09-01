@@ -238,9 +238,11 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
     return GestureDetector(
       onTap: () {
         if(serviceId == null || serviceName.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Service details are not available.'))
-          );
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Service details are not available.'))
+            );
+          }
           return;
         }
         context.push(

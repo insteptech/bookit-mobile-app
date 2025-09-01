@@ -102,9 +102,11 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       try {
         await controller.submit(context, ref);
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.toString())),
+          );
+        }
       }
     },
     child: state.isLoading

@@ -238,6 +238,17 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
   @override
   void dispose() {
+    // Clear callbacks to prevent calls after disposal
+    _controller.setCallbacks(
+      onStateChanged: () {},
+      onSuccess: (_) {},
+      onError: (_) {},
+    );
+    _addStaffWithScheduleController.setCallbacks(
+      onStateChanged: () {},
+      onSuccess: (_) {},
+      onError: (_) {},
+    );
     _controller.dispose();
     super.dispose();
   }
@@ -245,9 +256,15 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
   void _handleSuccess(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    
+    try {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      // Widget is disposed, ignore the snackbar
+      debugPrint('ScaffoldMessenger call failed: widget disposed');
+    }
     
     
     // Handle navigation based on which action was triggered
@@ -302,13 +319,20 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
   void _handleError(String error) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${AppTranslationsDelegate.of(context).text("error")}: $error',
+    
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppTranslationsDelegate.of(context).text("error")}: $error',
+          ),
+          backgroundColor: Colors.red,
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      // Widget is disposed, ignore the snackbar
+      debugPrint('ScaffoldMessenger call failed: widget disposed');
+    }
   }
 
   void _fetchLocations() async {

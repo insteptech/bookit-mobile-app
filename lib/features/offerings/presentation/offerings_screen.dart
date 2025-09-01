@@ -58,22 +58,6 @@ class _OfferingsScreenState extends State<OfferingsScreen>
 
   Future<void> _fetchOfferings() async {
     await _controller.fetchOfferings();
-    _autoExpandCategoriesWithServices();
-  }
-
-  void _autoExpandCategoriesWithServices() {
-    if (!_controller.hasOfferings) return;
-    
-    setState(() {
-      _expandedCategories.clear();
-      for (final group in _controller.groupedOfferings) {
-        for (final offering in group.offerings) {
-          if (offering.serviceDetails.isNotEmpty) {
-            _expandedCategories.add(offering.id);
-          }
-        }
-      }
-    });
   }
 
   void _addCategoryToHierarchy(

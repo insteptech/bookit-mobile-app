@@ -111,12 +111,14 @@ class _ClientWebAppScreenState extends State<ClientWebAppScreen> {
         print('Web app link: $_webAppLink');
         
         // Example: Navigate to success page or show confirmation
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Web app is going live at $_webAppLink'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Web app is going live at $_webAppLink'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       },
     );
   }

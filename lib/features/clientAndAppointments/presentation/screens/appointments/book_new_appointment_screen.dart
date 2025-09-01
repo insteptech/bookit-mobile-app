@@ -1,5 +1,6 @@
 
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/models/user_model.dart';
@@ -364,7 +365,7 @@ class _BookNewAppointmentScreenState
                   vertical: 24,
                 ),
                 children: [
-                  const SizedBox(height: 70),
+                  const SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [

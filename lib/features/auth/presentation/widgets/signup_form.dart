@@ -177,7 +177,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                   ] else ...[
                     // Show normal signup button when email doesn't exist
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 24, top: 24),
+                      padding: const EdgeInsets.only(bottom: 5, top: 24),
                       child: PrimaryButton(
                         isDisabled: signupState.isButtonDisabled || signupState.isLoading,
                         text: localizations.text("complete_sign_up"),
