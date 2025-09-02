@@ -180,6 +180,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               expandedHeight: 180.0,
               collapsedHeight: 100.0,
               backgroundColor: theme.scaffoldBackgroundColor,
+              surfaceTintColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: theme.colorScheme.onSurface,
               elevation: 0,
               automaticallyImplyLeading: false,
               flexibleSpace: LayoutBuilder(

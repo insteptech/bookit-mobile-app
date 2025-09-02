@@ -139,49 +139,106 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Sticky header with title and location selector
-            Container(
-              width: double.infinity,
-              padding: AppConstants.defaultScaffoldPadding.copyWith(
-                top: AppConstants.scaffoldTopSpacing,
-                bottom: 16.0,
-              ),
-              decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor,
-                border: Border(
-                  bottom: BorderSide(
-                    color: theme.dividerColor.withValues(alpha: 0.12),
-                    width: 0.5,
-                  ),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppTranslationsDelegate.of(context).text("calendar_title"),
-                    style: AppTypography.headingLg,
-                  ),
-                  const SizedBox(height: 12.0),
-                  const LocationSelectorDropdown(),
-                ],
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              expandedHeight: 120.0,
+              collapsedHeight: 60.0,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              surfaceTintColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: theme.colorScheme.onSurface,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              flexibleSpace: LayoutBuilder(
+                builder: (context, constraints) {
+                  final expandedHeight = 120.0;
+                  final collapsedHeight = 60.0;
+                  final currentHeight = constraints.maxHeight;
+                  final progress = ((expandedHeight - currentHeight) / 
+                      (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
+                  
+                  return Container(
+                    padding: AppConstants.defaultScaffoldPadding.copyWith(
+                      top: AppConstants.scaffoldTopSpacing,
+                      bottom: 16.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.scaffoldBackgroundColor,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: theme.dividerColor.withValues(alpha: 0.12),
+                          width: 0.5,
+                        ),
+                      ),
+                    ),
+                    child: _buildAnimatedCalendarHeader(progress),
+                  );
+                },
               ),
             ),
-            // Scrollable calendar content
-            Expanded(
-              child: ListView(
-                padding: AppConstants.defaultScaffoldPadding.copyWith(
-                  top: 20.0,
-                ),
-                children: [
+            SliverPadding(
+              padding: AppConstants.defaultScaffoldPadding.copyWith(
+                top: 20.0,
+              ),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
                   _buildCalendarContent(context, ref),
-                ],
+                ]),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+  
+  Widget _buildAnimatedCalendarHeader(double progress) {
+    final textSize = 32.0 - (6.0 * progress); // 32 -> 26
+    
+    // Calculate smooth positions for title
+    final titleTopPosition = 0.0; // Title stays at top
+    final titleLeftPosition = 0.0; // Title stays on left
+    
+    // Calculate smooth positions for location selector
+    // When expanded: below title on left 
+    // When collapsed: parallel/aligned with title on right side
+    final locationTopPosition = progress > 0.5 
+        ? 0.0 // Align with title when collapsed
+        : textSize + 12.0; // Below title when expanded
+    final locationLeftPosition = progress > 0.5 ? null : 0.0; // Left when expanded, null when collapsed
+    final locationRightPosition = progress > 0.5 ? 0.0 : null; // Null when expanded, right when collapsed
+    
+    return SizedBox(
+      height: double.infinity,
+      child: Stack(
+        children: [
+          // Calendar title - smoothly animated size and position
+          Positioned(
+            top: titleTopPosition,
+            left: titleLeftPosition,
+            right: progress > 0.5 ? 120 : null, // Make space for location selector when collapsed
+            child: Text(
+              AppTranslationsDelegate.of(context).text("calendar_title"),
+              style: TextStyle(
+                fontSize: textSize,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Campton',
+              ),
+            ),
+          ),
+          
+          // Location selector - smoothly animated position
+          Positioned(
+            top: locationTopPosition,
+            left: locationLeftPosition,
+            right: locationRightPosition,
+            child: const LocationSelectorDropdown(),
+          ),
+        ],
       ),
     );
   }
