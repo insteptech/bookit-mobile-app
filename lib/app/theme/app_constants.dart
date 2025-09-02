@@ -27,7 +27,7 @@ class AppConstants {
   // ═══════════════════════════════════════════════════════════════════════════════════
   
   /// Default horizontal padding for most screens
-  static const double defaultHorizontalPadding = 15.0;
+  static const double defaultHorizontalPadding = 20.0;
   
   /// Alternative horizontal padding used in auth and onboarding
   static const double authHorizontalPadding = 20.0;

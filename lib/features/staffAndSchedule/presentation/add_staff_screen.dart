@@ -355,13 +355,13 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(34, 2, 34, 2),
+          padding: AppConstants.defaultScaffoldPadding,
           child: _buildActionButtons(),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 16),
+          padding: AppConstants.defaultScaffoldPadding,
           child: _buildMainContent(context),
         ),
       ),

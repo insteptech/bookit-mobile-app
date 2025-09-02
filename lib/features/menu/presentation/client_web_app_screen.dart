@@ -100,7 +100,7 @@ class _ClientWebAppScreenState extends State<ClientWebAppScreen> {
             ),
           ),
           
-          const Spacer(),
+          const SizedBox(height: 40), // Replace Spacer with fixed height spacing
         ],
       ),
       buttonText: "Go live",

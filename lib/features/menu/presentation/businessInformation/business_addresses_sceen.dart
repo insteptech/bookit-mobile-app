@@ -30,24 +30,16 @@ class _BusinessAddressesScreenState extends ConsumerState<BusinessAddressesScree
 
     return MenuScreenScaffold(
       title: "Addresses", 
-      content: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: OnboardLocationsWidget(
-                showNextButton: false,
-                onLocationsChanged: (locations) {
-                  setState(() {
-                    currentLocations = locations;
-                    hasChanges = true;
-                    // Validate all locations have required fields filled
-                    isFormValid = _validateAllLocations(locations);
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
+      content: OnboardLocationsWidget(
+        showNextButton: false,
+        onLocationsChanged: (locations) {
+          setState(() {
+            currentLocations = locations;
+            hasChanges = true;
+            // Validate all locations have required fields filled
+            isFormValid = _validateAllLocations(locations);
+          });
+        },
       ),
       buttonText: isSaving ? "Saving..." : "Save changes",
       // Always provide the callback, but use isButtonDisabled to control the state

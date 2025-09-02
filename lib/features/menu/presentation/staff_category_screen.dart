@@ -62,25 +62,20 @@ class StaffCategoryScreen extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: [
-        // Staff members list
-        Expanded(
-          child: ListView.separated(
-            itemCount: staffMembers.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final staffMember = staffMembers[index];
-              return StaffMemberRow(
-                staffName: staffMember.name,
-                staffId: staffMember.id,
-                staffImageUrl: staffMember.profilePhotoUrl ?? '',
-                onClick: () => _onStaffMemberTap(context, staffMember),
-              );
-            },
-          ),
-        ),
-      ],
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: staffMembers.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        final staffMember = staffMembers[index];
+        return StaffMemberRow(
+          staffName: staffMember.name,
+          staffId: staffMember.id,
+          staffImageUrl: staffMember.profilePhotoUrl ?? '',
+          onClick: () => _onStaffMemberTap(context, staffMember),
+        );
+      },
     );
   }
 

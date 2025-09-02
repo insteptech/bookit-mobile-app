@@ -162,31 +162,26 @@ class _StaffCategorySelectionScreenState extends State<StaffCategorySelectionScr
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: staffData!.categories.length,
-            itemBuilder: (context, index) {
-              final category = staffData!.categories[index];
-              final isSelected = selectedCategoryId == category.categoryId;
-              final bool isClass = categoryIsClassMap[category.categoryId] ?? false;
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: staffData!.categories.length,
+      itemBuilder: (context, index) {
+        final category = staffData!.categories[index];
+        final isSelected = selectedCategoryId == category.categoryId;
+        final bool isClass = categoryIsClassMap[category.categoryId] ?? false;
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: RadioButton(
-                  heading: category.categoryName,
-                  description: isClass ? 'Add coach for ${category.categoryName}' : 'Add staff member for ${category.categoryName} service',
-                  rememberMe: isSelected,
-                  onChanged: (_) => _onCategorySelected(category),
-                  bgColor: Theme.of(context).scaffoldBackgroundColor,
-                ),
-              );
-            },
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: RadioButton(
+            heading: category.categoryName,
+            description: isClass ? 'Add coach for ${category.categoryName}' : 'Add staff member for ${category.categoryName} service',
+            rememberMe: isSelected,
+            onChanged: (_) => _onCategorySelected(category),
+            bgColor: Theme.of(context).scaffoldBackgroundColor,
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 

@@ -246,26 +246,19 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
       );
     }
 
-    return Column(
-      children: [
-        // Search now lives in header via scaffold slot
-        
-        // Staff categories and members
-        Expanded(
-          child: ListView.separated(
-            itemCount: filteredCategories.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 24),
-            itemBuilder: (context, index) {
-              final category = filteredCategories[index];
-              return StaffCategorySection(
-                category: category,
-                onCategoryTap: () => _onCategoryTap(category),
-                onStaffMemberTap: _onStaffMemberTap,
-              );
-            },
-          ),
-        ),
-      ],
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filteredCategories.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 24),
+      itemBuilder: (context, index) {
+        final category = filteredCategories[index];
+        return StaffCategorySection(
+          category: category,
+          onCategoryTap: () => _onCategoryTap(category),
+          onStaffMemberTap: _onStaffMemberTap,
+        );
+      },
     );
   }
 

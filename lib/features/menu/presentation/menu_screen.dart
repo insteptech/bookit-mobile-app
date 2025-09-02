@@ -54,6 +54,36 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     super.dispose();
   }
 
+  Widget _buildAnimatedMenuHeader(double progress) {
+    final textSize = 32.0 - (6.0 * progress); // 32 -> 26
+    
+    // Calculate smooth position for title
+    final titleTopPosition = 0.0; // Title stays at top
+    final titleLeftPosition = 0.0; // Title stays on left
+    
+    return SizedBox(
+      height: double.infinity,
+      child: Stack(
+        children: [
+          // Menu title - smoothly animated size
+          Positioned(
+            top: titleTopPosition,
+            left: titleLeftPosition,
+            right: 0,
+            child: Text(
+              "Menu",
+              style: TextStyle(
+                fontSize: textSize,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Campton',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -61,24 +91,42 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  AppConstants.authHorizontalPadding,
-                  AppConstants.scaffoldTopSpacing,
-                  AppConstants.authHorizontalPadding,
-                  10
-                ),
-                children: [
-                  SizedBox(height: AppConstants.scaffoldTopSpacing),
-                  Text(
-                    AppTranslationsDelegate.of(context).text("menu_title"),
-                    style: AppTypography.headingLg,
-                  ),
-                  SizedBox(height: AppConstants.headerToContentSpacing),
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              expandedHeight: 80.0,
+              collapsedHeight: 60.0,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              surfaceTintColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: theme.colorScheme.onSurface,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              flexibleSpace: LayoutBuilder(
+                builder: (context, constraints) {
+                  final expandedHeight = 80.0;
+                  final collapsedHeight = 60.0;
+                  final currentHeight = constraints.maxHeight;
+                  final progress = ((expandedHeight - currentHeight) / 
+                      (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
                   
+                  return Container(
+                    padding: AppConstants.defaultScaffoldPadding.copyWith(
+                      top: AppConstants.scaffoldTopSpacing,
+                      bottom: 16.0,
+                    ),
+                    child: _buildAnimatedMenuHeader(progress),
+                  );
+                },
+              ),
+            ),
+            SliverPadding(
+              padding: AppConstants.defaultScaffoldPadding,
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
                   // STAFF Section
                   MenuSection(
                     title: "Staff",
@@ -205,7 +253,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                   ),
 
                   SizedBox(height: AppConstants.headerToContentSpacingMedium),
-                ],
+                ]),
               ),
             ),
           ],

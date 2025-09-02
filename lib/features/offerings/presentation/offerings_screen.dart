@@ -138,28 +138,24 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         }
 
         return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Category sections
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children:
-                      groupedOfferings.map<Widget>((group) {
-                        final rootKey =
-                            '${group.rootParentId}|${group.rootParentName}';
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: groupedOfferings.map<Widget>((group) {
+                final rootKey =
+                    '${group.rootParentId}|${group.rootParentName}';
 
-                        return Container(
-                          key: _categoryKeys[rootKey],
-                          child: _buildRootCategorySection(
-                            rootParentId: group.rootParentId,
-                            rootParentName: group.rootParentName,
-                            offerings: group.offerings,
-                          ),
-                        );
-                      }).toList(),
-                ),
-              ),
+                return Container(
+                  key: _categoryKeys[rootKey],
+                  child: _buildRootCategorySection(
+                    rootParentId: group.rootParentId,
+                    rootParentName: group.rootParentName,
+                    offerings: group.offerings,
+                  ),
+                );
+              }).toList(),
             ),
           ],
         );
@@ -777,95 +773,63 @@ class _OfferingsScreenState extends State<OfferingsScreen>
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
-          child: Column(
-            children: [
-              // Fixed header content
-              Padding(
-                padding: AppConstants.defaultScaffoldPadding,
-                child: Column(
-                  children: [
-                    const SizedBox(height: AppConstants.scaffoldTopSpacing),
-                    Row(
-                      children: [
-                        Text("Offerings", style: AppTypography.headingLg),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Search bar (shared component styling)
-                    SearchableClientField(
-                      layerLink: _searchFieldLink,
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      hintText: 'Search here',
-                    ),
-                    // Design-specific spacing below search based on category count
-                    Consumer<OfferingsController>(
-                      builder: (context, controller, _) {
-                        final rootCategoryNames = controller.rootCategoryNames;
-                        if (rootCategoryNames.length > 1) {
-                          _initOrUpdateTabController(rootCategoryNames.length);
-                          return Column(
-                            children: [
-                              const SizedBox(height: 16),
-                              Container(
-                                width: double.infinity,
-                                decoration: const BoxDecoration(
-                                  border: Border(bottom: BorderSide.none),
-                                ),
-                                child: TabBar(
-                                  controller: _tabController,
-                                  isScrollable: true,
-                                  tabAlignment: TabAlignment.start,
-                                  // Figma: underline #790077 at 1.5px under selected tab
-                                  indicatorColor: AppColors.primary,
-                                  labelColor: AppColors.primary,
-                                  unselectedLabelColor: Colors.black,
-                                  indicatorWeight: 1.5,
-                                  indicatorSize: TabBarIndicatorSize.label,
-                                  labelPadding: EdgeInsets.only(right: 32),
-                                  dividerColor: Colors.transparent,
-                                  overlayColor: WidgetStateProperty.all(
-                                    Colors.transparent,
-                                  ),
-                                  splashFactory: NoSplash.splashFactory,
-                                  labelStyle: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                  unselectedLabelStyle: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                  ),
-                                  onTap: (index) {
-                                    _scrollToCategoryAtIndex(
-                                      index,
-                                      controller.groupedOfferings,
-                                    );
-                                  },
-                                  tabs:
-                                      rootCategoryNames
-                                          .map((name) => Tab(text: name))
-                                          .toList(),
-                                ),
-                              ),
-                              // Add 24 inside header so with header bottom padding (24) total becomes 48
-                              SizedBox(height: AppConstants.sectionSpacing),
-                            ],
-                          );
-                        } else if (rootCategoryNames.length == 1) {
-                          // Add 24 inside header so with header bottom padding (24) total becomes 48
-                          return SizedBox(height: AppConstants.sectionSpacing);
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ],
+          child: CustomScrollView(
+            physics: const ClampingScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                floating: false,
+                expandedHeight: 120.0,
+                collapsedHeight: 100.0,
+                backgroundColor: theme.scaffoldBackgroundColor,
+                surfaceTintColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: theme.colorScheme.onSurface,
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                flexibleSpace: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final expandedHeight = 120.0;
+                    final collapsedHeight = 100.0;
+                    final currentHeight = constraints.maxHeight;
+                    final progress = ((expandedHeight - currentHeight) / 
+                        (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
+                    
+                    return Container(
+                      padding: AppConstants.defaultScaffoldPadding.copyWith(
+                        top: AppConstants.scaffoldTopSpacing,
+                        bottom: 16.0,
+                      ),
+                      child: _buildAnimatedOfferingsHeader(progress),
+                    );
+                  },
                 ),
               ),
-              // Scrollable content with tabs and offerings
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 34),
+              // Tabs section - only show when multiple categories
+              Consumer<OfferingsController>(
+                builder: (context, controller, _) {
+                  final rootCategoryNames = controller.rootCategoryNames;
+                  if (rootCategoryNames.length > 1) {
+                    _initOrUpdateTabController(rootCategoryNames.length);
+                    return SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _TabBarDelegate(
+                        tabController: _tabController!,
+                        rootCategoryNames: rootCategoryNames,
+                        onTap: (index) => _scrollToCategoryAtIndex(
+                          index,
+                          controller.groupedOfferings,
+                        ),
+                      ),
+                    );
+                  }
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                },
+              ),
+              // Scrollable content
+              SliverPadding(
+                padding: AppConstants.defaultScaffoldPadding,
+                sliver: SliverToBoxAdapter(
                   child: _buildOfferingsContent(),
                 ),
               ),
@@ -873,32 +837,26 @@ class _OfferingsScreenState extends State<OfferingsScreen>
               Consumer<OfferingsController>(
                 builder: (context, controller, child) {
                   if (controller.rootCategoryNames.length == 1) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 34,
-                        vertical: 24,
+                    return SliverPadding(
+                      padding: AppConstants.defaultScaffoldPadding.copyWith(
+                        top: 24,
+                        bottom: 24,
                       ),
-                      child: Consumer<OfferingsController>(
-                        builder: (context, controller, child) {
-                          // Get button text from controller
-                          final buttonText =
-                              controller.getAddServiceButtonText();
-
-                          return PrimaryButton(
-                            onPressed:
-                                controller.isLoading ? null : _handleAddService,
-                            isDisabled: controller.isLoading,
-                            text:
-                                controller.isLoading
-                                    ? "Loading..."
-                                    : buttonText,
-                            // isHollow: true,
-                          );
-                        },
+                      sliver: SliverToBoxAdapter(
+                        child: Consumer<OfferingsController>(
+                          builder: (context, controller, child) {
+                            final buttonText = controller.getAddServiceButtonText();
+                            return PrimaryButton(
+                              onPressed: controller.isLoading ? null : _handleAddService,
+                              isDisabled: controller.isLoading,
+                              text: controller.isLoading ? "Loading..." : buttonText,
+                            );
+                          },
+                        ),
                       ),
                     );
                   }
-                  return const SizedBox.shrink();
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
                 },
               ),
             ],
@@ -906,5 +864,108 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         ),
       ),
     );
+  }
+  
+  Widget _buildAnimatedOfferingsHeader(double progress) {
+    final textSize = 32.0 - (6.0 * progress); // 32 -> 26
+    
+    // Calculate smooth positions for title
+    final titleTopPosition = 0.0; // Title stays at top
+    final titleLeftPosition = 0.0; // Title stays on left
+    
+    // Search bar always stays below title with smooth spacing
+    final searchTopPosition = textSize + (16.0 * (1 - progress * 0.3)); // Adjusts spacing as title shrinks
+    final searchLeftPosition = 0.0; // Always left-aligned
+    
+    return SizedBox(
+      height: double.infinity,
+      child: Stack(
+        children: [
+          // Offerings title - smoothly animated size
+          Positioned(
+            top: titleTopPosition,
+            left: titleLeftPosition,
+            right: 0,
+            child: Text(
+              "Offerings",
+              style: TextStyle(
+                fontSize: textSize,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Campton',
+              ),
+            ),
+          ),
+          
+          // Search bar - always below title, smooth spacing adjustment
+          Positioned(
+            top: searchTopPosition,
+            left: searchLeftPosition,
+            right: 0,
+            child: SearchableClientField(
+              layerLink: _searchFieldLink,
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              hintText: 'Search here',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabController tabController;
+  final List<String> rootCategoryNames;
+  final Function(int) onTap;
+
+  _TabBarDelegate({
+    required this.tabController,
+    required this.rootCategoryNames,
+    required this.onTap,
+  });
+
+  @override
+  double get minExtent => 50.0;
+
+  @override
+  double get maxExtent => 50.0;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      height: 50.0,
+      color: Theme.of(context).scaffoldBackgroundColor,
+      padding: AppConstants.defaultScaffoldPadding,
+      child: TabBar(
+        controller: tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        indicatorColor: AppColors.primary,
+        labelColor: AppColors.primary,
+        unselectedLabelColor: Colors.black,
+        indicatorWeight: 1.5,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelPadding: const EdgeInsets.only(right: 32),
+        dividerColor: Colors.transparent,
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+        splashFactory: NoSplash.splashFactory,
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+        ),
+        onTap: onTap,
+        tabs: rootCategoryNames.map((name) => Tab(text: name)).toList(),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }

@@ -230,9 +230,7 @@ class _BusinessPhotoGalleryScreenState extends State<BusinessPhotoGalleryScreen>
         SizedBox(height: AppConstants.contentSpacing), // 16px gap from Figma
         
         // Photo grid
-        Expanded(
-          child: _buildPhotoGrid(theme),
-        ),
+        _buildPhotoGrid(theme),
       ],
     );
   }
@@ -267,6 +265,8 @@ class _BusinessPhotoGalleryScreenState extends State<BusinessPhotoGalleryScreen>
     // Photo size is 148px from Figma design
     
     return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: spacing,
