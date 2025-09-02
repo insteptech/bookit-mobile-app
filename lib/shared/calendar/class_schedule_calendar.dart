@@ -178,7 +178,7 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               _getHeaderText(),
@@ -187,12 +187,14 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            if (isRefreshing)
+            if (isRefreshing) ...[
+              const SizedBox(width: 8),
               const SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
+            ],
           ],
         ),
         const SizedBox(height: 16),
