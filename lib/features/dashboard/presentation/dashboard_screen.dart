@@ -171,27 +171,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: AppConstants.defaultScaffoldPadding,
-                children: [
-                  SizedBox(height: AppConstants.scaffoldTopSpacing),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
-                      Icon(Icons.notifications_outlined, size: 28),
-                    ],
-                  ),
-                  SizedBox(height: AppConstants.contentSpacing),
-                  Text(
-                    AppTranslationsDelegate.of(context).text("welcome_back"),
-                    style: AppTypography.headingLg,
-                  ),
-                  SizedBox(height: AppConstants.titleToSubtitleSpacing),
-                  const LocationSelectorWidget(),
-                  SizedBox(height: AppConstants.headerToContentSpacing),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              expandedHeight: 180.0,
+              collapsedHeight: 100.0,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              flexibleSpace: LayoutBuilder(
+                builder: (context, constraints) {
+                  final expandedHeight = 180.0;
+                  final collapsedHeight = 100.0;
+                  final currentHeight = constraints.maxHeight;
+                  final progress = ((expandedHeight - currentHeight) / 
+                      (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
+                  
+                  return Container(
+                    padding: AppConstants.defaultScaffoldPadding,
+                    child: _buildAnimatedHeader(progress),
+                  );
+                },
+              ),
+            ),
+            SliverPadding(
+              padding: AppConstants.defaultScaffoldPadding,
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
                   Text(
                     DateFormat('EEE MMM d').format(DateTime.now()),
                     style: AppTypography.bodyMedium.copyWith(
@@ -201,11 +209,66 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                   SizedBox(height: AppConstants.contentSpacing),
                   const DashboardContentWidget(),
-                ],
+                ]),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+  
+  Widget _buildAnimatedHeader(double progress) {
+    final textSize = 32.0 - (8.0 * progress); // 32 -> 24
+    
+    // Calculate smooth positions for notification icon
+    final notificationTopPosition = AppConstants.scaffoldTopSpacing * (1 - progress);
+    final notificationRightPosition = 0.0;
+    
+    // Calculate smooth positions for welcome text
+    final welcomeTopPosition = (AppConstants.scaffoldTopSpacing + AppConstants.contentSpacing + 28) * (1 - progress);
+    final welcomeLeftPosition = 0.0;
+    
+    // Calculate location selector position with extra spacing
+    final locationTopPosition = welcomeTopPosition + textSize + AppConstants.titleToSubtitleSpacing + 8.0;
+    
+    return SizedBox(
+      height: double.infinity,
+      child: Stack(
+        children: [
+          // Notification icon - smoothly animated position
+          Positioned(
+            top: notificationTopPosition,
+            right: notificationRightPosition,
+            child: const Icon(Icons.notifications_outlined, size: 28),
+          ),
+          
+          // Welcome text - smoothly animated position and size
+          Positioned(
+            top: welcomeTopPosition,
+            left: welcomeLeftPosition,
+            right: 40, // Leave space for notification icon
+            child: Text(
+              AppTranslationsDelegate.of(context).text("welcome_back"),
+              style: TextStyle(
+                fontSize: textSize,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Campton',
+              ),
+            ),
+          ),
+          
+          // Location selector - smoothly follows welcome text
+          Positioned(
+            top: locationTopPosition,
+            left: 0,
+            right: 0,
+            child: const Align(
+              alignment: Alignment.centerLeft,
+              child: LocationSelectorWidget(),
+            ),
+          ),
+        ],
       ),
     );
   }

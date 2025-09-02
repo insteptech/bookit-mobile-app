@@ -141,19 +141,41 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(
-              child: ListView(
-                padding: AppConstants.defaultScaffoldPadding,
+            // Sticky header with title and location selector
+            Container(
+              width: double.infinity,
+              padding: AppConstants.defaultScaffoldPadding.copyWith(
+                top: AppConstants.scaffoldTopSpacing,
+                bottom: 16.0,
+              ),
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                border: Border(
+                  bottom: BorderSide(
+                    color: theme.dividerColor.withValues(alpha: 0.12),
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: AppConstants.scaffoldTopSpacing),
-                  // SizedBox(height: AppConstants.contentSpacing),
                   Text(
                     AppTranslationsDelegate.of(context).text("calendar_title"),
                     style: AppTypography.headingLg,
                   ),
-                  SizedBox(height: AppConstants.titleToSubtitleSpacing),
+                  const SizedBox(height: 12.0),
                   const LocationSelectorDropdown(),
-                  SizedBox(height: AppConstants.headerToContentSpacing),
+                ],
+              ),
+            ),
+            // Scrollable calendar content
+            Expanded(
+              child: ListView(
+                padding: AppConstants.defaultScaffoldPadding.copyWith(
+                  top: 20.0,
+                ),
+                children: [
                   _buildCalendarContent(context, ref),
                 ],
               ),
