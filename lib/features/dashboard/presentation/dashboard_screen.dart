@@ -172,6 +172,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
           slivers: [
             SliverAppBar(
               pinned: true,
