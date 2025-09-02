@@ -410,7 +410,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
             left: AppConstants.defaultScaffoldPadding.horizontal / 2,
             right: AppConstants.defaultScaffoldPadding.horizontal / 2,
             top: 16,
-            bottom: 16,
+            bottom: 20,
           ),
           child: PrimaryButton(
             text: buttonConfig['text'] ?? "Save",

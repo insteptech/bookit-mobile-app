@@ -1,7 +1,5 @@
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/features/calendar/widgets/upcoming_appointments.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,41 +37,20 @@ class _ViewAllAppointmentsScreenState extends ConsumerState<ViewAllAppointmentsS
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // const SizedBox(height: 70),
-              BackIcon(
-                size: 32,
-                onPressed: () => Navigator.pop(context),
-              ),
-              const SizedBox(height: 4),
-              const Text("Appointments", style: AppTypography.headingLg),
-              const SizedBox(height: 48),
-              AppointmentsWidget(
-                staffAppointments: staffAppointments,
-                isLoading: isLoading,
-                showBottomOptions: false,
-              ),
-              const SizedBox(height: 100),
-            ],
-          ),
-        ),
+    return StickyHeaderScaffold(
+      title: "Appointments",
+      showBackButton: true,
+      onBackPressed: () => Navigator.pop(context),
+      content: AppointmentsWidget(
+        staffAppointments: staffAppointments,
+        isLoading: isLoading,
+        showBottomOptions: false,
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(34, 20, 34, 20),
-        child: PrimaryButton(
-          text: "Book a new appointment",
-          onPressed: () {
-            context.push("/book_new_appointment");
-          },
-          isDisabled: false,
-        ),
-      ),
+      buttonText: "Book a new appointment",
+      onButtonPressed: () {
+        context.push("/book_new_appointment");
+      },
+      isButtonDisabled: false,
     );
   }
 }

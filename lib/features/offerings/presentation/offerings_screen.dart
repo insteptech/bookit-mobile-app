@@ -268,7 +268,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: AppConstants.titleToSubtitleSpacing),
         // Render hierarchical categories starting from level 1 (direct children of root)
         ..._buildCategoryHierarchy(categoryHierarchy, 1, context),
 
@@ -374,7 +374,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     } else if (hasChildren) {
       // This is a parent category with only subcategories - show as header without arrow
       return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.only(bottom: AppConstants.titleToSubtitleSpacing),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -452,7 +452,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     // If no service details, show just the category name (non-expandable)
     if (serviceDetails.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.only(bottom: AppConstants.titleToSubtitleSpacing),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -509,7 +509,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             (service) => _buildServiceCard(service, offering, isClass, categoryName),
           ),
         ],
-        const SizedBox(height: 16),
+        SizedBox(height: AppConstants.titleToSubtitleSpacing),
       ],
     );
   }
@@ -774,13 +774,13 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
           child: CustomScrollView(
-            physics: const ClampingScrollPhysics(),
+            // physics: const ClampingScrollPhysics(),
             slivers: [
               SliverAppBar(
                 pinned: true,
                 floating: false,
-                expandedHeight: 120.0,
-                collapsedHeight: 100.0,
+                expandedHeight: 140.0,
+                collapsedHeight: 120.0,
                 backgroundColor: theme.scaffoldBackgroundColor,
                 surfaceTintColor: Colors.transparent,
                 shadowColor: Colors.transparent,
@@ -789,8 +789,8 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                 automaticallyImplyLeading: false,
                 flexibleSpace: LayoutBuilder(
                   builder: (context, constraints) {
-                    final expandedHeight = 120.0;
-                    final collapsedHeight = 100.0;
+                    final expandedHeight = 140.0;
+                    final collapsedHeight = 120.0;
                     final currentHeight = constraints.maxHeight;
                     final progress = ((expandedHeight - currentHeight) / 
                         (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
@@ -874,7 +874,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     final titleLeftPosition = 0.0; // Title stays on left
     
     // Search bar always stays below title with smooth spacing
-    final searchTopPosition = textSize + (16.0 * (1 - progress * 0.3)); // Adjusts spacing as title shrinks
+    final searchTopPosition = textSize + (AppConstants.contentSpacing * (1 - progress * 0.3)); // Adjusts spacing as title shrinks
     final searchLeftPosition = 0.0; // Always left-aligned
     
     return SizedBox(

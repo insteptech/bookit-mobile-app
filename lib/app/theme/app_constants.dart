@@ -8,10 +8,10 @@ class AppConstants {
   // ═══════════════════════════════════════════════════════════════════════════════════
   
   /// Default top spacing from SafeArea in scaffolds
-  static const double scaffoldTopSpacing = 2;
+  static const double scaffoldTopSpacing = 15;
   
   /// Reduced top spacing for scaffolds with back button
-  static const double scaffoldTopSpacingWithBackButton = 2;
+  static const double scaffoldTopSpacingWithBackButton = 15;
   
   /// Alternative top spacing used in some scaffolds
   static const double scaffoldTopSpacingAlt = 2;
@@ -33,7 +33,7 @@ class AppConstants {
   static const double authHorizontalPadding = 20.0;
   
   /// Default vertical padding for scaffold content
-  static const double defaultVerticalPadding = 0;
+  static const double defaultVerticalPadding = 10;
   
   /// Default scaffold content padding
   // static const EdgeInsets defaultScaffoldPadding = EdgeInsets.symmetric(

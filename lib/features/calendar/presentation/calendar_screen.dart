@@ -145,8 +145,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             SliverAppBar(
               pinned: true,
               floating: false,
-              expandedHeight: 120.0,
-              collapsedHeight: 60.0,
+              expandedHeight: 140.0,
+              collapsedHeight: 80.0,
               backgroundColor: theme.scaffoldBackgroundColor,
               surfaceTintColor: Colors.transparent,
               shadowColor: Colors.transparent,
@@ -155,8 +155,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               automaticallyImplyLeading: false,
               flexibleSpace: LayoutBuilder(
                 builder: (context, constraints) {
-                  final expandedHeight = 120.0;
-                  final collapsedHeight = 60.0;
+                  final expandedHeight = 140.0;
+                  final collapsedHeight = 80.0;
                   final currentHeight = constraints.maxHeight;
                   final progress = ((expandedHeight - currentHeight) / 
                       (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
@@ -168,12 +168,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: theme.scaffoldBackgroundColor,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.12),
-                          width: 0.5,
-                        ),
-                      ),
                     ),
                     child: _buildAnimatedCalendarHeader(progress),
                   );
@@ -182,7 +176,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ),
             SliverPadding(
               padding: AppConstants.defaultScaffoldPadding.copyWith(
-                top: 20.0,
+                top: AppConstants.contentSpacing,
               ),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
@@ -208,7 +202,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     // When collapsed: parallel/aligned with title on right side
     final locationTopPosition = progress > 0.5 
         ? 0.0 // Align with title when collapsed
-        : textSize + 12.0; // Below title when expanded
+        : textSize + AppConstants.contentSpacing; // Below title when expanded
     final locationLeftPosition = progress > 0.5 ? null : 0.0; // Left when expanded, null when collapsed
     final locationRightPosition = progress > 0.5 ? 0.0 : null; // Null when expanded, right when collapsed
     
@@ -356,7 +350,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ),
           ],
         ),
-        SizedBox(height: AppConstants.contentSpacing),
+        SizedBox(height: AppConstants.titleToSubtitleSpacing),
         
         // Check if there are any appointment staff members using the staff controller
         if (!staffState.hasAppointmentStaff) 
@@ -392,7 +386,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ),
           ],
         ),
-        SizedBox(height: AppConstants.listItemSpacing),
+        SizedBox(height: AppConstants.titleToSubtitleSpacing),
         
         // Check if there are any class staff members using the staff controller
         if (!staffState.hasClassStaff)
