@@ -10,7 +10,7 @@ import 'package:bookit_mobile_app/features/calendar/widgets/upcoming_appointment
 import 'package:bookit_mobile_app/shared/calendar/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/add_staff_and_availability_box.dart';
 import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
-import 'package:bookit_mobile_app/features/dashboard/widgets/location_selector_widget.dart';
+import 'package:bookit_mobile_app/shared/components/molecules/location_selector_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -152,7 +152,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     style: AppTypography.headingLg,
                   ),
                   SizedBox(height: AppConstants.titleToSubtitleSpacing),
-                  const LocationSelectorWidget(),
+                  const LocationSelectorDropdown(),
                   SizedBox(height: AppConstants.headerToContentSpacing),
                   _buildCalendarContent(context, ref),
                 ],

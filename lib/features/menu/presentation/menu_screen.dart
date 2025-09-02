@@ -72,7 +72,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                   10
                 ),
                 children: [
-                  SizedBox(height: AppConstants.sectionSpacing),
+                  SizedBox(height: AppConstants.scaffoldTopSpacing),
                   Text(
                     AppTranslationsDelegate.of(context).text("menu_title"),
                     style: AppTypography.headingLg,
@@ -144,7 +144,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                   ),
 
                   // App Version (debug only)
-                  if (kDebugMode && _appVersion.isNotEmpty)
+                  if (_appVersion.isNotEmpty)
                     Padding(
                       padding: EdgeInsets.only(bottom: AppConstants.contentSpacing),
                       child: Center(

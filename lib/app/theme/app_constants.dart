@@ -8,32 +8,32 @@ class AppConstants {
   // ═══════════════════════════════════════════════════════════════════════════════════
   
   /// Default top spacing from SafeArea in scaffolds
-  static const double scaffoldTopSpacing = 44.0;
+  static const double scaffoldTopSpacing = 2;
   
   /// Reduced top spacing for scaffolds with back button
-  static const double scaffoldTopSpacingWithBackButton = 44.0;
+  static const double scaffoldTopSpacingWithBackButton = 2;
   
   /// Alternative top spacing used in some scaffolds
-  static const double scaffoldTopSpacingAlt = 40.0;
+  static const double scaffoldTopSpacingAlt = 2;
   
   /// Spacing after back button before title
-  static const double backButtonToTitleSpacing = 9.0;
+  static const double backButtonToTitleSpacing = 0;
   
   /// Alternative spacing after back button (onboarding style)
-  static const double backButtonToTitleSpacingAlt = 16.0;
+  static const double backButtonToTitleSpacingAlt = 0;
 
   // ═══════════════════════════════════════════════════════════════════════════════════
   // PADDING & MARGINS
   // ═══════════════════════════════════════════════════════════════════════════════════
   
   /// Default horizontal padding for most screens
-  static const double defaultHorizontalPadding = 34.0;
+  static const double defaultHorizontalPadding = 15.0;
   
   /// Alternative horizontal padding used in auth and onboarding
-  static const double authHorizontalPadding = 35.0;
+  static const double authHorizontalPadding = 20.0;
   
   /// Default vertical padding for scaffold content
-  static const double defaultVerticalPadding = 24.0;
+  static const double defaultVerticalPadding = 0;
   
   /// Default scaffold content padding
   // static const EdgeInsets defaultScaffoldPadding = EdgeInsets.symmetric(

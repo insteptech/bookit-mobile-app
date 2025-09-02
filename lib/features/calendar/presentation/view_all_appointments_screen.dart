@@ -42,16 +42,16 @@ class _ViewAllAppointmentsScreenState extends ConsumerState<ViewAllAppointmentsS
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 70),
+              // const SizedBox(height: 70),
               BackIcon(
                 size: 32,
                 onPressed: () => Navigator.pop(context),
               ),
-              const SizedBox(height: 9),
+              const SizedBox(height: 4),
               const Text("Appointments", style: AppTypography.headingLg),
               const SizedBox(height: 48),
               AppointmentsWidget(
