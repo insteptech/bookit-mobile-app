@@ -18,12 +18,8 @@ class StaffCategoryScreen extends StatelessWidget {
   });
 
   void _onStaffMemberTap(BuildContext context, StaffMember staffMember) {
-    // Navigate to staff member details or schedule
-    context.push("/add_staff", extra: {
-      'staffId': staffMember.id,
-      'staffName': staffMember.name,
-      'edit': true
-    });
+    // Navigate to staff member details or schedule - use same navigation as staff_members_screen
+    context.push("/add_staff/?isClass=${staffMember.forClass}&staffId=${staffMember.id}&staffName=${Uri.encodeComponent(staffMember.name)}");
   } 
 
   void _handleAddMember(BuildContext context) {
