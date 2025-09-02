@@ -24,6 +24,7 @@ class StickyHeaderScaffold extends StatefulWidget {
   final Widget? bottomSheet;
   final double? titleToContentSpacing;
   final ScrollPhysics? physics;
+  final Widget? progressBar;
 
   const StickyHeaderScaffold({
     super.key,
@@ -45,6 +46,7 @@ class StickyHeaderScaffold extends StatefulWidget {
     this.bottomSheet,
     this.titleToContentSpacing,
     this.physics,
+    this.progressBar,
   });
 
   @override
@@ -105,6 +107,20 @@ class _StickyHeaderScaffoldState extends State<StickyHeaderScaffold>
       body: SafeArea(
         child: Column(
           children: [
+            // Progress bar (if provided)
+            if (widget.progressBar != null) ...[
+              Padding(
+                padding: widget.contentPadding ?? AppConstants.defaultScaffoldPadding,
+                child: Column(
+                  children: [
+                    const SizedBox(height: AppConstants.scaffoldTopSpacing),
+                    widget.progressBar!,
+                    const SizedBox(height: 24), // Spacing between progress bar and header
+                  ],
+                ),
+              ),
+            ],
+            
             // Animated sticky header
             AnimatedBuilder(
               animation: _titleSlideAnimation,

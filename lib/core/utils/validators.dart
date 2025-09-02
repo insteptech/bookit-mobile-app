@@ -26,8 +26,14 @@ bool isEmailInCorrectFormat(String email) {
 }
 
 bool isMobileNumberInCorrectFormat(String mobile) {
-  final RegExp mobileRegex = RegExp(
-    r'^\+?[1-9]\d{1,14}$', 
-  );
-  return mobileRegex.hasMatch(mobile) && mobile.length == 11;
+  // Remove any whitespace
+  mobile = mobile.trim();
+  
+  // Egyptian mobile number patterns:
+  // Local format: 01[0125]xxxxxxxx (11 digits)
+  // International format: +2001[0125]xxxxxxxx (14 digits with +20)
+  final RegExp localFormat = RegExp(r'^01[0125]\d{8}$');
+  final RegExp internationalFormat = RegExp(r'^\+2001[0125]\d{8}$');
+  
+  return localFormat.hasMatch(mobile) || internationalFormat.hasMatch(mobile);
 }

@@ -1,9 +1,6 @@
-import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
-import 'package:flutter/material.dart';
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/app/theme/app_constants.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/progress_stepper.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class OnboardScaffoldLayout extends StatelessWidget {
@@ -30,57 +27,16 @@ class OnboardScaffoldLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: AppConstants.onboardingScaffoldPadding,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
-                      ProgressStepper(currentStep: currentStep),
-                      if(!backButtonDisabled)
-                      SizedBox(height: AppConstants.progressToBackButtonSpacing,),
-                      if(!backButtonDisabled)
-                      Row(
-                        children: [
-                          BackIcon(
-                            size: AppConstants.backButtonIconSize,
-                            onPressed: (){
-                              context.pop();
-                            },
-                          )
-                        ],
-                      ),
-                      if(backButtonDisabled)
-                      SizedBox(height: AppConstants.onboardingNoBackButtonSpacing,),
-                      SizedBox(height: AppConstants.backButtonToTitleSpacing),
-                      Text(heading, style: AppTypography.headingLg),
-                      SizedBox(height: AppConstants.titleToSubtitleSpacing),
-                      Text(subheading, style: AppTypography.bodyMedium),
-                      SizedBox(height: AppConstants.headerToContentSpacing),
-                      body,
-                      SizedBox(height: AppConstants.sectionSpacing),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: AppConstants.onboardingBottomSpacing),
-                child: PrimaryButton(
-                onPressed: onNext,
-                isDisabled: nextButtonDisabled,
-                text: nextButtonText,
-              )
-              ),
-            ],
-          ),
-        ),
-      ),
+    return StickyHeaderScaffold(
+      title: heading,
+      subtitle: subheading,
+      showBackButton: !backButtonDisabled,
+      onBackPressed: backButtonDisabled ? null : () => context.pop(),
+      progressBar: ProgressStepper(currentStep: currentStep),
+      content: body,
+      buttonText: nextButtonText,
+      onButtonPressed: onNext,
+      isButtonDisabled: nextButtonDisabled,
     );
   }
 }

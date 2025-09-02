@@ -17,7 +17,7 @@ class AppConstants {
   static const double scaffoldTopSpacingAlt = 2;
   
   /// Spacing after back button before title
-  static const double backButtonToTitleSpacing = 0;
+  static const double backButtonToTitleSpacing = 10;
   
   /// Alternative spacing after back button (onboarding style)
   static const double backButtonToTitleSpacingAlt = 0;
