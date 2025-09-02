@@ -515,6 +515,29 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     }
   }
 
+  /// Cancels a class schedule (dummy implementation)
+  static Future<Map<String, dynamic>> cancelClass(String classId) async {
+    try {
+      // Dummy implementation - simulate API call
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      debugPrint("Cancelling class with ID: $classId");
+      
+      // Return success response
+      return {
+        "success": true,
+        "message": "Class cancelled successfully",
+        "data": {
+          "classId": classId,
+          "status": "cancelled"
+        }
+      };
+    } catch (e) {
+      debugPrint("Error cancelling class: $e");
+      throw Exception("Failed to cancel class: ${e.toString()}");
+    }
+  }
+
   static Future<Map<String, dynamic>> getClassScheduleByPaginationAndLocationAndDay(
     int page,
     int limit,
