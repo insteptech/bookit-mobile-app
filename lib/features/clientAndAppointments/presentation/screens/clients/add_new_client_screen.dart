@@ -129,6 +129,7 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
 
     return ClientsAppointmentsScaffold(
       title: "Add new client",
+      titleToContentSpacing: 16.0,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -185,7 +186,10 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
         ],
       ),
       buttonText: clientState.isLoading ? "Creating..." : "Confirm booking",
-      onButtonPressed: (clientState.isLoading || !_isFormValid) ? null : _saveAndConfirm,
+      onButtonPressed: () async {
+        if (clientState.isLoading || !_isFormValid) return;
+        await _saveAndConfirm();
+      },
       isButtonDisabled: clientState.isLoading || !_isFormValid,
       onBackPressed: () => Navigator.pop(context),
     );

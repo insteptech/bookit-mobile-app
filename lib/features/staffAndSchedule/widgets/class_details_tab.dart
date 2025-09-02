@@ -8,10 +8,21 @@ import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/numeric_input_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/custom_switch.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/warning_dialog.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import '../application/add_edit_class_schedule_controller.dart';
 
 class ClassDetailsTab extends StatelessWidget {
-  const ClassDetailsTab({super.key});
+  final bool isEditing;
+  final String? classId;
+  final String? className;
+  
+  const ClassDetailsTab({
+    super.key,
+    this.isEditing = false,
+    this.classId,
+    this.className,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +68,7 @@ class ClassDetailsTab extends StatelessWidget {
             const SizedBox(height: AppConstants.sectionSpacing),
 
             // Service dropdown (read-only display)
+            if(controller.serviceData?['title'] != null)
             Text(
               controller.serviceData?['title'] ??
                   controller.serviceData?['name'] ??
@@ -229,9 +241,122 @@ class ClassDetailsTab extends StatelessWidget {
                 ),
               ),
             ],
+
+            // Delete button - only show when editing
+            if (isEditing && classId != null) ...[
+              const SizedBox(height: AppConstants.sectionSpacing),
+              GestureDetector(
+                onTap: () => _handleDeleteClass(context),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/actions/trash_medium.svg',
+                      width: 18,
+                      height: 18,
+                      color: const Color(0xFFEA52E7),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Delete class',
+                      style: AppTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFEA52E7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         );
       },
     );
+  }
+
+  Future<void> _handleDeleteClass(BuildContext context) async {
+    if (classId == null) return;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return WarningDialog.confirmation(
+          title: 'Delete ${className ?? 'Class'}',
+          message: 'Are you sure you want to delete this class? This action cannot be undone.',
+          actionText: 'Delete',
+          actionButtonColor: Colors.transparent,
+          actionTextColor: const Color(0xFFEA52E7),
+          onConfirm: () => _deleteClass(context),
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteClass(BuildContext context) async {
+    if (classId == null) return;
+
+    try {
+      // Show loading indicator
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Text('Deleting class...'),
+              ],
+            ),
+            backgroundColor: Color(0xFFEA52E7),
+          ),
+        );
+      }
+
+      // Call the delete API
+      final response = await APIRepository.deleteClass(classId!);
+
+      if (context.mounted) {
+        // Hide loading snackbar
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+        if (response['success'] == true) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Class deleted successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Navigate back to dashboard
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        } else {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to delete class. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting class: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

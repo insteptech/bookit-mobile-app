@@ -4,6 +4,7 @@ import 'package:bookit_mobile_app/core/controllers/classes_controller.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/no_classes_box.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/warning_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -224,9 +225,10 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
         context: context,
         barrierColor: Colors.black.withOpacity(0.5),
         builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Colors.transparent,
-            child: _buildCancelClassDialog(context, className, selectedDate),
+          return WarningDialog.cancelClass(
+            className: className,
+            classDate: selectedDate,
+            onConfirm: () => Navigator.of(context).pop(true),
           );
         },
       );
@@ -297,120 +299,6 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
     }
   }
 
-  Widget _buildCancelClassDialog(BuildContext context, String className, DateTime classDate) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Main dialog container
-        Container(
-          width: 325,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x26212529), // rgba(33, 37, 41, 0.15)
-                offset: Offset(0, 0),
-                blurRadius: 20,
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-          padding: EdgeInsets.fromLTRB(32, 56, 32, 56),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Title and body text
-              Column(
-                children: [
-                  // Title
-                  SizedBox(
-                    width: 256,
-                    child: Text(
-                      'Cancel $className',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Campton',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20,
-                        height: 1.2,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  // Body text
-                  SizedBox(
-                    width: 256,
-                    child: Text(
-                      'Please note that this will cancel only this single class on ${DateFormat('EEEE, MMMM d').format(classDate)}. Your clients will be automatically notified via email about the cancellation.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Campton',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        height: 1.25,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              // Proceed button
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    side: BorderSide(
-                      color: Color(0xFF790077), // Purple border
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  child: Text(
-                    'Proceed to cancellation',
-                    style: TextStyle(
-                      fontFamily: 'Campton',
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      height: 1.25,
-                      color: Color(0xFF790077), // Purple text
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // Close button positioned absolutely outside the main container
-        Positioned(
-          top: 20,
-          right: 20,
-          child: GestureDetector(
-            onTap: () {
-              Navigator.of(context).pop(false);
-            },
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              width: 18,
-              height: 18,
-              child: Icon(
-                Icons.close,
-                size: 10,
-                color: Color(0xFF202733),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildClassCard(dynamic classData) {
     final schedule = classData['schedule'];

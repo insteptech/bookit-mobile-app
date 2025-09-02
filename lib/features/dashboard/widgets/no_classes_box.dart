@@ -40,7 +40,7 @@ class NoClassesBox extends StatelessWidget {
          
             // if (classCategories.isNotEmpty) {
               // Navigate to class selection screen with the first class category ID
-              final firstClassCategoryId = classCategories.first['id'] as String;
+              // final firstClassCategoryId = classCategories.first['id'] as String;
               Navigator.push(
                 context,
                 MaterialPageRoute(

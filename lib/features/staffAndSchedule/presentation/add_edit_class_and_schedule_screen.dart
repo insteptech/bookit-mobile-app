@@ -240,7 +240,11 @@ class _AddEditClassAndScheduleScreenState extends State<AddEditClassAndScheduleS
   Widget _buildTabContent() {
     switch (_selectedTab) {
       case ClassTab.classDetails:
-        return ClassDetailsTab();
+        return ClassDetailsTab(
+          isEditing: widget.isEditing,
+          classId: widget.classId,
+          className: widget.className,
+        );
       case ClassTab.classSchedule:
         return ClassScheduleTab();
     } 
@@ -302,4 +306,5 @@ class _AddEditClassAndScheduleScreenState extends State<AddEditClassAndScheduleS
       }
     }
   }
+
 }

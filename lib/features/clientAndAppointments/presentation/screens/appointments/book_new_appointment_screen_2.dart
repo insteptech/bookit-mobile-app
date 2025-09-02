@@ -53,6 +53,7 @@ class _BookNewAppointmentScreen2State
 
     return ClientsAppointmentsScaffold(
       title: "Book a new appointment",
+      titleToContentSpacing: 16.0,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -121,58 +122,58 @@ class _BookNewAppointmentScreen2State
         ],
       ),
       buttonText: _isLoading ? "Booking..." : "Confirm booking",
-      onButtonPressed: _selectedClient != null
-          ? () async {
-              setState(() {
-                _isLoading = true;
-              });
-              try {
-                await ref.read(appointmentControllerProvider.notifier).bookAppointment(
-                  businessId: widget.partialPayload['business_id'],
-                  locationId: widget.partialPayload['location_id'],
-                  businessServiceId: widget.partialPayload['business_service_id'],
-                  practitionerId: widget.partialPayload['practitioner'],
-                  date: DateTime.parse(widget.partialPayload['date']),
-                  startTime: widget.partialPayload['start_from'],
-                  endTime: widget.partialPayload['end_at'],
-                  userId: widget.partialPayload['user_id'],
-                  durationMinutes: widget.partialPayload['duration_minutes'],
-                  serviceName: widget.partialPayload['service_name'],
-                  practitionerName: widget.partialPayload['practitioner_name'],
-                  clientId: _selectedClient!['id'].toString(),
-                );
-                
-                // Show success message
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Appointment booked successfully!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                  
-                  // Navigate to home screen with a refresh parameter
-                  context.go("/home_screen?refresh=true");
-                }
-              } catch (e) {
-                // Show error message
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to book appointment: ${e.toString()}'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              } finally {
-                if (mounted) {
-                  setState(() {
-                    _isLoading = false;
-                  });
-                }
-              }
-            }
-          : null,
+      onButtonPressed: () async {
+        if (_selectedClient == null || _isLoading) return;
+        
+        setState(() {
+          _isLoading = true;
+        });
+        try {
+          await ref.read(appointmentControllerProvider.notifier).bookAppointment(
+            businessId: widget.partialPayload['business_id'],
+            locationId: widget.partialPayload['location_id'],
+            businessServiceId: widget.partialPayload['business_service_id'],
+            practitionerId: widget.partialPayload['practitioner'],
+            date: DateTime.parse(widget.partialPayload['date']),
+            startTime: widget.partialPayload['start_from'],
+            endTime: widget.partialPayload['end_at'],
+            userId: widget.partialPayload['user_id'],
+            durationMinutes: widget.partialPayload['duration_minutes'],
+            serviceName: widget.partialPayload['service_name'],
+            practitionerName: widget.partialPayload['practitioner_name'],
+            clientId: _selectedClient!['id'].toString(),
+          );
+          
+          // Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Appointment booked successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            
+            // Navigate to home screen with a refresh parameter
+            context.go("/home_screen?refresh=true");
+          }
+        } catch (e) {
+          // Show error message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to book appointment: ${e.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } finally {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        }
+      },
       isButtonDisabled: (_selectedClient == null || _isLoading),
     );
   }

@@ -354,7 +354,7 @@ class _BookNewAppointmentScreenState
 
     return ClientsAppointmentsScaffold(
       title: AppTranslationsDelegate.of(context).text("book_a_new_appointment"),
-      titleToContentSpacing: 25.0, // Custom spacing for location selector
+      titleToContentSpacing: 16.0,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -538,6 +538,29 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     }
   }
 
+  /// Deletes a class (dummy implementation)
+  static Future<Map<String, dynamic>> deleteClass(String classId) async {
+    try {
+      // Dummy implementation - simulate API call
+      await Future.delayed(const Duration(milliseconds: 800));
+      
+      debugPrint("Deleting class with ID: $classId");
+      
+      // Return success response
+      return {
+        "success": true,
+        "message": "Class deleted successfully",
+        "data": {
+          "classId": classId,
+          "status": "deleted"
+        }
+      };
+    } catch (e) {
+      debugPrint("Error deleting class: $e");
+      throw Exception("Failed to delete class: ${e.toString()}");
+    }
+  }
+
   static Future<Map<String, dynamic>> getClassScheduleByPaginationAndLocationAndDay(
     int page,
     int limit,
