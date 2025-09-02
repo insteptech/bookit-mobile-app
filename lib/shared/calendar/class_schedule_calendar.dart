@@ -223,12 +223,12 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
       // Show confirmation dialog
       final bool? shouldCancel = await showDialog<bool>(
         context: context,
-        barrierColor: Colors.black.withOpacity(0.5),
+        barrierColor: Colors.black.withValues(alpha: 0.5),
         builder: (BuildContext context) {
           return WarningDialog.cancelClass(
             className: className,
             classDate: selectedDate,
-            onConfirm: () => Navigator.of(context).pop(true),
+            onConfirm: () {}, // Dialog handles the navigation
           );
         },
       );

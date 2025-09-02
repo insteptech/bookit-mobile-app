@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 
@@ -12,6 +14,10 @@ class AddEditClassScheduleController extends ChangeNotifier {
   List<Map<String, dynamic>> _locations = [];
   List<Map<String, dynamic>> _allStaffMembers = [];
   String? _businessId;
+  
+  // Image handling
+  File? _selectedImage;
+  final ImagePicker _imagePicker = ImagePicker();
   
   // Class details form controllers
   final TextEditingController titleController = TextEditingController();
@@ -49,6 +55,7 @@ class AddEditClassScheduleController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   Map<String, dynamic>? get serviceData => _serviceData;
   Map<String, dynamic>? get existingClassData => _existingClassData;
+  File? get selectedImage => _selectedImage;
   List<Map<String, dynamic>> get locations => _locations;
   List<Map<String, dynamic>> get allStaffMembers => _allStaffMembers;
   String? get businessId => _businessId;
@@ -444,6 +451,49 @@ class AddEditClassScheduleController extends ChangeNotifier {
       if (_existingClassData != null) 
         'class_id': _existingClassData!['id'] ?? _existingClassData!['class_id'],
     };
+  }
+
+  // Image handling methods
+  Future<void> pickImage() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80, // Compress to reduce file size
+        maxWidth: 800,   // Limit max width
+        maxHeight: 800,  // Limit max height
+      );
+      
+      if (image != null) {
+        _selectedImage = File(image.path);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      // Could add error handling here if needed
+    }
+  }
+
+  Future<void> pickImageFromCamera() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
+      
+      if (image != null) {
+        _selectedImage = File(image.path);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error taking photo: $e');
+    }
+  }
+
+  void removeImage() {
+    _selectedImage = null;
+    notifyListeners();
   }
 
   @override

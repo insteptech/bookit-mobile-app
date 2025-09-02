@@ -32,36 +32,69 @@ class ClassDetailsTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Class image upload section
-            Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                image: const DecorationImage(
-                  image: AssetImage(
-                    'assets/images/profile_picker_background.png',
-                  ),
-                  fit: BoxFit.cover,
+            GestureDetector(
+              onTap: () => _showImagePickerOptions(context, controller),
+              child: Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  image: controller.selectedImage != null
+                      ? DecorationImage(
+                          image: FileImage(controller.selectedImage!),
+                          fit: BoxFit.cover,
+                        )
+                      : const DecorationImage(
+                          image: AssetImage(
+                            'assets/images/profile_picker_background.png',
+                          ),
+                          fit: BoxFit.cover,
+                        ),
                 ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/actions/share.svg',
-                    width: 48,
-                    height: 48,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(height: AppConstants.smallContentSpacing),
-                  Text(
-                    'Upload picture',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+                child: controller.selectedImage != null
+                    ? Stack(
+                        children: [
+                          // Overlay with remove button
+                          Positioned(
+                            top: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: () => controller.removeImage(),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/actions/share.svg',
+                            width: 48,
+                            height: 48,
+                            color: AppColors.primary,
+                          ),
+                          const SizedBox(height: AppConstants.smallContentSpacing),
+                          Text(
+                            'Upload picture',
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ),
 
@@ -277,7 +310,7 @@ class ClassDetailsTab extends StatelessWidget {
   Future<void> _handleDeleteClass(BuildContext context) async {
     if (classId == null) return;
 
-    await showDialog(
+    final bool? shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return WarningDialog.confirmation(
@@ -286,10 +319,14 @@ class ClassDetailsTab extends StatelessWidget {
           actionText: 'Delete',
           actionButtonColor: Colors.transparent,
           actionTextColor: const Color(0xFFEA52E7),
-          onConfirm: () => _deleteClass(context),
+          onConfirm: () {}, // Dialog handles the navigation
         );
       },
     );
+
+    if (shouldDelete == true && context.mounted) {
+      await _deleteClass(context);
+    }
   }
 
   Future<void> _deleteClass(BuildContext context) async {
@@ -358,5 +395,50 @@ class ClassDetailsTab extends StatelessWidget {
         );
       }
     }
+  }
+
+  void _showImagePickerOptions(BuildContext context, AddEditClassScheduleController controller) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.pickImage();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  controller.pickImageFromCamera();
+                },
+              ),
+              if (controller.selectedImage != null)
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text('Remove Photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    controller.removeImage();
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.cancel),
+                title: const Text('Cancel'),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

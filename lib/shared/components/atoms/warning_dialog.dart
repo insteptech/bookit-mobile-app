@@ -128,7 +128,7 @@ class WarningDialog extends StatelessWidget {
                   width: double.infinity,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(true);
                       onConfirm();
                     },
                     style: TextButton.styleFrom(
@@ -163,7 +163,7 @@ class WarningDialog extends StatelessWidget {
             right: 20,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(false);
                 if (onCancel != null) {
                   onCancel!();
                 }
