@@ -167,7 +167,7 @@ class _SignupFormState extends ConsumerState<SignupForm> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
+                      padding: const EdgeInsets.only(bottom: 5),
                       child: PrimaryButton(
                         isDisabled: false,
                         text: localizations.text("login_button"),

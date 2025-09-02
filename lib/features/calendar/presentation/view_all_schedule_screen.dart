@@ -2,6 +2,8 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/calendar/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,8 +47,29 @@ class _ViewAllScheduleScreenState extends State<ViewAllScheduleScreen> {
         padding: const EdgeInsets.fromLTRB(34, 20, 34, 20),
         child: PrimaryButton(
           text: "Add new class schedule",
-          onPressed: () {
-            context.push("/add_class_schedule", extra: {'className': '', 'classId': ''});
+          onPressed: () async {
+            final businessCategoriesProvider = BusinessCategoriesProvider.instance;
+            
+            // Ensure categories are loaded
+            if (!businessCategoriesProvider.hasCategories) {
+              await businessCategoriesProvider.fetchBusinessCategories();
+            }
+            
+            final classCategories = businessCategoriesProvider.classCategories;
+            
+            if (!mounted) return;
+            
+            if (classCategories.isNotEmpty) {
+              final firstClassCategoryId = classCategories.first['id'] as String;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ClassSelectionScreen(categoryId: firstClassCategoryId),
+                ),
+              );
+            } else {
+              context.push("/add_class_schedule", extra: {'className': '', 'classId': ''});
+            }
           },
           isDisabled: false,
         ),

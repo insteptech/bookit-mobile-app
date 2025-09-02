@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checklist.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,27 +67,53 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
 
   void _initializeWelcomeData() async {
     final business = ref.read(businessProvider);
-    if (business != null) {
-      print("Business active step: ${business.activeStep}");
-      for(int i=0; i<onboardingSteps.length; i++){
-        if(onboardingSteps[i]['id'] == business.activeStep){
-          setState(() {
-            currentStep = i;
-            nextRoute = onboardingSteps[i]['route'];
-            nextStep = onboardingSteps[i]['id'];
-          });
-          break;  
+    
+    if (business == null) {
+      try {
+        final userService = UserService();
+        final userData = await userService.fetchUserDetails();
+        if (userData.businessIds.isNotEmpty) {
+          final businessData = await userService.fetchBusinessDetails(
+            businessId: userData.businessIds[0]
+          );
+          ref.read(businessProvider.notifier).state = businessData;
+          _setCurrentStepFromBusiness(businessData);
+        } else {
+          _setDefaultStep();
         }
+      } catch (e) {
+        print("Failed to fetch business data: $e");
+        _setDefaultStep();
       }
     } else {
-      currentStep = 0;
-      nextStep = onboardingSteps[currentStep]['id'];
+      _setCurrentStepFromBusiness(business);
     }
 
     if (!mounted) return;
     setState(() {
       isLoading = false;
       isNextDisabled = false;
+    });
+  }
+
+  void _setCurrentStepFromBusiness(business) {
+    print("Business active step: ${business.activeStep}");
+    for(int i=0; i<onboardingSteps.length; i++){
+      if(onboardingSteps[i]['id'] == business.activeStep){
+        setState(() {
+          currentStep = i;
+          nextRoute = onboardingSteps[i]['route'];
+          nextStep = onboardingSteps[i]['id'];
+        });
+        break;  
+      }
+    }
+  }
+
+  void _setDefaultStep() {
+    setState(() {
+      currentStep = 0;
+      nextStep = onboardingSteps[currentStep]['id'];
     });
   }
 
