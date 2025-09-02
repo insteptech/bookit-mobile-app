@@ -17,7 +17,7 @@ class SignupScreen extends StatelessWidget{
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 35, right: 35),
+          padding: AppConstants.defaultScaffoldPadding,
           child: Column(
             children: [
               // Header section

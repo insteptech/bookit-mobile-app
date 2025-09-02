@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
 import 'package:bookit_mobile_app/features/auth/application/controllers/otp_verification_controller.dart';
@@ -79,11 +80,11 @@ class _SignupVerifyOtpScreenState extends ConsumerState<SignupVerifyOtpScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 35),
+          padding: const EdgeInsets.symmetric(horizontal: AppConstants.defaultHorizontalPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 60),
+              const SizedBox(height: AppConstants.scaffoldTopSpacing),
               Text(
                 localizations.text("sign_up"),
                 style: AppTypography.headingLg,
