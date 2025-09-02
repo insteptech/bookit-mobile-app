@@ -117,7 +117,7 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
 
   void _onCategoryTap(StaffCategory category) {
     // Navigate to category-specific staff view
-    context.push("/staff_category", extra: {
+    context.push("/staff_category", extra: { 
       'categoryId': category.categoryId,
       'categoryName': category.categoryName,
       'staffMembers': category.staffMembers,

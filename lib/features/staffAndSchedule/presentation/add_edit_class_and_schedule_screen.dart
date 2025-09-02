@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_edit_class_schedule_controller.dart';
 import '../widgets/class_details_tab.dart';
 import '../widgets/class_schedule_tab.dart';
@@ -100,66 +100,40 @@ class _AddEditClassAndScheduleScreenState extends State<AddEditClassAndScheduleS
             );
           }
 
-          return Scaffold(
+          return StickyHeaderScaffold(
+            title: widget.isEditing ? 'Edit ${widget.className}' : 'Class details',
             backgroundColor: Colors.white,
-            body: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppConstants.defaultHorizontalPadding,
-                        vertical: 16,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
-                          
-                          // Back button
-                          BackIcon(
-                            size: AppConstants.backButtonIconSize,
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          
-                          const SizedBox(height: AppConstants.backButtonToTitleSpacing),
-                          
-                          // Title
-                          Text(
-                            widget.isEditing ? 'Edit ${widget.className}' : 'Class details',
-                            style: AppTypography.headingLg,
-                          ),
-                          
-                          const SizedBox(height: AppConstants.headerToContentSpacing),
-                          
-                          // Tab switcher
-                          _buildTabSelector(),
-                          
-                          const SizedBox(height: AppConstants.sectionSpacing),
-                          
-                          // Tab content
-                          _buildTabContent(),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  // Bottom button
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppConstants.defaultHorizontalPadding,
-                      0,
-                      AppConstants.defaultHorizontalPadding,
-                      AppConstants.sectionSpacing,
-                    ),
-                    child: PrimaryButton(
-                      text: _getButtonText(controller),
-                      isDisabled: !_canProceed(controller) || controller.isSubmitting,
-                      onPressed: () => _handleSave(controller),
-                    ),
-                  ),
-                ],
+            physics: const ClampingScrollPhysics(),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Tab switcher
+                _buildTabSelector(),
+                
+                const SizedBox(height: AppConstants.sectionSpacing),
+                
+                // Tab content
+                _buildTabContent(),
+                
+                // Bottom padding to prevent content from being hidden behind fixed button
+                const SizedBox(height: 80),
+              ],
+            ),
+            bottomSheet: SafeArea(
+              child: Container(
+                color: Colors.white,
+                width: double.infinity,
+                padding: EdgeInsets.only(
+                  left: AppConstants.defaultScaffoldPadding.horizontal / 2,
+                  right: AppConstants.defaultScaffoldPadding.horizontal / 2,
+                  top: 16,
+                  bottom: 16,
+                ),
+                child: PrimaryButton(
+                  text: _getButtonText(controller),
+                  isDisabled: !_canProceed(controller) || controller.isSubmitting,
+                  onPressed: () => _handleSave(controller),
+                ),
               ),
             ),
           );

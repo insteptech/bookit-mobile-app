@@ -282,16 +282,16 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
             categoryIdToUse = _controller.staffProfile!.categoryIds.first;
           }
           
-          if (categoryIdToUse != null) {
+          // if (categoryIdToUse != null) {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ClassSelectionScreen(categoryId: categoryIdToUse!),
               ),
             );
-          } else {
-            NavigationService.push("/add_class_schedule");
-          }
+          // } else {
+          //   NavigationService.push("/add_class_schedule");
+          // }
         } else {
           NavigationService.pushStaffList();
         }

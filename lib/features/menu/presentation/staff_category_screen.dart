@@ -19,11 +19,12 @@ class StaffCategoryScreen extends StatelessWidget {
 
   void _onStaffMemberTap(BuildContext context, StaffMember staffMember) {
     // Navigate to staff member details or schedule
-    context.push("/set_schedule", extra: {
+    context.push("/add_staff", extra: {
       'staffId': staffMember.id,
       'staffName': staffMember.name,
+      'edit': true
     });
-  }
+  } 
 
   void _handleAddMember(BuildContext context) {
     final bool isClass = staffMembers.isNotEmpty 

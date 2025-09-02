@@ -37,8 +37,7 @@ class NoClassesBox extends StatelessWidget {
             // Get the first class category from the cached business categories
             final businessCategoriesProvider = BusinessCategoriesProvider.instance;
             final classCategories = businessCategoriesProvider.classCategories;
-            
-            if (classCategories.isNotEmpty) {
+         
               // Navigate to class selection screen with the first class category ID
               final firstClassCategoryId = classCategories.first['id'] as String;
               Navigator.push(
@@ -47,10 +46,7 @@ class NoClassesBox extends StatelessWidget {
                   builder: (context) => ClassSelectionScreen(categoryId: firstClassCategoryId),
                 ),
               );
-            } else {
-              // Fallback to the old route if no class categories are found
-              context.push("/add_class_schedule", extra: {'className': '', 'classId': ''});
-            }
+            
           },
           child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

@@ -1,16 +1,17 @@
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ClassSelectionScreen extends StatefulWidget {
-  final String categoryId;
+  final String? categoryId;
   
   const ClassSelectionScreen({
     super.key,
-    required this.categoryId,
+    this.categoryId,
   });
 
   @override
@@ -22,11 +23,52 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
   String _error = '';
   Map<String, dynamic> _apiResponse = {};
   final Set<String> _expandedCategories = {};
+  String? _effectiveCategoryId;
+  final BusinessCategoriesProvider _categoriesProvider = BusinessCategoriesProvider.instance;
 
   @override
   void initState() {
     super.initState();
-    _fetchClasses();
+    _initializeAndFetchClasses();
+  }
+
+  Future<void> _initializeAndFetchClasses() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _error = '';
+      });
+
+      // If categoryId is provided, use it directly
+      if (widget.categoryId != null && widget.categoryId!.isNotEmpty) {
+        _effectiveCategoryId = widget.categoryId;
+      } else {
+        // Load business categories from cache or fetch fresh if empty
+        if (!_categoriesProvider.hasCategories) {
+          await _categoriesProvider.fetchBusinessCategories();
+        }
+        
+        // Find the first category where is_class is true
+        final classCategories = _categoriesProvider.classCategories;
+        if (classCategories.isNotEmpty) {
+          _effectiveCategoryId = classCategories.first['id'] as String;
+        } else {
+          setState(() {
+            _error = 'No class categories available';
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
+      // Fetch classes for the determined category ID
+      await _fetchClasses();
+    } catch (e) {
+      setState(() {
+        _error = 'Error initializing: ${e.toString()}';
+        _isLoading = false;
+      });
+    }
   }
 
   void _toggleAllCategories() {
@@ -49,13 +91,16 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
   }
 
   Future<void> _fetchClasses() async {
-    try {
+    if (_effectiveCategoryId == null) {
       setState(() {
-        _isLoading = true;
-        _error = '';
+        _error = 'No category ID available';
+        _isLoading = false;
       });
+      return;
+    }
 
-      final response = await APIRepository.getServicesAndCategoriesOfBusiness(widget.categoryId);
+    try {
+      final response = await APIRepository.getServicesAndCategoriesOfBusiness(_effectiveCategoryId!);
       
       if (response.statusCode == 200 && response.data['status'] == true) {
         setState(() {
@@ -157,7 +202,7 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: _fetchClasses,
+                onPressed: _initializeAndFetchClasses,
                 child: const Text('Retry'),
               ),
             ],

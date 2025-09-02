@@ -1,7 +1,6 @@
-import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/calendar/class_schedule_calendar.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,61 +16,46 @@ class ViewAllScheduleScreen extends StatefulWidget {
 class _ViewAllScheduleScreenState extends State<ViewAllScheduleScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 44),
-              BackIcon(
-                size: 32,
-                onPressed: () => Navigator.pop(context),
-              ),
-              const SizedBox(height: 9),
-              const Text("Schedule", style: AppTypography.headingLg),
-              const SizedBox(height: 8),
-              const Text(
-                "To modify a class's schedule, simply click on it.",
-                style: AppTypography.bodyMedium,
-              ),
-              SizedBox(height: 32),
-              ClassScheduleCalendar(showCalendarHeader: true,),
-              const SizedBox(height: 100),
-            ],
-          ),
-        ),
+    return StickyHeaderScaffold(
+      title: "Schedule",
+      subtitle: "To modify a class's schedule, simply click on it.",
+      
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClassScheduleCalendar(showCalendarHeader: true),
+          // Bottom padding to prevent content from being hidden behind fixed button
+          const SizedBox(height: 80),
+        ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(34, 20, 34, 20),
-        child: PrimaryButton(
-          text: "Add new class schedule",
-          onPressed: () async {
-            final businessCategoriesProvider = BusinessCategoriesProvider.instance;
-            
-            // Ensure categories are loaded
-            if (!businessCategoriesProvider.hasCategories) {
-              await businessCategoriesProvider.fetchBusinessCategories();
-            }
-            
-            final classCategories = businessCategoriesProvider.classCategories;
-            
-            if (!mounted) return;
-            
-            if (classCategories.isNotEmpty) {
-              final firstClassCategoryId = classCategories.first['id'] as String;
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ClassSelectionScreen(categoryId: firstClassCategoryId),
-                ),
-              );
-            } else {
-              context.push("/add_class_schedule", extra: {'className': '', 'classId': ''});
-            }
-          },
-          isDisabled: false,
+      bottomSheet: SafeArea(
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: PrimaryButton(
+            text: "Add new class schedule",
+            onPressed: () async {
+              final businessCategoriesProvider = BusinessCategoriesProvider.instance;
+              
+              // Ensure categories are loaded
+              if (!businessCategoriesProvider.hasCategories) {
+                await businessCategoriesProvider.fetchBusinessCategories();
+              }
+              
+              final classCategories = businessCategoriesProvider.classCategories;
+              
+              if (!mounted) return;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ClassSelectionScreen(),
+                  ),
+                );
+            },
+            isDisabled: false,
+          ),
         ),
       ),
     );
