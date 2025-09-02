@@ -61,7 +61,7 @@ class _AppLanguageScreenState extends State<AppLanguageScreen> {
                   await languageProvider.changeLanguage(locale);
                 },
               ),
-              const Spacer(),
+              const SizedBox(height: 40),
             ],
           ),
         );

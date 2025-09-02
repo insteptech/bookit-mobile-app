@@ -1,13 +1,11 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
-import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/appointment_summary_widget.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/utils/validation_service.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/widgets/clients_appointments_scaffold.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -129,95 +127,67 @@ class _AddNewClientScreenState extends ConsumerState<AddNewClientScreen> {
     
     final clientState = ref.watch(clientControllerProvider);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
-                children: [
-                  const SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      BackIcon(
-                        size: 32,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 9),
-                  const Text(
-                    "Add new client",
-                    style: AppTypography.headingLg,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: theme.colorScheme.onSurface),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(activeLocation["title"] ?? "Unknown Location"),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 48),
-                  AppointmentSummaryWidget(partialPayload: widget.partialPayload),
-                  const SizedBox(height: 40),
-                  
-                  // Client Information Form
-                  const Text("Client Information", style: AppTypography.headingSm),
-                  const SizedBox(height: 24),
-                  
-                  const Text("Full Name", style: AppTypography.bodyMedium),
-                  const SizedBox(height: 8),
-                  InputField(
-                    controller: _nameController,
-                    hintText: "Enter client's full name",
-                    keyboardType: TextInputType.name,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  const Text("Email", style: AppTypography.bodyMedium),
-                  const SizedBox(height: 8),
-                  InputField(
-                    controller: _emailController,
-                    hintText: "Enter client's email",
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  const Text("Phone Number", style: AppTypography.bodyMedium),
-                  const SizedBox(height: 8),
-                  InputField(
-                    controller: _phoneController,
-                    hintText: "Enter client's phone number",
-                    keyboardType: TextInputType.phone,
-                  ),
-                ],
+    return ClientsAppointmentsScaffold(
+      title: "Add new client",
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.onSurface),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(activeLocation["title"] ?? "Unknown Location"),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 2),
-              child: PrimaryButton(
-                onPressed: (clientState.isLoading || !_isFormValid) ? null : _saveAndConfirm,
-                isDisabled: clientState.isLoading || !_isFormValid,
-                text: clientState.isLoading ? "Creating..." : "Confirm booking",
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 48),
+          AppointmentSummaryWidget(partialPayload: widget.partialPayload),
+          const SizedBox(height: 40),
+          
+          // Client Information Form
+          const Text("Client Information", style: AppTypography.headingSm),
+          const SizedBox(height: 24),
+          
+          const Text("Full Name", style: AppTypography.bodyMedium),
+          const SizedBox(height: 8),
+          InputField(
+            controller: _nameController,
+            hintText: "Enter client's full name",
+            keyboardType: TextInputType.name,
+          ),
+          const SizedBox(height: 16),
+          
+          const Text("Email", style: AppTypography.bodyMedium),
+          const SizedBox(height: 8),
+          InputField(
+            controller: _emailController,
+            hintText: "Enter client's email",
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 16),
+          
+          const Text("Phone Number", style: AppTypography.bodyMedium),
+          const SizedBox(height: 8),
+          InputField(
+            controller: _phoneController,
+            hintText: "Enter client's phone number",
+            keyboardType: TextInputType.phone,
+          ),
+        ],
       ),
+      buttonText: clientState.isLoading ? "Creating..." : "Confirm booking",
+      onButtonPressed: (clientState.isLoading || !_isFormValid) ? null : _saveAndConfirm,
+      isButtonDisabled: clientState.isLoading || !_isFormValid,
+      onBackPressed: () => Navigator.pop(context),
     );
   }
 }

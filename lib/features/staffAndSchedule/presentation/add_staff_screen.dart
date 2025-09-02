@@ -11,9 +11,8 @@ import 'package:bookit_mobile_app/features/staffAndSchedule/application/add_staf
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/add_staff_schedule_tab.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
-// import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import '../widgets/add_member_form.dart';
 
@@ -351,66 +350,151 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: AppConstants.defaultScaffoldPadding,
-          child: _buildActionButtons(),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: AppConstants.defaultScaffoldPadding,
-          child: _buildMainContent(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMainContent(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
-        
-        _buildBackButton(),
-        
-        _buildTitle(context),
-        
-        const SizedBox(height: AppConstants.headerToContentSpacing),
-        
-        // Only show tab selector when isClass is not true
-        if (widget.isClass != true) ...[
-          _buildTabSelector(),
-          const SizedBox(height: AppConstants.sectionSpacing),
-        ],
-        
-        _buildTabContent(),
-        
-        const SizedBox(height: AppConstants.sectionSpacing),
-      ],
-    );
-  }
-
-  Widget _buildBackButton() {
-    return BackIcon(size: 32, onPressed: () => Navigator.pop(context));
-  }
-
-  Widget _buildTitle(BuildContext context) {
+    String title;
     if(widget.staffId != null){
-      return Text(
-        widget.staffName ?? "",
-        style: AppTypography.headingLg,
-      );
-    } else{
-      return Text(
-      widget.isClass == true 
+      title = widget.staffName ?? "";
+    } else {
+      title = widget.isClass == true 
         ? "Add coach" 
-        : AppTranslationsDelegate.of(context).text("add_staff"),
-      style: AppTypography.headingLg,
+        : AppTranslationsDelegate.of(context).text("add_staff");
+    }
+
+    // Get button configuration
+    final buttonConfig = _getButtonConfiguration();
+
+    return StickyHeaderScaffold(
+      title: title,
+      physics: const ClampingScrollPhysics(),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Only show tab selector when isClass is not true
+          if (widget.isClass != true) ...[
+            _buildTabSelector(),
+            const SizedBox(height: AppConstants.sectionSpacing),
+          ],
+          
+          _buildTabContent(),
+          
+          // Warning message for schedule tab if needed
+          if (_shouldShowScheduleWarning()) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                "Complete schedule details to save (select services and set working hours)",
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.error,
+                  fontWeight: FontWeight.w400,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+          
+          // Add bottom padding to prevent content from being hidden behind fixed button
+          const SizedBox(height: 80),
+        ],
+      ),
+      bottomSheet: SafeArea(
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          width: double.infinity,
+          padding: EdgeInsets.only(
+            left: AppConstants.defaultScaffoldPadding.horizontal / 2,
+            right: AppConstants.defaultScaffoldPadding.horizontal / 2,
+            top: 16,
+            bottom: 16,
+          ),
+          child: PrimaryButton(
+            text: buttonConfig['text'] ?? "Save",
+            onPressed: buttonConfig['onPressed'],
+            isDisabled: buttonConfig['isDisabled'] ?? false,
+          ),
+        ),
+      ),
     );
   }
+
+  bool _shouldShowScheduleWarning() {
+    try {
+      final scheduleIsAvailable = _scheduleController.schedule.isAvailable;
+      final controllerCanSubmit = _controller.canSubmit;
+      final scheduleControllerIsValid = _scheduleController.isValid();
+      
+      return _selectedTab == StaffTab.schedule && 
+             scheduleIsAvailable && 
+             !scheduleControllerIsValid &&
+             controllerCanSubmit;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Map<String, dynamic> _getButtonConfiguration() {
+    try {
+      // Safely check schedule state with null safety
+      final scheduleIsAvailable = _scheduleController.schedule.isAvailable;
+      
+      // Safely check controller states
+      final controllerCanSubmit = _controller.canSubmit;
+      final scheduleControllerIsValid = _scheduleController.isValid();
+      final isLoading = _controller.isLoading;
+      final isScheduleLoading = _addStaffWithScheduleController.isLoading;
+      
+      if (widget.isClass == true || _selectedTab == StaffTab.staffInfo) {
+        // Staff info tab button
+        return {
+          'text': isLoading
+              ? AppTranslationsDelegate.of(context).text("adding_staff")
+              : widget.isClass == true 
+                ? "Continue to schedule"
+                : "Staff schedule",
+          'onPressed': isLoading
+              ? null
+              : controllerCanSubmit
+                  ? () {
+                      if (widget.isClass == true) {
+                        // For classes, save staff profile only (no schedule required)
+                        _isSaveAndExit = false;
+                        _controller.submitStaffProfile();
+                      } else {
+                        // For regular staff, switch to schedule tab
+                        setState(() {
+                          _selectedTab = StaffTab.schedule;
+                        });
+                      }
+                    }
+                  : null,
+          'isDisabled': !controllerCanSubmit,
+        };
+      } else {
+        // Schedule tab button
+        final bool isDisabled = !controllerCanSubmit || (scheduleIsAvailable && !scheduleControllerIsValid);
+        
+        return {
+          'text': isScheduleLoading ? "Saving..." : "Save",
+          'onPressed': isScheduleLoading ? null : isDisabled ? null : () {
+            _isSaveAndExit = true; // Set flag to navigate back after save
+            _addStaffWithScheduleController.submit();
+          },
+          'isDisabled': isDisabled || isScheduleLoading,
+        };
+      }
+    } catch (e) {
+      // Fallback configuration
+      return {
+        'text': "Save",
+        'onPressed': () => Navigator.pop(context),
+        'isDisabled': false,
+      };
+    }
   }
 
   Widget _buildTabSelector() {
@@ -574,114 +658,4 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
   }
 
 
-  Widget _buildActionButtons() {
-    try {
-      // Safely check schedule state with null safety
-      final scheduleIsAvailable = _scheduleController.schedule.isAvailable;
-      
-      // Safely check controller states
-      final controllerCanSubmit = _controller.canSubmit;
-      final scheduleControllerIsValid = _scheduleController.isValid();
-      final isLoading = _controller.isLoading;
-      final isScheduleLoading = _addStaffWithScheduleController.isLoading;
-      
-      // Updated logic: 
-      // - If staff availability is OFF, only require staff form completion
-      // - If staff availability is ON, require both staff form AND complete schedule (services + day schedules)
-      // - Always require basic staff controller validation (form fields filled)
-      final bool isDisabled = _selectedTab == StaffTab.schedule 
-          ? (!controllerCanSubmit || (scheduleIsAvailable && !scheduleControllerIsValid))
-          : !controllerCanSubmit;
-      
-      // Show warning only when on schedule tab, availability is ON, but schedule is incomplete
-      final needsScheduleCompletion = _selectedTab == StaffTab.schedule && 
-          scheduleIsAvailable && 
-          !scheduleControllerIsValid;
-      
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Warning message for schedule tab - only when availability is ON but schedule is incomplete
-          if (needsScheduleCompletion) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                "Complete schedule details to save (select services and set working hours)",
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.error,
-                  fontWeight: FontWeight.w400,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-          
-          // Main action buttons
-          if (widget.isClass == true || _selectedTab == StaffTab.staffInfo) ...[
-            // Staff info tab buttons
-            PrimaryButton(
-              text: isLoading
-                  ? AppTranslationsDelegate.of(context).text("adding_staff")
-                  : widget.isClass == true 
-                    ? "Continue to schedule"
-                    : "Staff schedule",
-              onPressed: isLoading
-                  ? null
-                  : controllerCanSubmit
-                      ? () {
-                          if (widget.isClass == true) {
-                            // For classes, save staff profile only (no schedule required)
-                            _isSaveAndExit = false;
-                            _controller.submitStaffProfile();
-                          } else {
-                            // For regular staff, switch to schedule tab
-                            setState(() {
-                              _selectedTab = StaffTab.schedule;
-                            });
-                          }
-                        }
-                      : null,
-              isDisabled: !controllerCanSubmit,
-            ),
-            // const SizedBox(height: AppConstants.smallContentSpacing + 2),
-            // SecondaryButton(
-            //   text: "Save & exit",
-            //   onPressed: _handleSaveAndExit,
-            // ),
-          ] else ...[
-            // Schedule tab button
-            PrimaryButton(
-              text: isScheduleLoading
-                  ? "Saving..."
-                  : "Save",
-              onPressed: isScheduleLoading ? null : isDisabled ? null : () {
-                _isSaveAndExit = true; // Set flag to navigate back after save
-                if (!scheduleIsAvailable) {
-                  // If availability is OFF, save only staff info
-                  _addStaffWithScheduleController.submit();
-                } else {
-                  // If availability is ON, save staff with schedule
-                  _addStaffWithScheduleController.submit();
-                }
-              },
-              isDisabled: isDisabled || isScheduleLoading,
-            ),
-          ],
-        ],
-      );
-    } catch (e) {
-      // Fallback UI if there's an error in button rendering
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PrimaryButton(
-            text: "Save",
-            onPressed: () => Navigator.pop(context),
-            isDisabled: false,
-          ),
-        ],
-      );
-    }
-  }
 }

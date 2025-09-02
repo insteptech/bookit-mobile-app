@@ -1,6 +1,5 @@
 
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
-import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/core/models/user_model.dart';
@@ -10,10 +9,10 @@ import 'package:bookit_mobile_app/core/services/auth_service.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart' as time_utils;
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/appointments/book_new_appointment_screen_2.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/widgets/clients_appointments_scaffold.dart';
 import 'package:bookit_mobile_app/shared/calendar/appointments_calendar_day_wise.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -353,141 +352,98 @@ class _BookNewAppointmentScreenState
     final appointmentState = ref.watch(appointmentControllerProvider);
     final appointmentController = ref.read(appointmentControllerProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 34,
-                  vertical: 24,
-                ),
+    return ClientsAppointmentsScaffold(
+      title: AppTranslationsDelegate.of(context).text("book_a_new_appointment"),
+      titleToContentSpacing: 25.0, // Custom spacing for location selector
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Location selector - right after title with 16px spacing (handled by scaffold)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                ...locations.map((location) {
+                  return GestureDetector(
+                    onTap: () async {
+                      ref.read(activeLocationProvider.notifier).state =
+                          location['id'];
+                      setState(() {
+                        // Reset all form fields when location changes
+                        selectedPractitioner = "";
+                        selectedService = "";
+                        selectedDuration = "";
+                        durationOptions = [];
+                      });
+                      await appointmentController.fetchPractitioners(location['id']);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color:
+                              activeLocation == location['id']
+                                  ? theme.colorScheme.onSurface
+                                  : AppColors.appLightGrayFont,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(location["title"]),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Error display
+          if (appointmentState.error != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                border: Border.all(color: Colors.red.withOpacity(0.3)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: AppConstants.scaffoldTopSpacingWithBackButton),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      BackIcon(
-                        size: 32,
-                        onPressed: () => Navigator.pop(context),
+                      const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Error loading data: ${appointmentState.error}',
+                          style: const TextStyle(color: Colors.red, fontSize: 14),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 9),
-                  Text(
-                    AppTranslationsDelegate.of(context).text("book_a_new_appointment"),
-                    style: AppTypography.headingLg,
-                  ),
-                  const SizedBox(height: 16),
-                  // Error display
-                  if (appointmentState.error != null)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
-                        border: Border.all(color: Colors.red.withOpacity(0.3)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.error_outline, color: Colors.red, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Error loading data: ${appointmentState.error}',
-                                  style: const TextStyle(color: Colors.red, fontSize: 14),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await _initializeData();
-                            },
-                            icon: const Icon(Icons.refresh, size: 16),
-                            label: const Text('Retry'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(0, 32),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  // Loading indicator
-                  // if (appointmentState.isLoading)
-                  //   Container(
-                  //     margin: const EdgeInsets.only(bottom: 16),
-                  //     padding: const EdgeInsets.all(12),
-                  //     decoration: BoxDecoration(
-                  //       color: theme.colorScheme.primary.withOpacity(0.1),
-                  //       border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
-                  //       borderRadius: BorderRadius.circular(8),
-                  //     ),
-                  //     child: const Row(
-                  //       children: [
-                  //         SizedBox(
-                  //           width: 16,
-                  //           height: 16,
-                  //           child: CircularProgressIndicator(strokeWidth: 2),
-                  //         ),
-                  //         SizedBox(width: 8),
-                  //         Text('Loading practitioners and services...'),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // Location selector
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ...locations.map((location) {
-                          return GestureDetector(
-                            onTap: () async {
-                              ref.read(activeLocationProvider.notifier).state =
-                                  location['id'];
-                              setState(() {
-                                // Reset all form fields when location changes
-                                selectedPractitioner = "";
-                                selectedService = "";
-                                selectedDuration = "";
-                                durationOptions = [];
-                              });
-                              await appointmentController.fetchPractitioners(location['id']);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color:
-                                      activeLocation == location['id']
-                                          ? theme.colorScheme.onSurface
-                                          : AppColors.appLightGrayFont,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(location["title"]),
-                            ),
-                          );
-                        }),
-                      ],
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await _initializeData();
+                    },
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(0, 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     ),
                   ),
-                  const SizedBox(height: 48),
+                ],
+              ),
+            ),
+                  // const SizedBox(height: 48),
                   Text(AppTranslationsDelegate.of(context).text("choose_practitioner"), style: AppTypography.headingSm),
                   const SizedBox(height: 8),
                   SingleChildScrollView(
@@ -641,11 +597,7 @@ class _BookNewAppointmentScreenState
                         onAppointmentTap: _handleAppointmentTap,
                       ),
                     ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

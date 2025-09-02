@@ -179,7 +179,7 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
         );
 
         return OfferingsAddServiceScaffold(
-          title: widget.isClass ? widget.categoryName : '${widget.categoryName} service',
+          title: widget.isClass ? widget.categoryName : '${widget.categoryName}service',
           subtitle: widget.isClass ? 'Select category of your new class' : 'Select category of your new service',
           body: ListView.builder(
             shrinkWrap: true,

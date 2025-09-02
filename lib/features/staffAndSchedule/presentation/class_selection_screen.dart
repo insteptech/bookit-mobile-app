@@ -1,7 +1,7 @@
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
+import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -125,62 +125,18 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return StickyHeaderScaffold(
+      title: 'Pick a class to get started.',
+      subtitle: "Wonderful! Next, you can input your class schedule. This is where you'll specify the times and days each class takes place. Remember, you can modify this information anytime in the 'Schedule' section.",
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(34, 44, 34, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: AppConstants.headerToContentSpacing),
-              _buildContent(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BackIcon(
-          size: 32, 
-          onPressed: () => Navigator.pop(context),
-        ),
-        const SizedBox(height: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Pick a class to get started.',
-              style: AppTypography.headingLg.copyWith(
-                fontSize: 32,
-                fontWeight: FontWeight.w500,
-                height: 1.25,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Wonderful! Next, you can input your class schedule. This is where you'll specify the times and days each class takes place. Remember, you can modify this information anytime in the 'Schedule' section.",
-              style: AppTypography.bodyMedium.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                height: 1.25,
-              ),
-            ),
-          ],
-        ),
-      ],
+      content: _buildContent(),
     );
   }
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Expanded(
+      return const SizedBox(
+        height: 400,
         child: Center(
           child: CircularProgressIndicator(),
         ),
@@ -188,7 +144,8 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
     }
 
     if (_error.isNotEmpty) {
-      return Expanded(
+      return SizedBox(
+        height: 400,
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -212,7 +169,8 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
     final groupedCategories = _getGroupedCategories();
 
     if (groupedCategories.isEmpty) {
-      return const Expanded(
+      return const SizedBox(
+        height: 400,
         child: Center(
           child: Text(
             'No classes available',
@@ -222,15 +180,11 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
       );
     }
 
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: AppConstants.sectionSpacing),
-            _buildFitnessClassesSection(groupedCategories),
-          ],
-        ),
-      ),
+    return Column(
+      children: [
+        const SizedBox(height: AppConstants.sectionSpacing),
+        _buildFitnessClassesSection(groupedCategories),
+      ],
     );
   }
 

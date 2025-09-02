@@ -1,7 +1,7 @@
 import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:flutter/material.dart';
 
-class MenuScreenScaffold extends StatelessWidget {
+class ClientsAppointmentsScaffold extends StatelessWidget {
   final String title;
   final String? subtitle;
   final Widget content;
@@ -15,8 +15,12 @@ class MenuScreenScaffold extends StatelessWidget {
   final EdgeInsetsGeometry? contentPadding;
   final Color? backgroundColor;
   final bool? isButtonDisabled;
+  final Widget? floatingActionButton;
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
+  final Widget? bottomSheet;
+  final double? titleToContentSpacing;
 
-  const MenuScreenScaffold({
+  const ClientsAppointmentsScaffold({
     super.key,
     required this.title,
     this.subtitle,
@@ -30,7 +34,11 @@ class MenuScreenScaffold extends StatelessWidget {
     this.onBackPressed,
     this.contentPadding,
     this.backgroundColor,
-    this.isButtonDisabled
+    this.isButtonDisabled,
+    this.floatingActionButton,
+    this.floatingActionButtonLocation,
+    this.bottomSheet,
+    this.titleToContentSpacing,
   });
 
   @override
@@ -49,6 +57,10 @@ class MenuScreenScaffold extends StatelessWidget {
       contentPadding: contentPadding,
       backgroundColor: backgroundColor,
       isButtonDisabled: isButtonDisabled,
+      floatingActionButton: floatingActionButton,
+      floatingActionButtonLocation: floatingActionButtonLocation,
+      bottomSheet: bottomSheet,
+      titleToContentSpacing: titleToContentSpacing,
     );
   }
 }
