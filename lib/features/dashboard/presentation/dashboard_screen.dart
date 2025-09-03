@@ -201,7 +201,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             SliverPadding(
-              padding: AppConstants.defaultScaffoldPadding,
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 5),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   Text(
@@ -224,6 +224,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   
   Widget _buildAnimatedHeader(double progress) {
     final textSize = 32.0 - (8.0 * progress); // 32 -> 24
+    
+    // Calculate scale for location selector (1.0 -> 0.85)
+    final locationScale = 1.0 - (0.15 * progress);
     
     // Calculate base top position that both elements will use for alignment
     final baseTopPosition = AppConstants.scaffoldTopSpacing * (1 - progress);
@@ -260,14 +263,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           
-          // Location selector - smoothly follows welcome text
+          // Location selector - smoothly follows welcome text with scaling
           Positioned(
             top: locationTopPosition,
             left: 0,
             right: 0,
-            child: const Align(
+            child: Align(
               alignment: Alignment.centerLeft,
-              child: LocationSelectorWidget(),
+              child: Transform.scale(
+                scale: locationScale,
+                alignment: Alignment.centerLeft,
+                child: const LocationSelectorWidget(),
+              ),
             ),
           ),
         ],

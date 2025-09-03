@@ -44,7 +44,7 @@ class AppConstants {
   //   vertical: defaultVerticalPadding,
   // );
    static const EdgeInsets defaultScaffoldPadding = EdgeInsets.fromLTRB(
-    defaultHorizontalPadding, defaultVerticalPadding, defaultHorizontalPadding, 0
+    defaultHorizontalPadding, defaultVerticalPadding, defaultHorizontalPadding, 5
   );
 
   /// Auth flow scaffold padding

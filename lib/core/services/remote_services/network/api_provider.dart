@@ -556,6 +556,7 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
       //   }
       // };
       final response = await _dio.delete(deleteClassEndpoint(classId));
+      print(response.data);
       return response;
     } catch (e) {
       debugPrint("Error deleting class: $e");

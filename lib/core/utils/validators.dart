@@ -34,6 +34,7 @@ bool isMobileNumberInCorrectFormat(String mobile) {
   // International format: +2001[0125]xxxxxxxx (14 digits with +20)
   final RegExp localFormat = RegExp(r'^01[0125]\d{8}$');
   final RegExp internationalFormat = RegExp(r'^\+201[0125]\d{8}$');
+  print(localFormat.hasMatch(mobile) || internationalFormat.hasMatch(mobile));
   
   return localFormat.hasMatch(mobile) || internationalFormat.hasMatch(mobile);
 }

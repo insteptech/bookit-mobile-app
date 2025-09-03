@@ -543,7 +543,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
           // Navigate to edit screen - use offering ID for classes, service detail ID for services
           if (isClass) {
             // For classes, use the root offering ID
-            final classId = offering.id;
+            final classId = offering as String;
             final className = service.name;
             context.push(
               '/add_edit_class_and_schedule',

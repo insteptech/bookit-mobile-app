@@ -363,7 +363,7 @@ class ClassDetailsTab extends StatelessWidget {
         // Hide loading snackbar
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-        if (response.data['success'] == true) {
+        if (response.data['data']['success'] == true) {
           // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -371,6 +371,7 @@ class ClassDetailsTab extends StatelessWidget {
               backgroundColor: Colors.green,
             ),
           );
+
 
           // Navigate back to dashboard
           Navigator.of(context).popUntil((route) => route.isFirst);
