@@ -249,7 +249,7 @@ class _StickyHeaderScaffoldState extends State<StickyHeaderScaffold>
               padding: EdgeInsets.only(
                 left: (widget.contentPadding ?? AppConstants.defaultScaffoldPadding).horizontal / 2,
                 right: (widget.contentPadding ?? AppConstants.defaultScaffoldPadding).horizontal / 2,
-                bottom: 20,
+                bottom: AppConstants.scaffoldPrimaryButtonBottom,
                 top: 8,
               ),
               child: SafeArea(

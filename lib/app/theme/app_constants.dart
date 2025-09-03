@@ -22,6 +22,9 @@ class AppConstants {
   /// Alternative spacing after back button (onboarding style)
   static const double backButtonToTitleSpacingAlt = 0;
 
+  //scaffolds bottom button spacing
+  static const double scaffoldPrimaryButtonBottom = 10;
+
   // ═══════════════════════════════════════════════════════════════════════════════════
   // PADDING & MARGINS
   // ═══════════════════════════════════════════════════════════════════════════════════

@@ -539,22 +539,24 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
   }
 
   /// Deletes a class (dummy implementation)
-  static Future<Map<String, dynamic>> deleteClass(String classId) async {
+  static Future<Response> deleteClass(String classId) async {
     try {
       // Dummy implementation - simulate API call
-      await Future.delayed(const Duration(milliseconds: 800));
+      // await Future.delayed(const Duration(milliseconds: 800));
       
-      debugPrint("Deleting class with ID: $classId");
+      // debugPrint("Deleting class with ID: $classId");
       
-      // Return success response
-      return {
-        "success": true,
-        "message": "Class deleted successfully",
-        "data": {
-          "classId": classId,
-          "status": "deleted"
-        }
-      };
+      // // Return success response
+      // return {
+      //   "success": true,
+      //   "message": "Class deleted successfully",
+      //   "data": {
+      //     "classId": classId,
+      //     "status": "deleted"
+      //   }
+      // };
+      final response = await _dio.delete(deleteClassEndpoint(classId));
+      return response;
     } catch (e) {
       debugPrint("Error deleting class: $e");
       throw Exception("Failed to delete class: ${e.toString()}");
@@ -722,17 +724,14 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
   //..................Delete staff/coach......................
   static Future<Response> deleteStaff(String staffId) async {
     try {
-      String businessId = await ActiveBusinessService().getActiveBusiness() as String;
-      final url = '/api/businesses/$businessId/staff/$staffId';
-      
       final response = await _dio.delete(
-        url,
+        deleteStaffCoachEndpoint(staffId),
         options: Options(
           validateStatus: (status) => status != null && status < 500,
         ),
       );
       
-      return response;
+      return response; 
     } catch (e) {
       throw Exception("Failed to delete staff: ${e.toString()}");
     }

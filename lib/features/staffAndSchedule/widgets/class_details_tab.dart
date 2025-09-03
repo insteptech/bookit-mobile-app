@@ -363,7 +363,7 @@ class ClassDetailsTab extends StatelessWidget {
         // Hide loading snackbar
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-        if (response['success'] == true) {
+        if (response.data['success'] == true) {
           // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -379,7 +379,7 @@ class ClassDetailsTab extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Failed to delete class. Please try again.'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.error,
             ),
           );
         }
@@ -390,7 +390,7 @@ class ClassDetailsTab extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error deleting class: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }

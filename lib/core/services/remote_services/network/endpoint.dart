@@ -157,5 +157,11 @@ String saveClassAndScheduleEndpoint = "$baseUrl/classes/with-schedule";
 String getClassAndScheduleDataEndpoint(String classId) => "$baseUrl/classes/$classId/with-schedules";
 
 
+//..............Delete staff / coach..................
+String deleteStaffCoachEndpoint(String staffId) => "$baseUrl/profile/staff/$staffId";
 
+//................cancel class / delete schedule class.................
+String cancelClassEndpoint(String scheduleId, String classId) => "$baseUrl/schedules/classes/$classId/schedules/$scheduleId";
 
+//.....................Delete class......................
+String deleteClassEndpoint(String classId) => "$baseUrl/classes/$classId";
