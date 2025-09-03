@@ -225,32 +225,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildAnimatedHeader(double progress) {
     final textSize = 32.0 - (8.0 * progress); // 32 -> 24
     
-    // Calculate smooth positions for notification icon
-    final notificationTopPosition = AppConstants.scaffoldTopSpacing * (1 - progress);
-    final notificationRightPosition = 0.0;
+    // Calculate base top position that both elements will use for alignment
+    final baseTopPosition = AppConstants.scaffoldTopSpacing * (1 - progress);
     
-    // Calculate smooth positions for welcome text
-    final welcomeTopPosition = (AppConstants.scaffoldTopSpacing + AppConstants.contentSpacing + 28) * (1 - progress);
-    final welcomeLeftPosition = 0.0;
+    // Both notification icon and welcome text use the same top position for perfect alignment
+    final alignedTopPosition = baseTopPosition;
     
     // Calculate location selector position with extra spacing
-    final locationTopPosition = welcomeTopPosition + textSize + AppConstants.titleToSubtitleSpacing + 8.0;
+    final locationTopPosition = alignedTopPosition + textSize + AppConstants.titleToSubtitleSpacing + 8.0;
     
     return SizedBox(
       height: double.infinity,
       child: Stack(
         children: [
-          // Notification icon - smoothly animated position
+          // Notification icon - aligned with welcome text
           Positioned(
-            top: notificationTopPosition,
-            right: notificationRightPosition,
+            top: alignedTopPosition,
+            right: 0.0,
             child: const Icon(Icons.notifications_outlined, size: 28),
           ),
           
-          // Welcome text - smoothly animated position and size
+          // Welcome text - aligned with notification icon
           Positioned(
-            top: welcomeTopPosition,
-            left: welcomeLeftPosition,
+            top: alignedTopPosition,
+            left: 0.0,
             right: 40, // Leave space for notification icon
             child: Text(
               AppTranslationsDelegate.of(context).text("welcome_back"),
