@@ -140,7 +140,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: CustomScrollView(
-          physics: const ClampingScrollPhysics(),
+          // physics: const ClampingScrollPhysics(),
           slivers: [
             SliverAppBar(
               pinned: true,

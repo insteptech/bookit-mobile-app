@@ -3,7 +3,7 @@ import 'package:bookit_mobile_app/core/providers/business_categories_provider.da
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:flutter/material.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/delete_action.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'profile_photo_picker.dart';
 import 'gender_selector.dart';
@@ -176,8 +176,17 @@ class _AddMemberFormState extends State<AddMemberForm> {
           children: [
             Text("Staff member information", style: AppTypography.headingSm),
             if (widget.onDelete != null)
-              DeleteAction(
-                onConfirm: widget.onDelete!,
+              GestureDetector(
+                onTap: widget.onDelete,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: SvgPicture.asset(
+                    'assets/icons/actions/trash_medium.svg',
+                    width: 18,
+                    height: 18,
+                    color: const Color(0xFF790077),
+                  ),
+                ),
               ),
           ],
         ),

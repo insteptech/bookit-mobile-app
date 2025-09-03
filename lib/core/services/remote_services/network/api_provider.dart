@@ -719,4 +719,23 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     }
   }
 
+  //..................Delete staff/coach......................
+  static Future<Response> deleteStaff(String staffId) async {
+    try {
+      String businessId = await ActiveBusinessService().getActiveBusiness() as String;
+      final url = '/api/businesses/$businessId/staff/$staffId';
+      
+      final response = await _dio.delete(
+        url,
+        options: Options(
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response;
+    } catch (e) {
+      throw Exception("Failed to delete staff: ${e.toString()}");
+    }
+  }
+
 }

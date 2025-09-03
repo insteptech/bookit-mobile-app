@@ -13,6 +13,7 @@ import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/add_staff_sc
 import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaffold.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/warning_dialog.dart';
 import 'package:flutter/material.dart';
 import '../widgets/add_member_form.dart';
 
@@ -334,6 +335,56 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     }
   }
 
+  void _showDeleteWarning() {
+    if (widget.staffId == null) return;
+    
+    final String entityType = widget.isClass == true ? 'coach' : 'staff';
+    final String entityName = widget.staffName ?? entityType;
+    
+    showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return WarningDialog.confirmation(
+          title: 'Delete $entityType',
+          message: 'Are you sure you want to delete $entityName? This action cannot be undone.',
+          actionText: 'Delete',
+          onConfirm: _handleDeleteStaff,
+          onCancel: () {
+            Navigator.of(context).pop(false);
+          },
+          actionTextColor: Colors.red,
+        );
+      },
+    );
+  }
+
+  void _handleDeleteStaff() async {
+    if (widget.staffId == null) return;
+    
+    final String entityType = widget.isClass == true ? 'coach' : 'staff';
+    
+    try {
+      final response = await APIRepository.deleteStaff(widget.staffId!);
+      
+      if (response.statusCode == 200 && response.data['status'] == true) {
+        if (!mounted) return;
+        
+        // Show success message
+        final message = '${entityType.substring(0, 1).toUpperCase()}${entityType.substring(1)} deleted successfully';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+        
+        // Navigate back
+        Navigator.pop(context);
+      } else {
+        _handleError('Failed to delete $entityType');
+      }
+    } catch (e) {
+      _handleError('Error deleting $entityType: ${e.toString()}');
+    }
+  }
+
   void _fetchLocations() async {
     try {
       final locations = await APIRepository.getBusinessLocations();
@@ -364,7 +415,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
 
     return StickyHeaderScaffold(
       title: title,
-      physics: const ClampingScrollPhysics(),
+      // physics: const ClampingScrollPhysics(),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -608,6 +659,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       initialGender: _formGender,
       initialCategoryIds: _isDataLoaded ? _formCategoryIds : null,
       initialId: widget.staffId, // Pass the staff ID for editing
+      onDelete: widget.staffId != null ? () => _showDeleteWarning() : null, // Only show delete button if staffId exists
       onDataChanged: (profile) {
         // Update preserved state
         _formName = profile.name;

@@ -1,3 +1,4 @@
+import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -134,7 +135,7 @@ class WarningDialog extends StatelessWidget {
                     style: TextButton.styleFrom(
                       backgroundColor: actionButtonColor ?? Colors.transparent,
                       side: BorderSide(
-                        color: actionTextColor ?? const Color(0xFF790077),
+                        color: actionTextColor ?? AppColors.error,
                         width: 1.5,
                       ),
                       shape: RoundedRectangleBorder(
@@ -149,7 +150,7 @@ class WarningDialog extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
                         height: 1.25,
-                        color: actionTextColor ?? const Color(0xFF790077),
+                        color: actionTextColor ?? AppColors.error,
                       ),
                     ),
                   ),

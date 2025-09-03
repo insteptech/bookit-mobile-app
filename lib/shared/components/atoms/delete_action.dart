@@ -12,15 +12,18 @@ class DeleteAction extends StatefulWidget {
   final VoidCallback onConfirm;
   final Duration confirmTimeout;
   final String iconAssetPath;
+  final String label;
 
   /// Creates a delete action that toggles from icon to a confirm pill.
   ///
   /// [iconAssetPath] should point to the SVG matching the Figma icon.
+  /// [label] is the text shown in the confirm state (default: "Delete").
   const DeleteAction({
     super.key,
     required this.onConfirm,
     this.confirmTimeout = const Duration(seconds: 3),
     this.iconAssetPath = 'assets/icons/actions/trash_medium.svg',
+    this.label = 'Delete',
   });
 
   @override
