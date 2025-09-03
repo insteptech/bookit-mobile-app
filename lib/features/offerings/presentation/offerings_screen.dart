@@ -542,8 +542,8 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         onTap: () {
           // Navigate to edit screen - use offering ID for classes, service detail ID for services
           if (isClass) {
-            // For classes, use the root offering ID
-            final classId = offering as String;
+            // For classes, use the service detail ID
+            final classId = service.id;
             final className = service.name;
             context.push(
               '/add_edit_class_and_schedule',
@@ -652,9 +652,10 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         onTap: () {
           // Navigate to edit screen - use offering ID for classes, service detail ID for services
           if (isClass) {
-            // For classes, use the root offering ID
-            final classId = offering.id;
+            // For classes, use the service detail ID
+            final classId = service.id;
             final className = service.name;
+  
             context.push(
               '/add_edit_class_and_schedule',
               extra: {

@@ -115,7 +115,7 @@ class _StickyHeaderScaffoldState extends State<StickyHeaderScaffold>
                   children: [
                     const SizedBox(height: AppConstants.scaffoldTopSpacing),
                     widget.progressBar!,
-                    const SizedBox(height: 24), // Spacing between progress bar and header
+                    const SizedBox(height: 1), // Spacing between progress bar and header
                   ],
                 ),
               ),

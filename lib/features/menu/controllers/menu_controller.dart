@@ -61,8 +61,7 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to password & security
   void navigateToPasswordSecurity() {
-    // TODO: Implement password & security screen and add route
-    debugPrint('Navigate to Password & Security - Screen not implemented yet');
+    NavigationService.push('/auth/change-password');
   }
 
   /// Navigate to app language

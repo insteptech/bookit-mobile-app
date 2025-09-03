@@ -713,9 +713,14 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
   }
 
   //..................Get class and schedule ......................
-  static Future<Response> getClassAndSchedule(String classId){
+  static Future<Response> getClassAndSchedule(String classId)async{
+      print("Fetching for $classId");
     try {
-      final response = _dio.get(getClassAndScheduleDataEndpoint(classId));
+      final response = await _dio.get(getClassAndScheduleDataEndpoint(classId));
+       //        // Pretty print JSON
+      final encoder = const JsonEncoder.withIndent('  ');
+      final prettyJson = encoder.convert(response.data);
+      debugPrint("Full response from updateServiceDetails:\n$prettyJson");
       return response;
     } catch (e) {
       throw Exception("Error fetching data $e");

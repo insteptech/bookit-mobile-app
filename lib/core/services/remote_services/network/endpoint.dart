@@ -12,6 +12,7 @@ final refreshTokenEndpoint = "$baseUrl/auth/refresh-token";
 final initiatePasswordResetEndpoint = "$baseUrl/auth/initiate-password-reset";
 final verifyResetOtpEndpoint = "$baseUrl/auth/verify-reset-otp";
 final resetPasswordEndpoint = "$baseUrl/auth/reset-password";
+final changePasswordEndpoint = "$baseUrl/auth/change-password";
 
 //.................................Business Onboarding................................
 String businessDetailsEndpoint(String businessId) =>
@@ -154,7 +155,8 @@ String getStaffDetailsAndScheduleByIdEndpoint(String staffId, String businessId)
 String saveClassAndScheduleEndpoint = "$baseUrl/classes/with-schedule";
 
 //..................Get class and schedule data..........................
-String getClassAndScheduleDataEndpoint(String classId) => "$baseUrl/classes/$classId/with-schedules";
+// String getClassAndScheduleDataEndpoint(String classId) => "$baseUrl/classes/$classId/with-schedules";
+String getClassAndScheduleDataEndpoint(String classId) => "$baseUrl/classes/service-detail/$classId/complete";
 
 
 //..............Delete staff / coach..................

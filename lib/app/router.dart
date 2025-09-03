@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_pass
 import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password/otp_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password/signin_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:bookit_mobile_app/features/auth/presentation/screens/change_password_screen.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/screens/signup_verify_otp_screen.dart';
 import 'package:bookit_mobile_app/features/calendar/presentation/view_all_appointments_screen.dart';
 import 'package:bookit_mobile_app/features/calendar/presentation/view_all_schedule_screen.dart';
@@ -78,6 +79,12 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(path: '/signin', builder: (context, state) => SigninScreen()),
+
+    // Change Password Route
+    GoRoute(
+      path: '/auth/change-password',
+      builder: (context, state) => const ChangePasswordScreen(),
+    ),
 
     GoRoute(
       path: '/onboarding_welcome',

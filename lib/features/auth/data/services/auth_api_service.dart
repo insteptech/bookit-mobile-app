@@ -188,6 +188,34 @@ class AuthService {
       throw Exception(e.response?.data['message'] ?? 'Password reset failed.');
     }
   }
+
+  //...........................change password............................
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final token = await _tokenService.getToken();
+    if (token == null) throw Exception('User not logged in');
+
+    try {
+      final response = await _dio.post(
+        changePasswordEndpoint,
+        data: {
+          'old_password': oldPassword,
+          'new_password': newPassword,
+          'confirm_password': confirmPassword,
+        },
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(response.data['message'] ?? 'Password change failed.');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Password change failed.');
+    }
+  }
 }
 
 

@@ -1,4 +1,5 @@
 import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
+import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/core/providers/business_provider.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/onboarding_checklist.dart';
 import 'package:bookit_mobile_app/features/onboarding/presentation/scaffolds/onboard_scaffold_layout.dart';
@@ -130,6 +131,8 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
     return OnboardScaffoldLayout(
       heading: localizations.text("onboard_welcome_title"),
       subheading: localizations.text("onboard_welcome_description"),
+      physics: const ClampingScrollPhysics(),
+      contentPadding: EdgeInsets.fromLTRB(AppConstants.defaultHorizontalPadding, 0, AppConstants.defaultHorizontalPadding, 0),
       backButtonDisabled: true,
       currentStep: -1,
       nextButtonText: "Next: ${nextStep.split('_').map((word) => word[0].toLowerCase() + word.substring(1)).join(' ')}",

@@ -12,6 +12,8 @@ class OnboardScaffoldLayout extends StatelessWidget {
   final bool nextButtonDisabled;
   final int currentStep;
   final bool backButtonDisabled;
+  final ScrollPhysics? physics;
+  final EdgeInsetsGeometry? contentPadding;
 
   const OnboardScaffoldLayout({
     super.key,
@@ -22,7 +24,9 @@ class OnboardScaffoldLayout extends StatelessWidget {
     required this.nextButtonText,
     required this.nextButtonDisabled,
     required this.currentStep,
-    required this.backButtonDisabled
+    required this.backButtonDisabled,
+    this.contentPadding,
+    this.physics
   });
 
   @override
@@ -34,9 +38,11 @@ class OnboardScaffoldLayout extends StatelessWidget {
       onBackPressed: backButtonDisabled ? null : () => context.pop(),
       progressBar: ProgressStepper(currentStep: currentStep),
       content: body,
+      contentPadding: contentPadding,
       buttonText: nextButtonText,
       onButtonPressed: onNext,
       isButtonDisabled: nextButtonDisabled,
+      physics: physics
     );
   }
 }
