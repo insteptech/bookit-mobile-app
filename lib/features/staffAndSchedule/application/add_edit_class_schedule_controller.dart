@@ -215,8 +215,8 @@ class AddEditClassScheduleController extends ChangeNotifier {
     final data = _existingClassData!;
     
     // Fill class details from the new API response structure
-    titleController.text = data['service_name'] ?? '';
-    descriptionController.text = data['service_description'] ?? '';
+    titleController.text = data['name'] ?? '';
+    descriptionController.text = data['description'] ?? '';
     
     // Fill duration and pricing from durations array
     if (data['durations'] != null && data['durations'].isNotEmpty) {
