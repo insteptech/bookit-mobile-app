@@ -56,16 +56,10 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
       'date': selectedDate,
     }));
     
-    print('📅 Classes data from backend:');
-    print('Location ID: ${widget.locationId}');
-    print('Selected Date: $selectedDate');
-    print('Total classes count: ${allClasses.length}');
-    print('Classes data: $allClasses');
-    
     // If numberOfClasses is provided, limit the results, otherwise show all
     if (widget.numberOfClasses != null && allClasses.isNotEmpty) {
       final limitedClasses = allClasses.take(widget.numberOfClasses!).toList();
-      print('Limited to ${widget.numberOfClasses} classes: $limitedClasses');
+      // print('Limited to ${widget.numberOfClasses} classes: $limitedClasses');
       return limitedClasses;
     }
     
@@ -267,10 +261,7 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
 
         // Call the cancel API
         final response = await APIRepository.cancelClass(classId);
-        
-        print('🚫 Cancel class API response from backend:');
-        print('Class ID: $classId');
-        print('Response: $response');
+
         
         if (mounted) {
           // Hide loading snackbar
@@ -313,8 +304,7 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
 
 
   Widget _buildClassCard(dynamic classData) {
-    print('🎯 Individual class data from backend:');
-    print('Full class data: $classData');
+
     
     final schedule = classData['schedule'];
     final serviceName = classData['service_name'] ?? '';
@@ -324,8 +314,6 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
       ? schedule['instructors'][0]['instructor']['name'] 
       : 'Instructor';
     
-    print('Parsed data - Service Name: $serviceName, Service ID: $serviceId');
-    print('Schedule details: $schedule');
     
     final startTime = _formatTime(schedule['start_time']);
     final duration = _calculateDuration(schedule['start_time'], schedule['end_time']);
@@ -354,14 +342,14 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
               }
               return;
             }
-            context.push(
-              '/add_edit_class_and_schedule',
-              extra: {
-                'classId': serviceId, 
-                'className': serviceName, 
-                'isEditing': true
-              },
-            );
+            // context.push(
+            //   '/add_edit_class_and_schedule',
+            //   extra: {
+            //     'classId': serviceId, 
+            //     'className': serviceName, 
+            //     'isEditing': true
+            //   },
+            // );
           },
           child: Container(
             padding: EdgeInsets.all(12),
