@@ -299,7 +299,7 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
                         final period = hour < 12 ? 'AM' : 'PM';
                         return Container(
                           height: hourHeight,
-                          alignment: Alignment.center, // Center the time text
+                          alignment: Alignment.topCenter, // Align time text to top
                           child: Text(
                             '$time $period',
                             // Using standard TextTheme instead of AppTypography
