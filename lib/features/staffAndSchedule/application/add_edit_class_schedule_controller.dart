@@ -338,17 +338,17 @@ class AddEditClassScheduleController extends ChangeNotifier {
     try {
       final payload = _buildSavePayload();
       
-      // Print payload for debugging
-      final isUpdate = _existingClassData != null;
-      print('=== ${isUpdate ? 'UPDATE' : 'NEW SAVE'} CLASS PAYLOAD ===');
-      print('Form Data:');
-      print('  Title: "${titleController.text}"');
-      print('  Description: "${descriptionController.text}"');
-      print('  Description.trim(): "${descriptionController.text.trim()}"');
-      print('  Duration: "${durationController.text}"');
-      print('  Price: "${priceController.text}"');
-      print('Payload: ${payload.toString()}');
-      print('=======================================');
+      // Debug logging - remove in production
+      // final isUpdate = _existingClassData != null;
+      // print('=== ${isUpdate ? 'UPDATE' : 'NEW SAVE'} CLASS PAYLOAD ===');
+      // print('Form Data:');
+      // print('  Title: "${titleController.text}"');
+      // print('  Description: "${descriptionController.text}"');
+      // print('  Description.trim(): "${descriptionController.text.trim()}"');
+      // print('  Duration: "${durationController.text}"');
+      // print('  Price: "${priceController.text}"');
+      // print('Payload: ${payload.toString()}');
+      // print('=======================================');
       
       // Call the API with image support
       final response = await APIRepository.saveClassAndScheduleWithImage(
@@ -372,7 +372,8 @@ class AddEditClassScheduleController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _buildSavePayload() {
-    print('Building payload - description value: "${descriptionController.text.trim()}"');
+    // Debug logging - remove in production
+    // print('Building payload - description value: "${descriptionController.text.trim()}"');
     
     final serviceDetail = {
       'business_id': _businessId,
@@ -402,8 +403,9 @@ class AddEditClassScheduleController extends ChangeNotifier {
         'category_id': _existingClassData!['category_id'],
     };
     
-    print('ServiceDetail after building: ${serviceDetail.toString()}');
-    print('_serviceData: ${_serviceData.toString()}');
+    // Debug logging - remove in production
+    // print('ServiceDetail after building: ${serviceDetail.toString()}');
+    // print('_serviceData: ${_serviceData.toString()}');
 
     // Build location schedules
     final List<Map<String, dynamic>> locationSchedules = [];
@@ -471,7 +473,8 @@ class AddEditClassScheduleController extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('Error picking image: $e');
+      // Debug logging - remove in production
+      // debugPrint('Error picking image: $e');
       // Could add error handling here if needed
     }
   }
@@ -490,7 +493,8 @@ class AddEditClassScheduleController extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint('Error taking photo: $e');
+      // Debug logging - remove in production
+      // debugPrint('Error taking photo: $e');
     }
   }
 

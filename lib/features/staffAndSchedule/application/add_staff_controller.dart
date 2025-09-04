@@ -63,16 +63,16 @@ class AddStaffController {
            profile.gender.trim().isNotEmpty &&
            profile.categoryIds.isNotEmpty;
     
-    // Debug logging
-    if (!isComplete) {
-      // print('Profile incomplete for ${profile.name}: '
-      //       'name: ${profile.name.trim().isNotEmpty}, '
-      //       'email: ${profile.email.trim().isNotEmpty}, '
-      //       'phone: ${profile.phoneNumber.trim().isNotEmpty}, '
-      //       'gender: ${profile.gender.trim().isNotEmpty}, '
-      //       'categories: ${profile.categoryIds.isNotEmpty}, '
-      //       'locations: ${profile.locationIds.isNotEmpty}');
-    }
+    // Debug logging - remove in production
+    // if (!isComplete) {
+    //   print('Profile incomplete for ${profile.name}: '
+    //         'name: ${profile.name.trim().isNotEmpty}, '
+    //         'email: ${profile.email.trim().isNotEmpty}, '
+    //         'phone: ${profile.phoneNumber.trim().isNotEmpty}, '
+    //         'gender: ${profile.gender.trim().isNotEmpty}, '
+    //         'categories: ${profile.categoryIds.isNotEmpty}, '
+    //         'locations: ${profile.locationIds.isNotEmpty}');
+    // }
     
     return isComplete;
   }
@@ -108,7 +108,8 @@ class AddStaffController {
         throw Exception('Failed to add staff member');
       }
     } catch (e) {
-      print("Error occurred while adding staff member: $e");
+      // Debug logging - remove in production  
+      // print("Error occurred while adding staff member: $e");
       onError?.call('Error: $e');
     } finally {
       isLoading = false;

@@ -158,7 +158,8 @@ class CacheService {
     final jsonString = jsonEncode(businessData);
     await _storage.write(cacheKey, jsonString);
     await _storage.write(cacheTimeKey, DateTime.now().millisecondsSinceEpoch.toString());
-    print("💾 CacheService: Business data cached for ID: $businessId");
+    // Debug logging - remove in production
+    // print("💾 CacheService: Business data cached for ID: $businessId");
   }
 
   Future<Map<String, dynamic>?> getCachedBusinessData(String businessId) async {
@@ -174,7 +175,8 @@ class CacheService {
     final cacheTimeKey = '${_businessDataCacheTimeKey}_$businessId';
     final cacheTimeString = await _storage.read(cacheTimeKey);
     if (cacheTimeString == null) {
-      print("❌ CacheService: No business cache timestamp found for ID: $businessId");
+      // Debug logging - remove in production
+      // print("❌ CacheService: No business cache timestamp found for ID: $businessId");
       return false;
     }
     
@@ -183,9 +185,11 @@ class CacheService {
     final isValid = age < maxAge;
     
     if (isValid) {
-      print("✅ CacheService: Business cache valid for ID: $businessId (age: ${age.inMinutes} minutes)");
+      // Debug logging - remove in production
+      // print("✅ CacheService: Business cache valid for ID: $businessId (age: ${age.inMinutes} minutes)");
     } else {
-      print("❌ CacheService: Business cache expired for ID: $businessId (age: ${age.inMinutes} minutes, max: ${maxAge.inMinutes} minutes)");
+      // Debug logging - remove in production
+      // print("❌ CacheService: Business cache expired for ID: $businessId (age: ${age.inMinutes} minutes, max: ${maxAge.inMinutes} minutes)");
     }
     
     return isValid;
@@ -203,7 +207,8 @@ class CacheService {
     final jsonString = jsonEncode(userData);
     await _storage.write(_userDataKey, jsonString);
     await _storage.write(_userDataCacheTimeKey, DateTime.now().millisecondsSinceEpoch.toString());
-    print("💾 CacheService: User data cached");
+    // Debug logging - remove in production
+    // print("💾 CacheService: User data cached");
   }
 
   Future<Map<String, dynamic>?> getCachedUserData() async {
@@ -217,7 +222,8 @@ class CacheService {
   Future<bool> isUserDataCacheValid({Duration maxAge = const Duration(hours: 6)}) async {
     final cacheTimeString = await _storage.read(_userDataCacheTimeKey);
     if (cacheTimeString == null) {
-      print("❌ CacheService: No user cache timestamp found");
+      // Debug logging - remove in production
+      // print("❌ CacheService: No user cache timestamp found");
       return false;
     }
     
@@ -226,9 +232,11 @@ class CacheService {
     final isValid = age < maxAge;
     
     if (isValid) {
-      print("✅ CacheService: User cache valid (age: ${age.inMinutes} minutes)");
+      // Debug logging - remove in production
+      // print("✅ CacheService: User cache valid (age: ${age.inMinutes} minutes)");
     } else {
-      print("❌ CacheService: User cache expired (age: ${age.inMinutes} minutes, max: ${maxAge.inMinutes} minutes)");
+      // Debug logging - remove in production
+      // print("❌ CacheService: User cache expired (age: ${age.inMinutes} minutes, max: ${maxAge.inMinutes} minutes)");
     }
     
     return isValid;

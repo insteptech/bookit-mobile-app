@@ -84,10 +84,10 @@ class APIRepository {
         addStaffWithScheduleEndpoint,
         data: payload
       );
-      print(response);
+      // print(response);
       return response;
     } catch (e) {
-      print("Error while creating the staff and scheudle: $e");
+      // print("Error while creating the staff and scheudle: $e");
       throw Exception("Failed to create staff and schedule: $e");
     }
   }
@@ -106,7 +106,8 @@ class APIRepository {
        final String fetchUrl =
           getBusinessLevel0CategoriesEndpoint(businessId);
       final response = await _dio.get(fetchUrl); 
-    //             final encoder = const JsonEncoder.withIndent('  ');
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from get staff list:\n$prettyJson");
       return response;
@@ -123,10 +124,10 @@ class APIRepository {
       final String fetchUrl =
           getServicesAndCategoriesOfBusinessEndpoint(businessId, categoryId);
       final response = await _dio.get(fetchUrl); 
-            //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getServicesAndCategoriesOfBusiness:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getServicesAndCategoriesOfBusiness:\n$prettyJson");
       return response;
     } catch (e) {
       throw Exception("Failed to fetch services and categories: ${e.toString()}");
@@ -138,11 +139,12 @@ class APIRepository {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = userDetails.id;
-      print("User id: $userId");
+      // print("User id: $userId");
 
       final String fetchUrl = "$getStaffListByUserIdEndpoint/$userId";
       final response = await _dio.get(fetchUrl);
-    //       final encoder = const JsonEncoder.withIndent('  ');
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from get staff list:\n$prettyJson");
 
@@ -204,10 +206,10 @@ class APIRepository {
     try {
       final url = fetchAppointmentsEndpoint(locationId);
       final response = await _dio.get(url);
-          //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from get appointments:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from get appointments:\n$prettyJson");
 
 
       return response.data['data'];
@@ -337,10 +339,10 @@ class APIRepository {
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
-          //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch business offerings: ${e.toString()}");
@@ -356,10 +358,10 @@ class APIRepository {
       // final response = await _dio.get(getStaffListEndpoint);
       final response = await _dio.get(url);
 
-                 // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getAllStaffList:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getAllStaffList:\n$prettyJson");
         return response;
 
     }
@@ -375,10 +377,10 @@ class APIRepository {
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getStaffDetailsAndScheduleByIdEndpoint(staffId, businessId);
       final response = await _dio.get(url);
-              // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getStaffDetailsAndScheduleById:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getStaffDetailsAndScheduleById:\n$prettyJson");
         return response;
 
     }
@@ -394,10 +396,10 @@ class APIRepository {
         await ActiveBusinessService().getActiveBusiness() as String;
       final response = await _dio.get(getStaffListByBusinessIdEndpoint(businessId));
 
-    //              // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getStaffListByBusinessId:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getStaffListByBusinessId:\n$prettyJson");
         return response;
 
     }
@@ -490,9 +492,8 @@ static Future<Map<String, dynamic>> getAllClassesDetails() async {
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
     return response.data;
-  } catch (e, stacktrace) {
-    debugPrint("Error in getAllClassesDetails: $e");
-    debugPrint("Stacktrace: $stacktrace");
+  } catch (e) {
+    // debugPrint("Error in getAllClassesDetails: $e");
     throw Exception("Failed to fetch classes by location: ${e.toString()}");
   }
 }
@@ -505,10 +506,10 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getClassesByBusinessLocationAndDayEndpoint(businessId, locationId, day);
       final response = await _dio.get(url);
-                    //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from class schedule location and day:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from class schedule location and day:\n$prettyJson");
    
       return response.data;
     } catch (e) {
@@ -522,7 +523,7 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
       // Dummy implementation - simulate API call
       await Future.delayed(const Duration(milliseconds: 500));
       
-      debugPrint("Cancelling class with ID: $classId");
+      // debugPrint("Cancelling class with ID: $classId");
       
       // Return success response
       return {
@@ -534,7 +535,7 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
         }
       };
     } catch (e) {
-      debugPrint("Error cancelling class: $e");
+      // debugPrint("Error cancelling class: $e");
       throw Exception("Failed to cancel class: ${e.toString()}");
     }
   }
@@ -557,10 +558,10 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
       //   }
       // };
       final response = await _dio.delete(deleteClassEndpoint(classId));
-      print(response.data);
+      // print(response.data);
       return response;
     } catch (e) {
-      debugPrint("Error deleting class: $e");
+      // debugPrint("Error deleting class: $e");
       throw Exception("Failed to delete class: ${e.toString()}");
     }
   }
@@ -626,10 +627,10 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     try {
       final url = getServiceDetailsByIdEndpoint(serviceId);
       final response = await _dio.get(url);
-          //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getServiceDetailsById:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getServiceDetailsById:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch service details: ${e.toString()}");
@@ -715,13 +716,13 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
 
   //..................Get class and schedule ......................
   static Future<Response> getClassAndSchedule(String classId)async{
-      print("Fetching for $classId");
+      // print("Fetching for $classId");
     try {
       final response = await _dio.get(getClassAndScheduleDataEndpoint(classId));
-       //        // Pretty print JSON
-      final encoder = const JsonEncoder.withIndent('  ');
-      final prettyJson = encoder.convert(response.data);
-      debugPrint("Full response from updateServiceDetails:\n$prettyJson");
+      // Debug logging - remove in production
+      // final encoder = const JsonEncoder.withIndent('  ');
+      // final prettyJson = encoder.convert(response.data);
+      // debugPrint("Full response from updateServiceDetails:\n$prettyJson");
       return response;
     } catch (e) {
       throw Exception("Error fetching data $e");

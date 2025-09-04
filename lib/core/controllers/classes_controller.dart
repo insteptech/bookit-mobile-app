@@ -118,7 +118,8 @@ class ClassesController extends StateNotifier<ClassesState> {
         isRefreshing: false,
         error: e.toString(),
       );
-      debugPrint("Error fetching classes: $e");
+      // Debug logging - remove in production
+      // debugPrint("Error fetching classes: $e");
     }
   }
 

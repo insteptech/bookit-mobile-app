@@ -354,7 +354,7 @@ class ClassScheduleController {
       );
       schedule.instructors = List.from(staffIds);
     } catch (e) {
-      print("Schedule not found for day: $day");
+      // print("Schedule not found for day: $day");
     }
   }
 
@@ -367,7 +367,7 @@ class ClassScheduleController {
         schedule.instructors.add(staffId);
       }
     } catch (e) {
-      print("Schedule not found for day: $day");
+      // print("Schedule not found for day: $day");
     }
   }
 

@@ -83,7 +83,8 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
           _setDefaultStep();
         }
       } catch (e) {
-        print("Failed to fetch business data: $e");
+        // Debug logging - remove in production
+        // print("Failed to fetch business data: $e");
         _setDefaultStep();
       }
     } else {
@@ -98,7 +99,8 @@ class _OnboardWelcomeScreen extends ConsumerState<OnboardWelcomeScreen> {
   }
 
   void _setCurrentStepFromBusiness(business) {
-    print("Business active step: ${business.activeStep}");
+    // Debug logging - remove in production
+    // print("Business active step: ${business.activeStep}");
     for(int i=0; i<onboardingSteps.length; i++){
       if(onboardingSteps[i]['id'] == business.activeStep){
         setState(() {

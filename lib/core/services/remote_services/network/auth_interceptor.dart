@@ -16,12 +16,14 @@ class AuthInterceptor extends Interceptor {
 
   // Helper method to handle logout and clear all auth data
   Future<void> _handleAuthFailure() async {
-    print("Auth failure - clearing all tokens and user data");
+    // Debug logging - remove in production
+    // print("Auth failure - clearing all tokens and user data");
     await tokenService.clearToken();
     await AuthStorageService().clearUserDetails();
     
     // Navigate to login screen
-    print("Navigating to login screen due to auth failure");
+    // Debug logging - remove in production
+    // print("Navigating to login screen due to auth failure");
     NavigationService.navigateToLogin();
   }
 
@@ -37,28 +39,33 @@ class AuthInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     // Only handle 401 errors and avoid refresh token endpoint
-    print("Entered in onError");
+    // Debug logging - remove in production
+    // print("Entered in onError");
     if (err.response?.statusCode == 401 &&
         !err.requestOptions.path.contains('/auth/refresh-token') &&
         !_isRefreshing) {
-      print("ENtered in onError if condition");
+      // Debug logging - remove in production
+      // print("ENtered in onError if condition");
       _isRefreshing = true;
       
       try {
         final refreshToken = await tokenService.getRefreshToken();
-        print("REfresh token: $refreshToken");
+        // Debug logging - remove in production
+        // print("REfresh token: $refreshToken");
         if (refreshToken != null) {
           final response = await dio.post(
             refreshTokenEndpoint,
             data: {'refresh_token': refreshToken},
           );
-        print("REfresh response: ${response.data}");
+        // Debug logging - remove in production
+        // print("REfresh response: ${response.data}");
 
           
           if (response.statusCode == 200) {
             final responseData = response.data['data'];
             if (responseData == null) {
-              print("Error: No data field in refresh response");
+              // Debug logging - remove in production
+              // print("Error: No data field in refresh response");
               _isRefreshing = false;
               await _handleAuthFailure();
               handler.next(err);
@@ -69,15 +76,17 @@ class AuthInterceptor extends Interceptor {
             final newRefreshToken = responseData['refresh_token']; 
 
             if (newAccessToken == null) {
-              print("Error: No access_token in refresh response");
+              // Debug logging - remove in production
+              // print("Error: No access_token in refresh response");
               _isRefreshing = false;
               await _handleAuthFailure();
               handler.next(err);
               return;
             }
 
-            print("New access token: $newAccessToken");
-            print("New refresh token: $newRefreshToken");
+            // Debug logging - remove in production
+            // print("New access token: $newAccessToken");
+            // print("New refresh token: $newRefreshToken");
 
             await tokenService.saveToken(newAccessToken);
             if (newRefreshToken != null) {
@@ -101,40 +110,47 @@ class AuthInterceptor extends Interceptor {
             _isRefreshing = false;
             
             try {
-              print("Retrying request with new token to: ${retryRequest.path}");
+              // Debug logging - remove in production
+              // print("Retrying request with new token to: ${retryRequest.path}");
               // Use a fresh dio instance without interceptors to avoid recursion
               final freshDio = Dio(BaseOptions(
                 baseUrl: dio.options.baseUrl,
                 headers: {'Content-Type': 'application/json'},
               ));
               final retryResponse = await freshDio.fetch(retryRequest);
-              print("Retry successful!");
+              // Debug logging - remove in production
+              // print("Retry successful!");
               return handler.resolve(retryResponse);
             } catch (retryError) {
-              print("Retry failed: ${retryError.toString()}");
+              // Debug logging - remove in production
+              // print("Retry failed: ${retryError.toString()}");
               _isRefreshing = false;
               handler.next(err);
             }
           } else {
-            print("Refresh token failed with status: ${response.statusCode}");
+            // Debug logging - remove in production
+            // print("Refresh token failed with status: ${response.statusCode}");
             _isRefreshing = false;
             await _handleAuthFailure();
             handler.next(err);
           }
         } else {
-          print("No refresh token available");
+          // Debug logging - remove in production
+          // print("No refresh token available");
           _isRefreshing = false;
           await _handleAuthFailure();
           handler.next(err);
         }
       } catch (refreshError) {
-        print("Refresh error: ${refreshError.toString()}");
+        // Debug logging - remove in production
+        // print("Refresh error: ${refreshError.toString()}");
         _isRefreshing = false;
         await _handleAuthFailure();
         handler.next(err);
       }
     } else {
-      print("Non-401 error or already refreshing");
+      // Debug logging - remove in production
+      // print("Non-401 error or already refreshing");
       handler.next(err);
     }
   }

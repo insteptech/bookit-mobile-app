@@ -38,7 +38,7 @@ class NavigationService {
       if (context != null) {
         context.go(location, extra: extra);
       } else {
-        debugPrint('Warning: Unable to navigate to $location - no router or context available');
+        // debugPrint('Warning: Unable to navigate to $location - no router or context available');
       }
     }
   }
@@ -53,7 +53,7 @@ class NavigationService {
       if (context != null) {
         context.push(location, extra: extra);
       } else {
-        debugPrint('Warning: Unable to push to $location - no router or context available');
+        // debugPrint('Warning: Unable to push to $location - no router or context available');
       }
     }
   }
@@ -68,7 +68,7 @@ class NavigationService {
       if (context != null) {
         context.replace(location, extra: extra);
       } else {
-        debugPrint('Warning: Unable to replace with $location - no router or context available');
+        // debugPrint('Warning: Unable to replace with $location - no router or context available');
       }
     }
   }
@@ -79,7 +79,7 @@ class NavigationService {
     if (context != null) {
       context.pop(result);
     } else {
-      debugPrint('Warning: Unable to go back - no context available');
+      // debugPrint('Warning: Unable to go back - no context available');
     }
   }
 
@@ -104,7 +104,7 @@ class NavigationService {
   /// Validate route before navigation
   static void _validateRoute(String route) {
     if (!AppRoutes.isValidRoute(route)) {
-      debugPrint('Warning: Attempting to navigate to unregistered route: $route');
+      // debugPrint('Warning: Attempting to navigate to unregistered route: $route');
     }
   }
 

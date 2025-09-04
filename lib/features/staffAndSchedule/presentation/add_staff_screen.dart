@@ -143,7 +143,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
           }
         } catch (e) {
           // Handle category parsing errors gracefully
-          debugPrint('Error parsing categories: $e');
+          // debugPrint('Error parsing categories: $e');
         }
         
         // Store category IDs for later use
@@ -287,7 +287,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       ).showSnackBar(SnackBar(content: Text(message)));
     } catch (e) {
       // Widget is disposed, ignore the snackbar
-      debugPrint('ScaffoldMessenger call failed: widget disposed');
+      // debugPrint('ScaffoldMessenger call failed: widget disposed');
     }
     
     
@@ -355,7 +355,7 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       );
     } catch (e) {
       // Widget is disposed, ignore the snackbar
-      debugPrint('ScaffoldMessenger call failed: widget disposed');
+      // debugPrint('ScaffoldMessenger call failed: widget disposed');
     }
   }
 

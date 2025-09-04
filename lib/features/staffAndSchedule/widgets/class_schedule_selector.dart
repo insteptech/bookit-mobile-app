@@ -340,7 +340,7 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
             }
           });
         } catch (e) {
-          debugPrint('Error parsing existing schedule: $e');
+          // debugPrint('Error parsing existing schedule: $e');
         }
       }
     }
@@ -573,8 +573,8 @@ void clearAll() {
           'name': foundStaff['name'] ?? '',
         };
       } catch (e) {
-        debugPrint("Selected staff not found in current staff list: $selectedStaffId");
-        debugPrint("Available staff: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
+        // debugPrint("Selected staff not found in current staff list: $selectedStaffId");
+        // debugPrint("Available staff: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
       }
     }
     

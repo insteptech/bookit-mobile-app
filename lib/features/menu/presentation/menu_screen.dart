@@ -210,7 +210,8 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                     children: [
                       OutlinedButton(
                         onPressed: () async {
-                          print("🔒 Logging out - clearing all data");
+                          // Debug logging - remove in production
+                          // print("🔒 Logging out - clearing all data");
                           
                           // Clear token and active business
                           await TokenService().clearToken();
@@ -219,15 +220,18 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                           // Clear all cache data
                           final cacheService = CacheService();
                           await cacheService.clearAllCache();
-                          print("🗑️ Cache cleared on logout");
+                          // Debug logging - remove in production
+                          // print("🗑️ Cache cleared on logout");
                           
                           // Clear business categories provider
                           BusinessCategoriesProvider.instance.clear();
-                          print("🗑️ Business categories provider cleared");
+                          // Debug logging - remove in production
+                          // print("🗑️ Business categories provider cleared");
                           
                           // Clear Riverpod business provider
                           ref.read(businessProvider.notifier).state = null;
-                          print("🗑️ Business provider cleared");
+                          // Debug logging - remove in production
+                          // print("🗑️ Business provider cleared");
                           
                           NavigationService.go("/login");
                         },

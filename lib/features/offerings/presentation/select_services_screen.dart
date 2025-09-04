@@ -69,7 +69,8 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
     if (selectedIds.isEmpty) return;
 
     final businessId = await ActiveBusinessService().getActiveBusiness();
-    print(businessId);
+    // Debug logging - remove in production
+    // print(businessId);
 
     setState(() {
       isButtonDisabled = true;

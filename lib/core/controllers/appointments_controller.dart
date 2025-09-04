@@ -98,7 +98,7 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
         isRefreshing: false,
         error: e.toString(),
       );
-      debugPrint("Error fetching appointments: $e");
+      // debugPrint("Error fetching appointments: $e");
     }
   }
 
@@ -125,7 +125,7 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
         isLoading: false,
         error: e.toString(),
       );
-      debugPrint("Error fetching appointments: $e");
+      // debugPrint("Error fetching appointments: $e");
     }
   }
 
@@ -147,7 +147,7 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
           
           return isToday;
         } catch (e) {
-          debugPrint("Error parsing appointment start_time: ${appointment['start_time']}, Error: $e");
+          // debugPrint("Error parsing appointment start_time: ${appointment['start_time']}, Error: $e");
           return false; // Skip invalid appointment times
         }
       }).toList();

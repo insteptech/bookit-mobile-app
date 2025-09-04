@@ -189,8 +189,8 @@ class OnboardAddServiceController extends ChangeNotifier {
       }
     } catch (e) {
       _errorMessage = "Failed to create services";
-      // Error is logged in the original code, keeping same behavior
-      print(e);
+      // Debug logging - remove in production
+      // print(e);
     } finally {
       _isButtonDisabled = false;
       notifyListeners();

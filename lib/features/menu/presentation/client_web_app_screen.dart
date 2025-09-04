@@ -107,8 +107,8 @@ class _ClientWebAppScreenState extends State<ClientWebAppScreen> {
       onButtonPressed: () {
         // Handle go live action
         // You can add navigation or API call here
-        print('Going live with business name: ${_businessNameController.text}');
-        print('Web app link: $_webAppLink');
+        // print('Going live with business name: ${_businessNameController.text}');
+        // print('Web app link: $_webAppLink');
         
         // Example: Navigate to success page or show confirmation
         if (mounted) {

@@ -59,6 +59,7 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
     // If numberOfClasses is provided, limit the results, otherwise show all
     if (widget.numberOfClasses != null && allClasses.isNotEmpty) {
       final limitedClasses = allClasses.take(widget.numberOfClasses!).toList();
+      // Debug logging - remove in production
       // print('Limited to ${widget.numberOfClasses} classes: $limitedClasses');
       return limitedClasses;
     }

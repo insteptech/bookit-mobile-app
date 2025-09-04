@@ -85,12 +85,12 @@ class StaffController extends StateNotifier<StaffState> {
           isLoaded: true,
         );
         
-        debugPrint("Staff list updated: ${staffList.length} total, "
-            "${appointmentStaff.length} appointment staff, ${classStaff.length} class staff");
+        // debugPrint("Staff list updated: ${staffList.length} total, "
+        //     "${appointmentStaff.length} appointment staff, ${classStaff.length} class staff");
       } else {
         // Data hasn't changed, just update loading state
         state = state.copyWith(isLoading: false, isLoaded: true);
-        debugPrint("Staff data unchanged, using cached data");
+        // debugPrint("Staff data unchanged, using cached data");
       }
       
     } catch (e) {
@@ -99,7 +99,7 @@ class StaffController extends StateNotifier<StaffState> {
         isLoaded: true,
         error: e.toString(),
       );
-      debugPrint("Error fetching staff list: $e");
+      // debugPrint("Error fetching staff list: $e");
     }
   }
 
@@ -116,7 +116,7 @@ class StaffController extends StateNotifier<StaffState> {
         isLoaded: true,
       );
       
-      debugPrint("Loaded cached staff: ${cachedStaff.length} total");
+      // debugPrint("Loaded cached staff: ${cachedStaff.length} total");
     }
   }
 

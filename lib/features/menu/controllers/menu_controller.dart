@@ -34,7 +34,6 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to beauty offerings
   void navigateToBeauty() {
-    // TODO: Implement beauty screen and add route
     debugPrint('Navigate to Beauty - Screen not implemented yet');
   }
 

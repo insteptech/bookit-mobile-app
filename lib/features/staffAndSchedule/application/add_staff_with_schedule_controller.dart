@@ -45,7 +45,8 @@ class AddStaffWithScheduleController {
       }
       final schedule = scheduleController.getSchedulePayload();
       final payload = await _buildPayload(staffProfile, schedule);
-      print('Submitting staff with schedule: $payload');
+      // Debug logging - remove in production
+      // print('Submitting staff with schedule: $payload');
       
       await APIRepository.addStaffWithScheduleImage(payload);
       await Future.delayed(const Duration(seconds: 1)); // Simulate network
