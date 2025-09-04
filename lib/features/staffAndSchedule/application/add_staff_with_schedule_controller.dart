@@ -68,12 +68,68 @@ class AddStaffWithScheduleController {
     // Group schedules by location
     Map<String, List<Map<String, String>>> locationSchedules = {};
     
-    for (var daySchedule in daysSchedule) {
-      // Handle location data which might be nested in the daySchedule map
-      String locationId = '';
+    // If we're editing existing staff and have no schedule data, we need to fetch and preserve existing data
+    if (daysSchedule.isEmpty && staff.id != null) {
+      try {
+        final response = await APIRepository.getStaffDetailsAndScheduleById(staff.id!);
+        if (response.statusCode == 200 && response.data['status'] == true) {
+          final staffList = response.data['data']['staff'] as List<dynamic>?;
+          if (staffList != null && staffList.isNotEmpty) {
+            final existingStaffData = staffList[0];
+            final existingSchedules = existingStaffData['schedules'] as List<dynamic>? ?? [];
+            
+            // Build location schedules from existing data
+            for (var existingSchedule in existingSchedules) {
+              final locationId = existingSchedule['location_id']?.toString();
+              if (locationId != null && locationId.isNotEmpty) {
+                locationSchedules[locationId] ??= [];
+                locationSchedules[locationId]!.add({
+                  'day': existingSchedule['day']?.toString().toLowerCase() ?? '',
+                  'from': _convertAmPmToUtcFormat(existingSchedule['from']?.toString() ?? ''),
+                  'to': _convertAmPmToUtcFormat(existingSchedule['to']?.toString() ?? ''),
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // Error fetching existing schedule data: Continue with empty schedule
+      }
+    } else {
+      // Process new/updated schedule data
       
-      if (daySchedule is Map<String, dynamic>) {
-        // If location is a nested map, extract the ID
+      // Check if we need to get location information from existing staff data
+      Map<String, String> dayToLocationMap = {};
+      if (staff.id != null) {
+        try {
+          final response = await APIRepository.getStaffDetailsAndScheduleById(staff.id!);
+          if (response.statusCode == 200 && response.data['status'] == true) {
+            final staffList = response.data['data']['staff'] as List<dynamic>?;
+            if (staffList != null && staffList.isNotEmpty) {
+              final existingStaffData = staffList[0];
+              final existingSchedules = existingStaffData['schedules'] as List<dynamic>? ?? [];
+              
+              // Create a map of day -> location_id from existing schedules
+              for (var existingSchedule in existingSchedules) {
+                final day = existingSchedule['day']?.toString().toLowerCase();
+                final locationId = existingSchedule['location_id']?.toString();
+                if (day != null && locationId != null) {
+                  dayToLocationMap[day] = locationId;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          // Error getting location mapping: Continue without mapping
+        }
+      }
+      
+      for (var daySchedule in daysSchedule) {
+        // Handle location data which might be nested in the daySchedule map
+        String locationId = '';
+        final day = daySchedule['day']?.toString().toLowerCase() ?? '';
+        
+        // Try to get location from the schedule entry first
         if (daySchedule['location'] is Map) {
           locationId = (daySchedule['location'] as Map)['id']?.toString() ?? '';
         } else if (daySchedule['location'] is String) {
@@ -81,16 +137,27 @@ class AddStaffWithScheduleController {
           // Parse the string to extract the ID using regex
           final idMatch = RegExp(r'id:\s*([^,}]+)').firstMatch(locationString);
           locationId = idMatch?.group(1)?.trim() ?? '';
+        } else if (daySchedule['location_id'] != null) {
+          locationId = daySchedule['location_id']?.toString() ?? '';
         }
-      }
-      
-      if (locationId.isNotEmpty) {
-        locationSchedules[locationId] ??= [];
-        locationSchedules[locationId]!.add({
-          'day': daySchedule['day']?.toString().toLowerCase() ?? '',
-          'from': _convertToAmPmFormat(daySchedule['from']?.toString() ?? ''),
-          'to': _convertToAmPmFormat(daySchedule['to']?.toString() ?? ''),
-        });
+        
+        // If no location found in schedule entry, use the mapping from existing data
+        if (locationId.isEmpty && dayToLocationMap.containsKey(day)) {
+          locationId = dayToLocationMap[day]!;
+        }
+        
+        if (locationId.isNotEmpty) {
+          // Get the raw time strings and ensure they are in UTC format
+          String fromTime = daySchedule['from']?.toString() ?? '';
+          String toTime = daySchedule['to']?.toString() ?? '';
+          
+          locationSchedules[locationId] ??= [];
+          locationSchedules[locationId]!.add({
+            'day': day,
+            'from': fromTime, // Keep as UTC - already converted by ScheduleSelector
+            'to': toTime,     // Keep as UTC - already converted by ScheduleSelector
+          });
+        }
       }
     }
     
@@ -139,27 +206,45 @@ class AddStaffWithScheduleController {
     return payload;
   }
   
-  String _convertToAmPmFormat(String time24) {
-    if (time24.isEmpty) return '';
+  String _convertAmPmToUtcFormat(String timeStr) {
+    if (timeStr.isEmpty) return '';
+    
+    // If the time is already in 24-hour UTC format, return it as is
+    if (!timeStr.toUpperCase().contains('AM') && !timeStr.toUpperCase().contains('PM')) {
+      // Ensure it has the :00 seconds part for UTC format
+      if (timeStr.split(':').length == 2) {
+        return '$timeStr:00';
+      }
+      return timeStr;
+    }
     
     try {
-      final parts = time24.split(':');
-      if (parts.length < 2) return time24;
+      // Parse AM/PM format and convert to 24-hour UTC format
+      final timeUpper = timeStr.toUpperCase().trim();
+      final isAM = timeUpper.contains('AM');
+      final isPM = timeUpper.contains('PM');
+      
+      if (!isAM && !isPM) return timeStr;
+      
+      // Remove AM/PM and extra spaces
+      String timePart = timeUpper.replaceAll(RegExp(r'\s*(AM|PM)\s*'), '').trim();
+      
+      final parts = timePart.split(':');
+      if (parts.length < 2) return timeStr;
       
       int hour = int.parse(parts[0]);
       final minute = parts[1];
       
-      if (hour == 0) {
-        return '12:$minute AM';
-      } else if (hour < 12) {
-        return '$hour:$minute AM';
-      } else if (hour == 12) {
-        return '12:$minute PM';
-      } else {
-        return '${hour - 12}:$minute PM';
+      // Convert to 24-hour format
+      if (isPM && hour != 12) {
+        hour += 12;
+      } else if (isAM && hour == 12) {
+        hour = 0;
       }
+      
+      return '${hour.toString().padLeft(2, '0')}:$minute:00';
     } catch (e) {
-      return time24; // Return original if conversion fails
+      return timeStr; // Return original if conversion fails
     }
   }
 }

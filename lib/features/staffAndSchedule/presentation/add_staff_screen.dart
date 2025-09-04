@@ -178,6 +178,22 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
     }
   }
 
+  String _cleanTimeFormat(String timeStr) {
+    if (timeStr.isEmpty) return timeStr;
+    
+    // Remove duplicate AM/PM suffixes (e.g., "6:30 PM AM" -> "6:30 PM")
+    final upperTime = timeStr.toUpperCase();
+    if (upperTime.contains(' PM AM') || upperTime.contains(' AM AM')) {
+      return timeStr.replaceAll(RegExp(r'\s(AM|PM)\s(AM|PM)', caseSensitive: false), ' \$1');
+    }
+    if (upperTime.contains(' AM PM') || upperTime.contains(' PM PM')) {
+      return timeStr.replaceAll(RegExp(r'\s(AM|PM)\s(AM|PM)', caseSensitive: false), ' \$2');
+    }
+    
+    return timeStr;
+  }
+
+
   void _prefillScheduleData(List<dynamic> schedules, List<dynamic> services) {
     if (schedules.isEmpty) return;
 
@@ -199,9 +215,17 @@ class _AddStaffScreenState extends State<AddStaffScreen> {
       
       if (dayIndex != null) {
         _scheduleSelectedDays[dayIndex] = true;
+        // Store raw UTC times - ScheduleSelector will handle conversion
+        String fromTime = schedule['from']?.toString() ?? '';
+        String toTime = schedule['to']?.toString() ?? '';
+        
+        // Only clean up corrupted formats, don't convert times
+        fromTime = _cleanTimeFormat(fromTime);
+        toTime = _cleanTimeFormat(toTime);
+        
         _scheduleTimeRanges[dayIndex] = {
-          'from': schedule['from'],
-          'to': schedule['to'],
+          'from': fromTime,
+          'to': toTime,
         };
         
         // Find and set location
