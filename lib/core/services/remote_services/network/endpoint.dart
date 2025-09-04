@@ -112,29 +112,29 @@ String getClassDetailsEndpoint(String classId) =>
 
 //,,...................Get all class schedules...................................
 String getAllClassesFromBusinessEndpoint(String businessId) =>
-    "$baseUrl/classes/$businessId";
+    "$baseUrl/classes/business/$businessId";
 //..........................Get class schedules by location......................
 String getClassesByBusinessAndLocationEndpoint(String businessId, String locationId) =>
-    "$baseUrl/classes/$businessId?locationId=$locationId";
+    "$baseUrl/classes/business/$businessId?locationId=$locationId";
 
 //..........................Get class schedules by business and day......................
 String getClassesByBusinessAndDayEndpoint(String businessId, String day) =>
-    "$baseUrl/classes/$businessId?day=$day";
+    "$baseUrl/classes/business/$businessId?day=$day";
 
 //..........................Get class schedules by business, location and day......................
 String getClassesByBusinessLocationAndDayEndpoint(String businessId, String locationId, String day) =>
-    "$baseUrl/classes/$businessId?locationId=$locationId&day=$day";
+    "$baseUrl/classes/business/$businessId?locationId=$locationId&day=$day";
 
     String getPaginatedClassesByBusinessLocationAndDayEndpoint(String businessId, String locationId, String day, int page, int limit) =>
-    "$baseUrl/classes/$businessId?locationId=$locationId&day=$day&page=$page&limit=$limit";
+    "$baseUrl/classes/business/$businessId?locationId=$locationId&day=$day&page=$page&limit=$limit";
 
 //...........Get paginated classes by Get paginated class schedules (page & limit)......................
 String getPaginatedClassesByBusinessEndpoint(String businessId, int page, int limit) =>
-    "$baseUrl/classes/$businessId?page=$page&limit=$limit";
+    "$baseUrl/classes/business/$businessId?page=$page&limit=$limit";
 
 //...........Get sorted classes by business (sortBy & sortOrder)......................
 String getSortedClassesByBusinessEndpoint(String businessId, String sortBy, String sortOrder) =>
-    "$baseUrl/classes/$businessId?sortBy=$sortBy&sortOrder=$sortOrder";
+    "$baseUrl/classes/business/$businessId?sortBy=$sortBy&sortOrder=$sortOrder";
 
 //...........Get specific class/service details
 String getServiceDetailsByIdEndpoint(String serviceId) => 

@@ -56,9 +56,17 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
       'date': selectedDate,
     }));
     
+    print('📅 Classes data from backend:');
+    print('Location ID: ${widget.locationId}');
+    print('Selected Date: $selectedDate');
+    print('Total classes count: ${allClasses.length}');
+    print('Classes data: $allClasses');
+    
     // If numberOfClasses is provided, limit the results, otherwise show all
     if (widget.numberOfClasses != null && allClasses.isNotEmpty) {
-      return allClasses.take(widget.numberOfClasses!).toList();
+      final limitedClasses = allClasses.take(widget.numberOfClasses!).toList();
+      print('Limited to ${widget.numberOfClasses} classes: $limitedClasses');
+      return limitedClasses;
     }
     
     return allClasses;
@@ -260,6 +268,10 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
         // Call the cancel API
         final response = await APIRepository.cancelClass(classId);
         
+        print('🚫 Cancel class API response from backend:');
+        print('Class ID: $classId');
+        print('Response: $response');
+        
         if (mounted) {
           // Hide loading snackbar
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -301,6 +313,9 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
 
 
   Widget _buildClassCard(dynamic classData) {
+    print('🎯 Individual class data from backend:');
+    print('Full class data: $classData');
+    
     final schedule = classData['schedule'];
     final serviceName = classData['service_name'] ?? '';
     final serviceId = schedule['class_id'] ?? '';
@@ -308,6 +323,9 @@ class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
     final instructor = schedule['instructors']?.isNotEmpty == true 
       ? schedule['instructors'][0]['instructor']['name'] 
       : 'Instructor';
+    
+    print('Parsed data - Service Name: $serviceName, Service ID: $serviceId');
+    print('Schedule details: $schedule');
     
     final startTime = _formatTime(schedule['start_time']);
     final duration = _calculateDuration(schedule['start_time'], schedule['end_time']);
