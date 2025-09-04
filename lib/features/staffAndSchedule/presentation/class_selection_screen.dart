@@ -433,11 +433,11 @@ class _ClassSelectionScreenState extends State<ClassSelectionScreen> {
 
   void _handleClassSelection(Map<String, dynamic> classData) {
     // Navigate to add_edit_class_schedule_screen with the same parameters as offerings screen
-    // Use businessServiceId as classId (same as offerings screen uses offering.id)
+    // Use service detail ID as classId (same as offerings screen uses service.id)
     context.push(
       '/add_edit_class_and_schedule',
       extra: {
-        'classId': classData['businessServiceId'],  // Use businessService ID (same as offerings)
+        'classId': classData['id'],                 // Use service detail ID (same as offerings)
         'className': classData['name'],             // Use serviceDetail name (same as offerings)
         'isEditing': true
       },
