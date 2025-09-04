@@ -11,7 +11,6 @@ import 'package:bookit_mobile_app/features/menu/widgets/menu_item.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_section.dart';
 import 'package:bookit_mobile_app/features/menu/controllers/menu_controller.dart' as menu_ctrl;
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

@@ -4,7 +4,6 @@ import 'package:bookit_mobile_app/shared/components/organisms/sticky_header_scaf
 import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class ViewAllScheduleScreen extends StatefulWidget {
   const ViewAllScheduleScreen({super.key});

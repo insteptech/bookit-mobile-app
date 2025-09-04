@@ -56,7 +56,7 @@ class _SetupChecklistScreenState extends State<SetupChecklistScreen> {
     final theme = Theme.of(context);
     final completedItems = checklistItems.where((item) => item['isCompleted']).length;
     final totalItems = checklistItems.length;
-    final progressPercentage = (completedItems / totalItems * 100).round();
+    // final progressPercentage = (completedItems / totalItems * 100).round();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

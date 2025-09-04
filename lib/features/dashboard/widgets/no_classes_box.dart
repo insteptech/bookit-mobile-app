@@ -3,7 +3,6 @@ import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class NoClassesBox extends StatelessWidget {
   final String? message;

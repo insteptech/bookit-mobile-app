@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import '../application/add_edit_class_schedule_controller.dart';
