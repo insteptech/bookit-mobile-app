@@ -99,7 +99,7 @@ class AddStaffController {
     isLoading = true;
     _notifyStateChanged();
     try {
-      final response = await APIRepository.addMultipleStaff(
+      final response = await APIRepository.addMultipleStaffWithImage(
         staffProfiles: [staffProfile!],
       );
       if (response.statusCode == 200 || response.statusCode == 201) {

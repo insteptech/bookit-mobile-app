@@ -13,6 +13,7 @@ final initiatePasswordResetEndpoint = "$baseUrl/auth/initiate-password-reset";
 final verifyResetOtpEndpoint = "$baseUrl/auth/verify-reset-otp";
 final resetPasswordEndpoint = "$baseUrl/auth/reset-password";
 final changePasswordEndpoint = "$baseUrl/auth/change-password";
+final socialLoginEndpoint = "$baseUrl/auth/social-login";
 
 //.................................Business Onboarding................................
 String businessDetailsEndpoint(String businessId) =>
@@ -167,3 +168,8 @@ String cancelClassEndpoint(String scheduleId, String classId) => "$baseUrl/sched
 
 //.....................Delete class......................
 String deleteClassEndpoint(String classId) => "$baseUrl/classes/$classId";
+
+//....................Business Photo Gallery...................
+String getBusinessGalleryPhotosEndpoint(String businessId) => "$baseUrl/business/$businessId/gallery";
+String uploadBusinessGalleryPhotoEndpoint = "$baseUrl/business/gallery/upload";
+String deleteBusinessGalleryPhotoEndpoint(String photoId) => "$baseUrl/business/gallery/$photoId";

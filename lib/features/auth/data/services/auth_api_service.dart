@@ -5,6 +5,7 @@ import 'package:bookit_mobile_app/core/services/cache_service.dart';
 import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
+import 'package:bookit_mobile_app/core/services/social_auth/social_auth_service.dart';
 import 'package:dio/dio.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/dio_client.dart';
 
@@ -114,6 +115,33 @@ class AuthService {
       }
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Login failed.');
+    }
+  }
+
+  //...........................social login.................................
+  Future<Map<String, dynamic>?> socialLogin(SocialUser socialUser) async {
+    try {
+      final response = await _dio.post(
+        socialLoginEndpoint,
+        data: {
+          'provider': socialUser.provider.name,
+          'access_token': socialUser.accessToken,
+          'user_info': {
+            'id': socialUser.id,
+            'email': socialUser.email,
+            'name': socialUser.name,
+            'picture': socialUser.avatarUrl,
+          }
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data['data'];
+      } else {
+        throw Exception(response.data['message'] ?? 'Social login failed.');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Social login failed.');
     }
   }
 

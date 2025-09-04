@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
@@ -740,6 +741,232 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
       return response; 
     } catch (e) {
       throw Exception("Failed to delete staff: ${e.toString()}");
+    }
+  }
+
+  //.................................Add Multiple Staff With Image.............................
+  /// Adds multiple staff profiles with image support using FormData
+  static Future<Response> addMultipleStaffWithImage({
+    required List<StaffProfile> staffProfiles,
+  }) async {
+    try {
+      // Get user ID and business ID
+      final userDetails = await AuthStorageService().getUserDetails();
+      final userId = userDetails.id;
+      final businessId = userDetails.businessIds[0];
+
+      // Check if any staff profile has an image
+      final hasImages = staffProfiles.any((profile) => profile.profileImage != null);
+
+      if (!hasImages) {
+        // Use regular JSON API if no images
+        return await addMultipleStaff(staffProfiles: staffProfiles);
+      }
+
+      // Create FormData for multipart upload
+      final formData = FormData();
+
+      // Add staff profiles data
+      final List<Map<String, dynamic>> profilesData = staffProfiles.map((profile) {
+        final profileJson = profile.toJson();
+        profileJson['user_id'] = userId;
+        profileJson['business_id'] = businessId;
+        profileJson['is_available'] = profileJson['is_available'] == true;
+        
+        if (profileJson['location_id'] is! List) {
+          profileJson['location_id'] = [profileJson['location_id']];
+        }
+        
+        // Remove image from JSON data as it will be sent as file
+        profileJson.remove('profile_image');
+        
+        return profileJson;
+      }).toList();
+
+      formData.fields.add(MapEntry('staffProfiles', jsonEncode(profilesData)));
+
+      // Add profile images
+      for (int i = 0; i < staffProfiles.length; i++) {
+        final profile = staffProfiles[i];
+        if (profile.profileImage != null) {
+          final imageFile = await MultipartFile.fromFile(
+            profile.profileImage!.path,
+            filename: 'profile_${i}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          );
+          formData.files.add(MapEntry('profile_image_$i', imageFile));
+        }
+      }
+
+      final response = await _dio.post(
+        addStaffEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to add staff with image: ${e.toString()}");
+    }
+  }
+
+  //.................................Add Staff With Schedule And Image.............................
+  /// Adds staff with schedule and image support using FormData
+  static Future<Response> addStaffWithScheduleImage(Map<String, dynamic> payload) async {
+    try {
+      // Extract image from payload if exists
+      File? profileImage;
+      if (payload.containsKey('profile_image') && payload['profile_image'] is File) {
+        profileImage = payload['profile_image'] as File;
+        payload.remove('profile_image');
+      }
+
+      if (profileImage == null) {
+        // Use regular JSON API if no image
+        return await addStaffWithSchedule(payload);
+      }
+
+      // Create FormData for multipart upload
+      final formData = FormData();
+
+      // Add all payload data as fields
+      for (final entry in payload.entries) {
+        if (entry.value != null) {
+          if (entry.value is Map || entry.value is List) {
+            formData.fields.add(MapEntry(entry.key, jsonEncode(entry.value)));
+          } else {
+            formData.fields.add(MapEntry(entry.key, entry.value.toString()));
+          }
+        }
+      }
+
+      // Add profile image
+      final imageFile = await MultipartFile.fromFile(
+        profileImage.path,
+        filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      formData.files.add(MapEntry('profile_image', imageFile));
+
+      final response = await _dio.post(
+        addStaffWithScheduleEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to add staff with schedule and image: ${e.toString()}");
+    }
+  }
+
+  //.................................Save Class And Schedule With Image.............................
+  /// Saves class and schedule with image support using FormData
+  static Future<Response> saveClassAndScheduleWithImage({
+    required List<Map<String, dynamic>> payload,
+    File? image,
+  }) async {
+    try {
+      if (image == null) {
+        // Use regular JSON API if no image
+        return await saveClassAndSchedule(payload: payload);
+      }
+
+      // Create FormData for multipart upload
+      final formData = FormData();
+
+      // Add payload data
+      formData.fields.add(MapEntry('payload', jsonEncode(payload)));
+
+      // Add class image
+      final imageFile = await MultipartFile.fromFile(
+        image.path,
+        filename: 'class_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      formData.files.add(MapEntry('class_image', imageFile));
+
+      final response = await _dio.post(
+        saveClassAndScheduleEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to save class with image: ${e.toString()}");
+    }
+  }
+
+  //............................Business Photo Gallery APIs..............................
+  /// Gets business gallery photos
+  static Future<Response> getBusinessGalleryPhotos(String businessId) async {
+    try {
+      final response = await _dio.get(
+        getBusinessGalleryPhotosEndpoint(businessId),
+        options: Options(
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response;
+    } catch (e) {
+      throw Exception("Failed to fetch gallery photos: ${e.toString()}");
+    }
+  }
+
+  /// Uploads business gallery photo
+  static Future<Response> uploadBusinessGalleryPhoto({
+    required String businessId,
+    required File imageFile,
+  }) async {
+    try {
+      final formData = FormData();
+      
+      // Add business ID
+      formData.fields.add(MapEntry('business_id', businessId));
+      
+      // Add image file
+      final multipartFile = await MultipartFile.fromFile(
+        imageFile.path,
+        filename: 'gallery_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      formData.files.add(MapEntry('image', multipartFile));
+
+      final response = await _dio.post(
+        uploadBusinessGalleryPhotoEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to upload gallery photo: ${e.toString()}");
+    }
+  }
+
+  /// Deletes business gallery photo
+  static Future<Response> deleteBusinessGalleryPhoto(String photoId) async {
+    try {
+      final response = await _dio.delete(
+        deleteBusinessGalleryPhotoEndpoint(photoId),
+        options: Options(
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response;
+    } catch (e) {
+      throw Exception("Failed to delete gallery photo: ${e.toString()}");
     }
   }
 

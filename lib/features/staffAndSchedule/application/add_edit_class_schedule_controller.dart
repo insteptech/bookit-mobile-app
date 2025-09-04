@@ -350,8 +350,11 @@ class AddEditClassScheduleController extends ChangeNotifier {
       print('Payload: ${payload.toString()}');
       print('=======================================');
       
-      // Call the API
-      final response = await APIRepository.saveClassAndSchedule(payload: [payload]);
+      // Call the API with image support
+      final response = await APIRepository.saveClassAndScheduleWithImage(
+        payload: [payload], 
+        image: _selectedImage
+      );
       
       if (response.statusCode == 200 || response.statusCode == 201) {
         _isSubmitting = false;

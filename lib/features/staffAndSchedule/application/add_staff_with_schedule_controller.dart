@@ -47,7 +47,7 @@ class AddStaffWithScheduleController {
       final payload = await _buildPayload(staffProfile, schedule);
       print('Submitting staff with schedule: $payload');
       
-      await APIRepository.addStaffWithSchedule(payload);
+      await APIRepository.addStaffWithScheduleImage(payload);
       await Future.delayed(const Duration(seconds: 1)); // Simulate network
       onSuccess?.call('Staff and schedule saved successfully');
     } catch (e) {
@@ -129,6 +129,11 @@ class AddStaffWithScheduleController {
     // Add id if it's an update (staff has existing id)
     if (staff.id != null) {
       payload['id'] = staff.id;
+    }
+    
+    // Add profile image if exists
+    if (staff.profileImage != null) {
+      payload['profile_image'] = staff.profileImage;
     }
     
     return payload;
