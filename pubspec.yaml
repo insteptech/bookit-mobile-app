@@ -4,7 +4,7 @@ description: "A new Flutter project."
 publish_to: 'none' 
 
 
-version: 1.0.0+7
+version: 1.0.0+8
 
 environment:
   sdk: ^3.7.2
@@ -31,9 +31,15 @@ dependencies:
   package_info_plus: ^8.0.2
 
   markdown_widget: 2.3.2+8
+  url_launcher: ^6.1.14
 
   intl: ^0.19.0
   
+  # Social Login
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^6.1.2
+  flutter_facebook_auth: ^7.0.1
+  crypto: ^3.0.3
 
 dev_dependencies:
   integration_test:
@@ -55,9 +61,13 @@ flutter:
     - assets/locale/
     - assets/images/logo.svg
     - assets/images/background.jpeg
+    - assets/images/profile_picker_background.png
     - assets/icons/apple.svg
     - assets/icons/facebook.svg
     - assets/icons/google.svg
+    - assets/icons/nav/
+    - assets/icons/actions/
+    - assets/icons/menu/
     - assets/bookitTermsOfServices/bookit_terms_of_services_en.md
     - assets/bookitTermsOfServices/bookit_terms_of_services_ar.md
 

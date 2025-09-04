@@ -48,66 +48,77 @@ class _ClientWebAppScreenState extends State<ClientWebAppScreen> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 24),
+          const SizedBox.shrink(),
           
           // Business name input section
           Text(
             "Confirm how you want your link to display by re-entering your business name here:",
             style: AppTypography.bodyMedium.copyWith(
               color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
             ),
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           
           InputField(hintText: "Enter your business name",
             controller: _businessNameController,
             onChanged: (value) => _updateWebAppLink(value),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 48),
           
           // Web app link preview section
           Text(
             "Your web app link will be",
             style: AppTypography.bodyMedium.copyWith(
               color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
             ),
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           
           // Generated web app link
           Container(
-            color: Color(0xFFF8F9FA),
-            height: 192,
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Center(child: Text(
-              _webAppLink,
-              style: AppTypography.headingSm.copyWith(
-                color: theme.colorScheme.primary,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F9FA),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 84, horizontal: 24),
+            child: Center(
+              child: Text(
+                _webAppLink,
+                textAlign: TextAlign.center,
+                style: AppTypography.headingSm.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  height: 24 / 18,
+                  color: theme.colorScheme.primary,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),)
+            ),
           ),
           
-          const Spacer(),
+          const SizedBox(height: 40), // Replace Spacer with fixed height spacing
         ],
       ),
       buttonText: "Go live",
       onButtonPressed: () {
         // Handle go live action
         // You can add navigation or API call here
-        print('Going live with business name: ${_businessNameController.text}');
-        print('Web app link: $_webAppLink');
+        // print('Going live with business name: ${_businessNameController.text}');
+        // print('Web app link: $_webAppLink');
         
         // Example: Navigate to success page or show confirmation
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Web app is going live at $_webAppLink'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Web app is going live at $_webAppLink'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       },
     );
   }

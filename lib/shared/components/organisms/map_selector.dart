@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bookit_mobile_app/app/api_keys.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
@@ -356,7 +357,7 @@ class _MapSelectorState extends State<MapSelector> {
                                   ),
                                 ],
                               ),
-                              child: const Icon(Icons.arrow_back, color: Colors.black87),
+                              child: const BackIcon(color: Colors.black87),
                             ),
                           ),
                         ),

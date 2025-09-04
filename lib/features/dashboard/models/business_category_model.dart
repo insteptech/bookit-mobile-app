@@ -23,11 +23,13 @@ class BusinessCategoryModel {
 }
 
 class CategoryDetail {
+  final String id;
   final bool isClass;
   final String name;
   final List<RelatedCategory> related;
 
   CategoryDetail({
+    required this.id,
     required this.isClass,
     required this.name,
     required this.related,
@@ -35,6 +37,7 @@ class CategoryDetail {
 
   factory CategoryDetail.fromJson(Map<String, dynamic> json) {
     return CategoryDetail(
+      id: json['id'] ?? '',
       isClass: json['is_class'] ?? false,
       name: json['name'] ?? '',
       related: (json['related'] as List? ?? [])

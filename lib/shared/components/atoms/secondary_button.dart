@@ -7,6 +7,7 @@ class SecondaryButton extends StatelessWidget {
   final Widget? prefix;
   final bool isDisabled;
   final Widget? suffix;
+  final FontWeight? textWeight;
 
   const SecondaryButton({
     super.key,
@@ -15,6 +16,7 @@ class SecondaryButton extends StatelessWidget {
     this.prefix,
     this.isDisabled = false,
     this.suffix,
+    this.textWeight
   });
 
   @override
@@ -33,7 +35,7 @@ class SecondaryButton extends StatelessWidget {
         children: [
           if (prefix != null) ...[
             IconTheme(
-              data: IconThemeData(color: primaryColor, size: 22),
+              data: IconThemeData(color: primaryColor, size: 22, weight: 9),
               child: prefix!,
             ),
             const SizedBox(width: 5),
@@ -41,7 +43,7 @@ class SecondaryButton extends StatelessWidget {
           Text(
             text,
             style: AppTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w500,
+              fontWeight: textWeight ?? FontWeight.w500,
               color: primaryColor,
             ),
           ),

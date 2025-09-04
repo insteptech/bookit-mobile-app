@@ -7,6 +7,7 @@ import 'package:bookit_mobile_app/shared/components/atoms/small_fixed_text_box.d
 import 'package:bookit_mobile_app/shared/components/atoms/secondary_button.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
 import '../../../shared/components/molecules/checkbox_list_item.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/delete_action.dart';
 
 class EnhancedServiceFormData {
   final String serviceId;
@@ -179,7 +180,6 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
     forms.add(newForm);
     
     // Pre-fill the title with the service title
-    forms.first.titleController.text = widget.serviceData['title'] ?? '';
   }
 
   @override
@@ -220,8 +220,8 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
                 'Name your service',
                 style: AppTypography.headingSm
               ),
-              GestureDetector(
-                onTap: () {
+              DeleteAction(
+                onConfirm: () {
                   setState(() {
                     if (forms.length > 1) {
                       forms.remove(formData);
@@ -230,11 +230,6 @@ class EnhancedServicesFormState extends State<EnhancedServicesForm> {
                     }
                   });
                 },
-                child: Icon(
-                  Icons.delete_outline,
-                  size: 24,
-                  color: theme.colorScheme.primary,
-                ),
               ),
             ],
           ),

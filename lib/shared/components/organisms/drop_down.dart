@@ -54,11 +54,11 @@ class _DropDownState extends State<DropDown> {
     final isDark = theme.brightness == Brightness.dark;
     final borderColor = isDark
         ? theme.colorScheme.onSurface.withOpacity(0.12)
-        : Colors.grey.shade300;
+        : const Color(0xFFCED4DA);
     final boxColor = theme.scaffoldBackgroundColor;
-    final shadowColor = isDark
-        ? Colors.black.withOpacity(0.2)
-        : Colors.black.withOpacity(0.04);
+    // final shadowColor = isDark
+    //     ? Colors.black.withOpacity(0.2)
+    //     : Colors.black.withOpacity(0.04);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,14 +72,11 @@ class _DropDownState extends State<DropDown> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: borderColor,
-                width: 2,
+                width: 1,
               ),
               boxShadow: [
-                BoxShadow(
-                  color: shadowColor,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 1, offset: const Offset(0, 0)),
+                BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 2, offset: const Offset(0, 2)),
               ],
             ),
             child: Row(
@@ -95,10 +92,11 @@ class _DropDownState extends State<DropDown> {
                           color: theme.colorScheme.onSurface,
                         ),
                 ),
-                // Icon(
-                //   isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                //   color: theme.hintColor,
-                // ),
+                Icon(
+                  isOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: theme.colorScheme.onSurface,
+                  size: 20,
+                ),
               ],
             ),
           ),
@@ -111,37 +109,37 @@ class _DropDownState extends State<DropDown> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: borderColor,
-                width: 2,
+                width: 1,
               ),
               boxShadow: [
-                BoxShadow(
-                  color: shadowColor,
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 1, offset: const Offset(0, 0)),
+                BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 2, offset: const Offset(0, 2)),
               ],
             ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: widget.items.length,
-              separatorBuilder: (_, __) => Divider(
-                color: borderColor,
-                height: 1,
-              ),
-              itemBuilder: (context, index) {
-                final item = widget.items[index];
-                return ListTile(
-                  title: Text(
-                    item['name'],
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: theme.colorScheme.onSurface,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: widget.items.length,
+                separatorBuilder: (_, __) => Divider(
+                  color: borderColor,
+                  height: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final item = widget.items[index];
+                  return ListTile(
+                    title: Text(
+                      item['name'],
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
-                  ),
-                  onTap: () => _selectItem(item),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  dense: true,
-                );
-              },
+                    onTap: () => _selectItem(item),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    dense: true,
+                  );
+                },
+              ),
             ),
           ),
       ],

@@ -263,9 +263,19 @@ class ClassScheduleSelectorState extends State<ClassScheduleSelector> {
                   start: startTime,
                   end: endTime,
                 );
+                
+                // Initialize staff selection from initial schedules
+                final staffId = schedule['staffId'];
+                final instructorIds = schedule['instructor_ids'];
+                
+                if (staffId != null && staffId.toString().isNotEmpty) {
+                  selectedStaffPerDay[dayIndex] = [staffId.toString()];
+                } else if (instructorIds != null && instructorIds.toString().isNotEmpty) {
+                  selectedStaffPerDay[dayIndex] = instructorIds.toString().split(',').where((id) => id.isNotEmpty).toList();
+                }
               });
             } catch (e) {
-              print('Error parsing time for $day: $from - $to, Error: $e');
+              // Skip invalid time format
             }
           }
         }
@@ -330,7 +340,7 @@ void initializeWithExistingData(List<Map<String, String>> schedules, List<dynami
             }
           });
         } catch (e) {
-          debugPrint('Error parsing existing schedule: $e');
+          // debugPrint('Error parsing existing schedule: $e');
         }
       }
     }
@@ -563,8 +573,8 @@ void clearAll() {
           'name': foundStaff['name'] ?? '',
         };
       } catch (e) {
-        debugPrint("Selected staff not found in current staff list: $selectedStaffId");
-        debugPrint("Available staff: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
+        // debugPrint("Selected staff not found in current staff list: $selectedStaffId");
+        // debugPrint("Available staff: ${widget.staffMembers.map((s) => '${s['id']}: ${s['name']}').toList()}");
       }
     }
     

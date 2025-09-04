@@ -55,9 +55,9 @@ class BusinessApiResponse {
       email: json['email'],
       phone: json['phone'],
       website: json['website'],
-      status: json['status'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      status: json['active_step'] ?? '',
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
     );
   }
 }

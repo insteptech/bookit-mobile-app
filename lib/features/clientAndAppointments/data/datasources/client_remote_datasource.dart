@@ -12,6 +12,22 @@ abstract class ClientRemoteDataSource {
     String? address,
     String? notes,
   });
+  Future<Map<String, dynamic>> createClientAccountAndBookAppointment({
+    required String fullName,
+    required String email,
+    required String phone,
+    required Map<String, dynamic> appointmentData,
+    String? gender,
+    DateTime? dateOfBirth,
+    String? preferredLanguage,
+    String? statusReason,
+    String? classId,
+    String? rescheduledFrom,
+    bool? isCancelled,
+    String? preferredContactMethod,
+    bool? marketingConsent,
+    String? clientNotes,
+  });
 }
 
 class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
@@ -95,7 +111,7 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
     String? notes,
   }) async {
     try {
-      final response = await APIRepository.createClientAccount(
+      final response = await APIRepository.createClientAccountAndBookAppointment(
         payload: {
           'first_name': firstName,
           'last_name': lastName,
@@ -109,6 +125,66 @@ class ClientRemoteDataSourceImpl implements ClientRemoteDataSource {
       return ClientModel.fromJson(response.data['data']);
     } catch (e) {
       throw Exception('Failed to create client: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> createClientAccountAndBookAppointment({
+    required String fullName,
+    required String email,
+    required String phone,
+    required Map<String, dynamic> appointmentData,
+    String? gender,
+    DateTime? dateOfBirth,
+    String? preferredLanguage,
+    String? statusReason,
+    String? classId,
+    String? rescheduledFrom,
+    bool? isCancelled,
+    String? preferredContactMethod,
+    bool? marketingConsent,
+    String? clientNotes,
+  }) async {
+    try {
+      final payload = {
+        // Client data (required)
+        'full_name': fullName,
+        'email': email,
+        'phone': phone,
+        // Client data (optional)
+        if (gender != null) 'gender': gender,
+        if (dateOfBirth != null) 'date_of_birth': dateOfBirth.toIso8601String().split('T')[0],
+        if (preferredLanguage != null) 'preferred_language': preferredLanguage,
+        // Appointment data (required)
+        'business_id': appointmentData['business_id'],
+        'location_id': appointmentData['location_id'],
+        // 'booked_by': appointmentData['booked_by'],
+        'business_service_id': appointmentData['business_service_id'],
+        'practitioner': appointmentData['practitioner'],
+        'start_from': appointmentData['start_from'],
+        'end_at': appointmentData['end_at'],
+        'date': appointmentData['date'],
+        'status': appointmentData['status'] ?? 'confirmed',
+        // Appointment data (optional)
+        if (statusReason != null) 'status_reason': statusReason,
+        if (classId != null) 'class_id': classId,
+        if (rescheduledFrom != null) 'rescheduled_from': rescheduledFrom,
+        if (isCancelled != null) 'is_cancelled': isCancelled,
+        // Business-client relationship data (optional)
+        if (preferredContactMethod != null) 'preferred_contact_method': preferredContactMethod,
+        if (marketingConsent != null) 'marketing_consent': marketingConsent,
+        if (clientNotes != null) 'client_notes': clientNotes,
+      };
+
+      print("Submitting with payload: $payload");
+
+      final response = await APIRepository.createClientAccountAndBookAppointment(
+        payload: payload,
+      );
+      
+      return response.data;
+    } catch (e) {
+      throw Exception('Failed to create client account and book appointment: ${e.toString()}');
     }
   }
 }

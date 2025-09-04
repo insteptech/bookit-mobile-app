@@ -3,7 +3,7 @@ import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/appointment_summary_widget.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/widgets/client_search_widget.dart';
-import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/widgets/clients_appointments_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -50,163 +50,131 @@ class _BookNewAppointmentScreen2State
         (loc) => loc['id'] == widget.partialPayload['location_id'],
         orElse: () => {'title': '...'});
     
-    final appointmentController = ref.read(appointmentControllerProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 34, vertical: 24),
-                children: [
-                  const SizedBox(height: 70),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.arrow_back, size: 32),
-                      ),
-                    ],
+    return ClientsAppointmentsScaffold(
+      title: "Book a new appointment",
+      titleToContentSpacing: 16.0,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () async {},
+                child: Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  const SizedBox(height: 9),
-                  const Text(
-                    "Book a new appointment",
-                    style: AppTypography.headingLg,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.onSurface),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {},
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            border:
-                                Border.all(color: theme.colorScheme.onSurface),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(activeLocation["title"]),
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 48),
-                  AppointmentSummaryWidget(partialPayload: widget.partialPayload),
-                  const SizedBox(height: 24),
-                  const Text("Client", style: AppTypography.headingSm),
-                  const SizedBox(height: 8),
+                  child: Text(activeLocation["title"]),
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 48),
+          AppointmentSummaryWidget(partialPayload: widget.partialPayload),
+          const SizedBox(height: 24),
+          const Text("Client", style: AppTypography.headingSm),
+          const SizedBox(height: 8),
 
-                  ClientSearchWidget(
-                    layerLink: _layerLink,
-                    controller: _clientController,
-                    focusNode: _clientFocusNode,
-                    onClientSelected: _selectClient,
-                  ),
+          ClientSearchWidget(
+            layerLink: _layerLink,
+            controller: _clientController,
+            focusNode: _clientFocusNode,
+            onClientSelected: _selectClient,
+          ),
 
-                  const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        
+          GestureDetector(
+            onTap: () async {
+              final result = await context.push(
+                "/add_new_client",
+                extra: widget.partialPayload,
+              );
               
-                  GestureDetector(
-                    onTap: () async {
-                      final result = await context.push(
-                        "/add_new_client",
-                        extra: widget.partialPayload,
-                      );
-                      
-                      // If a client was created, select it
-                      if (result != null && result is Map<String, dynamic>) {
-                        _selectClient(result);
-                      }
-                    },
-                    child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.add_circle_outline_outlined, color: theme.colorScheme.primary, size: 18,),
-                      const SizedBox(width: 5),
-                      Text(
-                        "Add new client",
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+              // If a client was created, select it
+              if (result != null && result is Map<String, dynamic>) {
+                _selectClient(result);
+              }
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.add_circle_outline_outlined, color: theme.colorScheme.primary, size: 18,),
+                const SizedBox(width: 5),
+                Text(
+                  "Add new client",
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
                   ),
-                  )
-                ],
-              ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 34, vertical: 20),
-              child: PrimaryButton(
-                onPressed: _selectedClient != null
-                    ? () async {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        
-                        try {
-                          await ref.read(appointmentControllerProvider.notifier).bookAppointment(
-                            businessId: widget.partialPayload['business_id'],
-                            locationId: widget.partialPayload['location_id'],
-                            businessServiceId: widget.partialPayload['business_service_id'],
-                            practitionerId: widget.partialPayload['employee_id'],
-                            date: DateTime.parse(widget.partialPayload['date']),
-                            startTime: widget.partialPayload['slot_time'],
-                            endTime: widget.partialPayload['end_time'],
-                            userId: widget.partialPayload['user_id'],
-                            durationMinutes: widget.partialPayload['duration_minutes'],
-                            serviceName: widget.partialPayload['service_name'],
-                            practitionerName: widget.partialPayload['practitioner_name'],
-                            clientId: _selectedClient!['id'].toString(),
-                          );
-                          
-                          // Show success message
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Appointment booked successfully!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                            
-                            // Navigate to home screen with a refresh parameter
-                            context.go("/home_screen?refresh=true");
-                          }
-                        } catch (e) {
-                          // Show error message
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Failed to book appointment: ${e.toString()}'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        } finally {
-                          if (mounted) {
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          }
-                        }
-                      }
-                    : null,
-                isDisabled: (_selectedClient == null || _isLoading),
-                text: _isLoading ? "Booking..." : "Confirm booking",
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+      buttonText: _isLoading ? "Booking..." : "Confirm booking",
+      onButtonPressed: () async {
+        if (_selectedClient == null || _isLoading) return;
+        
+        setState(() {
+          _isLoading = true;
+        });
+        try {
+          await ref.read(appointmentControllerProvider.notifier).bookAppointment(
+            businessId: widget.partialPayload['business_id'],
+            locationId: widget.partialPayload['location_id'],
+            businessServiceId: widget.partialPayload['business_service_id'],
+            practitionerId: widget.partialPayload['practitioner'],
+            date: DateTime.parse(widget.partialPayload['date']),
+            startTime: widget.partialPayload['start_from'],
+            endTime: widget.partialPayload['end_at'],
+            userId: widget.partialPayload['user_id'],
+            durationMinutes: widget.partialPayload['duration_minutes'],
+            serviceName: widget.partialPayload['service_name'],
+            practitionerName: widget.partialPayload['practitioner_name'],
+            clientId: _selectedClient!['id'].toString(),
+          );
+          
+          // Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Appointment booked successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            
+            // Navigate to home screen with a refresh parameter
+            context.go("/home_screen?refresh=true");
+          }
+        } catch (e) {
+          // Show error message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to book appointment: ${e.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } finally {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        }
+      },
+      isButtonDisabled: (_selectedClient == null || _isLoading),
     );
   }
 }

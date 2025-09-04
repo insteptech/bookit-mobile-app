@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/auth_api_service.dart';
@@ -74,9 +75,26 @@ class APIRepository {
     }
   }
 
+  //...........................Add staff with schedule..............................
+  static Future<Response> addStaffWithSchedule(
+    Map<String, dynamic> payload
+  ) async {
+    try {
+      final response = await _dio.post(
+        addStaffWithScheduleEndpoint,
+        data: payload
+      );
+      // print(response);
+      return response;
+    } catch (e) {
+      // print("Error while creating the staff and scheudle: $e");
+      throw Exception("Failed to create staff and schedule: $e");
+    }
+  }
+
   //..........................Fetch User Data for Staff Registration..................
 
-  static Future<Response> getUserDataForStaffRegistration() async {
+  static Future<Response> getBusinessLevel0Categories()async {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = userDetails.id;
@@ -88,7 +106,8 @@ class APIRepository {
        final String fetchUrl =
           getBusinessLevel0CategoriesEndpoint(businessId);
       final response = await _dio.get(fetchUrl); 
-    //             final encoder = const JsonEncoder.withIndent('  ');
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from get staff list:\n$prettyJson");
       return response;
@@ -97,15 +116,35 @@ class APIRepository {
     }
   }
 
+  //............................get services and categories of the business.............
+  static Future<Response> getServicesAndCategoriesOfBusiness(String categoryId) async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final String fetchUrl =
+          getServicesAndCategoriesOfBusinessEndpoint(businessId, categoryId);
+      final response = await _dio.get(fetchUrl); 
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getServicesAndCategoriesOfBusiness:\n$prettyJson");
+      return response;
+    } catch (e) {
+      throw Exception("Failed to fetch services and categories: ${e.toString()}");
+    }
+  }
+
   //...................................Fetch Staff List................................
   static Future<Response> getStaffList() async {
     try {
       final userDetails = await AuthStorageService().getUserDetails();
       String userId = userDetails.id;
+      // print("User id: $userId");
 
       final String fetchUrl = "$getStaffListByUserIdEndpoint/$userId";
       final response = await _dio.get(fetchUrl);
-    //       final encoder = const JsonEncoder.withIndent('  ');
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from get staff list:\n$prettyJson");
 
@@ -167,6 +206,11 @@ class APIRepository {
     try {
       final url = fetchAppointmentsEndpoint(locationId);
       final response = await _dio.get(url);
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from get appointments:\n$prettyJson");
+
 
       return response.data['data'];
     } catch (e) {
@@ -242,12 +286,12 @@ class APIRepository {
   }
 
   //..............................Create a new client account.......................
-  static Future<Response> createClientAccount({
+  static Future<Response> createClientAccountAndBookAppointment({
     required Map<String, dynamic> payload,
   }) async {
     try {
       final response = await _dio.post(
-        createClientAccountEndpoint,
+        createClientAccountAndAppointmentEndpoint,
         data: payload,
       );
       return response;
@@ -295,7 +339,7 @@ class APIRepository {
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getBusinessOfferingsEndpoint(businessId);
       final response = await _dio.get(url);
-          //        // Pretty print JSON
+    // Debug logging - remove in production
     // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from getBusinessOfferings:\n$prettyJson");
@@ -314,15 +358,34 @@ class APIRepository {
       // final response = await _dio.get(getStaffListEndpoint);
       final response = await _dio.get(url);
 
-                 // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getAllStaffList:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getAllStaffList:\n$prettyJson");
         return response;
 
     }
     catch (e) {
       throw Exception("Failed to fetch staff list: ${e.toString()}");
+    }
+  }
+
+  //....................Get staff details and schedule by staff ID........................................
+  static Future<Response> getStaffDetailsAndScheduleById(String staffId) async {
+    try {
+      String businessId =
+          await ActiveBusinessService().getActiveBusiness() as String;
+      final url = getStaffDetailsAndScheduleByIdEndpoint(staffId, businessId);
+      final response = await _dio.get(url);
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getStaffDetailsAndScheduleById:\n$prettyJson");
+        return response;
+
+    }
+    catch (e) {
+      throw Exception("Failed to fetch staff details: ${e.toString()}");
     }
   }
 
@@ -333,7 +396,7 @@ class APIRepository {
         await ActiveBusinessService().getActiveBusiness() as String;
       final response = await _dio.get(getStaffListByBusinessIdEndpoint(businessId));
 
-    //              // Pretty print JSON
+    // Debug logging - remove in production
     // final encoder = const JsonEncoder.withIndent('  ');
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from getStaffListByBusinessId:\n$prettyJson");
@@ -429,9 +492,8 @@ static Future<Map<String, dynamic>> getAllClassesDetails() async {
     // final prettyJson = encoder.convert(response.data);
     // debugPrint("Full response from getAllClassesDetails:\n$prettyJson");
     return response.data;
-  } catch (e, stacktrace) {
-    debugPrint("Error in getAllClassesDetails: $e");
-    debugPrint("Stacktrace: $stacktrace");
+  } catch (e) {
+    // debugPrint("Error in getAllClassesDetails: $e");
     throw Exception("Failed to fetch classes by location: ${e.toString()}");
   }
 }
@@ -444,10 +506,63 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getClassesByBusinessLocationAndDayEndpoint(businessId, locationId, day);
       final response = await _dio.get(url);
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from class schedule location and day:\n$prettyJson");
    
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch class schedules: ${e.toString()}");
+    }
+  }
+
+  /// Cancels a class schedule (dummy implementation)
+  static Future<Map<String, dynamic>> cancelClass(String classId) async {
+    try {
+      // Dummy implementation - simulate API call
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // debugPrint("Cancelling class with ID: $classId");
+      
+      // Return success response
+      return {
+        "success": true,
+        "message": "Class cancelled successfully",
+        "data": {
+          "classId": classId,
+          "status": "cancelled"
+        }
+      };
+    } catch (e) {
+      // debugPrint("Error cancelling class: $e");
+      throw Exception("Failed to cancel class: ${e.toString()}");
+    }
+  }
+
+  /// Deletes a class (dummy implementation)
+  static Future<Response> deleteClass(String classId) async {
+    try {
+      // Dummy implementation - simulate API call
+      // await Future.delayed(const Duration(milliseconds: 800));
+      
+      // debugPrint("Deleting class with ID: $classId");
+      
+      // // Return success response
+      // return {
+      //   "success": true,
+      //   "message": "Class deleted successfully",
+      //   "data": {
+      //     "classId": classId,
+      //     "status": "deleted"
+      //   }
+      // };
+      final response = await _dio.delete(deleteClassEndpoint(classId));
+      // print(response.data);
+      return response;
+    } catch (e) {
+      // debugPrint("Error deleting class: $e");
+      throw Exception("Failed to delete class: ${e.toString()}");
     }
   }
 
@@ -462,6 +577,10 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getPaginatedClassesByBusinessLocationAndDayEndpoint(businessId, locationId, day, page, limit);
       final response = await _dio.get(url);
+                    //        // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from $url:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch class schedules: ${e.toString()}");
@@ -476,6 +595,10 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
           await ActiveBusinessService().getActiveBusiness() as String;
       final url = getClassesByBusinessAndDayEndpoint(businessId, day);
       final response = await _dio.get(url);
+                    //        // Pretty print JSON
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from get class from business and day:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch classes by business and location: ${e.toString()}");
@@ -504,10 +627,10 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
     try {
       final url = getServiceDetailsByIdEndpoint(serviceId);
       final response = await _dio.get(url);
-          //        // Pretty print JSON
-    final encoder = const JsonEncoder.withIndent('  ');
-    final prettyJson = encoder.convert(response.data);
-    debugPrint("Full response from getServiceDetailsById:\n$prettyJson");
+    // Debug logging - remove in production
+    // final encoder = const JsonEncoder.withIndent('  ');
+    // final prettyJson = encoder.convert(response.data);
+    // debugPrint("Full response from getServiceDetailsById:\n$prettyJson");
       return response.data;
     } catch (e) {
       throw Exception("Failed to fetch service details: ${e.toString()}");
@@ -568,6 +691,283 @@ static Future<Map<String, dynamic>> getClassSchedulesByLocationAndDay(
       );
     } catch (e) {
       throw Exception("Failed to reset password: ${e.toString()}");
+    }
+  }
+
+  //...................Save classess and its schedule...............
+    static Future<Response> saveClassAndSchedule({
+    required List<Map<String, dynamic>> payload,
+  }) async {
+    try {
+      final response = await _dio.post(
+        saveClassAndScheduleEndpoint, 
+        data: payload,
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response;
+    } catch (e) {
+      throw Exception("Failed to save class and schedule: ${e.toString()}");
+    }
+  }
+
+  //..................Get class and schedule ......................
+  static Future<Response> getClassAndSchedule(String classId)async{
+      // print("Fetching for $classId");
+    try {
+      final response = await _dio.get(getClassAndScheduleDataEndpoint(classId));
+      // Debug logging - remove in production
+      // final encoder = const JsonEncoder.withIndent('  ');
+      // final prettyJson = encoder.convert(response.data);
+      // debugPrint("Full response from updateServiceDetails:\n$prettyJson");
+      return response;
+    } catch (e) {
+      throw Exception("Error fetching data $e");
+    }
+  }
+
+  //..................Delete staff/coach......................
+  static Future<Response> deleteStaff(String staffId) async {
+    try {
+      final response = await _dio.delete(
+        deleteStaffCoachEndpoint(staffId),
+        options: Options(
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response; 
+    } catch (e) {
+      throw Exception("Failed to delete staff: ${e.toString()}");
+    }
+  }
+
+  //.................................Add Multiple Staff With Image.............................
+  /// Adds multiple staff profiles with image support using FormData
+  static Future<Response> addMultipleStaffWithImage({
+    required List<StaffProfile> staffProfiles,
+  }) async {
+    try {
+      // Get user ID and business ID
+      final userDetails = await AuthStorageService().getUserDetails();
+      final userId = userDetails.id;
+      final businessId = userDetails.businessIds[0];
+
+      // Check if any staff profile has an image
+      final hasImages = staffProfiles.any((profile) => profile.profileImage != null);
+
+      if (!hasImages) {
+        // Use regular JSON API if no images
+        return await addMultipleStaff(staffProfiles: staffProfiles);
+      }
+
+      // Create FormData for multipart upload
+      final formData = FormData();
+
+      // Add staff profiles data
+      final List<Map<String, dynamic>> profilesData = staffProfiles.map((profile) {
+        final profileJson = profile.toJson();
+        profileJson['user_id'] = userId;
+        profileJson['business_id'] = businessId;
+        profileJson['is_available'] = profileJson['is_available'] == true;
+        
+        if (profileJson['location_id'] is! List) {
+          profileJson['location_id'] = [profileJson['location_id']];
+        }
+        
+        // Remove image from JSON data as it will be sent as file
+        profileJson.remove('profile_image');
+        
+        return profileJson;
+      }).toList();
+
+      formData.fields.add(MapEntry('staffProfiles', jsonEncode(profilesData)));
+
+      // Add profile images
+      for (int i = 0; i < staffProfiles.length; i++) {
+        final profile = staffProfiles[i];
+        if (profile.profileImage != null) {
+          final imageFile = await MultipartFile.fromFile(
+            profile.profileImage!.path,
+            filename: 'profile_${i}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          );
+          formData.files.add(MapEntry('profile_image_$i', imageFile));
+        }
+      }
+
+      final response = await _dio.post(
+        addStaffEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to add staff with image: ${e.toString()}");
+    }
+  }
+
+  //.................................Add Staff With Schedule And Image.............................
+  /// Adds staff with schedule and image support using FormData
+  static Future<Response> addStaffWithScheduleImage(Map<String, dynamic> payload) async {
+    try {
+      // Extract image from payload if exists
+      File? profileImage;
+      if (payload.containsKey('profile_image') && payload['profile_image'] is File) {
+        profileImage = payload['profile_image'] as File;
+        payload.remove('profile_image');
+      }
+
+      if (profileImage == null) {
+        // Use regular JSON API if no image
+        return await addStaffWithSchedule(payload);
+      }
+
+      // Create FormData for multipart upload
+      final formData = FormData();
+
+      // Add all payload data as fields
+      for (final entry in payload.entries) {
+        if (entry.value != null) {
+          if (entry.value is Map || entry.value is List) {
+            formData.fields.add(MapEntry(entry.key, jsonEncode(entry.value)));
+          } else {
+            formData.fields.add(MapEntry(entry.key, entry.value.toString()));
+          }
+        }
+      }
+
+      // Add profile image
+      final imageFile = await MultipartFile.fromFile(
+        profileImage.path,
+        filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      formData.files.add(MapEntry('profile_image', imageFile));
+
+      final response = await _dio.post(
+        addStaffWithScheduleEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to add staff with schedule and image: ${e.toString()}");
+    }
+  }
+
+  //.................................Save Class And Schedule With Image.............................
+  /// Saves class and schedule with image support using FormData
+  static Future<Response> saveClassAndScheduleWithImage({
+    required List<Map<String, dynamic>> payload,
+    File? image,
+  }) async {
+    try {
+      if (image == null) {
+        // Use regular JSON API if no image
+        return await saveClassAndSchedule(payload: payload);
+      }
+
+      // Create FormData for multipart upload
+      final formData = FormData();
+
+      // Add payload data
+      formData.fields.add(MapEntry('payload', jsonEncode(payload)));
+
+      // Add class image
+      final imageFile = await MultipartFile.fromFile(
+        image.path,
+        filename: 'class_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      formData.files.add(MapEntry('class_image', imageFile));
+
+      final response = await _dio.post(
+        saveClassAndScheduleEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to save class with image: ${e.toString()}");
+    }
+  }
+
+  //............................Business Photo Gallery APIs..............................
+  /// Gets business gallery photos
+  static Future<Response> getBusinessGalleryPhotos(String businessId) async {
+    try {
+      final response = await _dio.get(
+        getBusinessGalleryPhotosEndpoint(businessId),
+        options: Options(
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response;
+    } catch (e) {
+      throw Exception("Failed to fetch gallery photos: ${e.toString()}");
+    }
+  }
+
+  /// Uploads business gallery photo
+  static Future<Response> uploadBusinessGalleryPhoto({
+    required String businessId,
+    required File imageFile,
+  }) async {
+    try {
+      final formData = FormData();
+      
+      // Add business ID
+      formData.fields.add(MapEntry('business_id', businessId));
+      
+      // Add image file
+      final multipartFile = await MultipartFile.fromFile(
+        imageFile.path,
+        filename: 'gallery_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      formData.files.add(MapEntry('image', multipartFile));
+
+      final response = await _dio.post(
+        uploadBusinessGalleryPhotoEndpoint,
+        data: formData,
+        options: Options(
+          headers: {'Content-Type': 'multipart/form-data'},
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+
+      return response;
+    } catch (e) {
+      throw Exception("Failed to upload gallery photo: ${e.toString()}");
+    }
+  }
+
+  /// Deletes business gallery photo
+  static Future<Response> deleteBusinessGalleryPhoto(String photoId) async {
+    try {
+      final response = await _dio.delete(
+        deleteBusinessGalleryPhotoEndpoint(photoId),
+        options: Options(
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      
+      return response;
+    } catch (e) {
+      throw Exception("Failed to delete gallery photo: ${e.toString()}");
     }
   }
 

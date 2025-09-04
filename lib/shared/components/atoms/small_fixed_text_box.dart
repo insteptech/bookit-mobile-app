@@ -4,7 +4,8 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:flutter/material.dart';
 
 class SmallFixedTextBox extends StatelessWidget {
-  final String text;
+  final String? text;
+  
   const SmallFixedTextBox({super.key, required this.text});
 
   @override
@@ -19,7 +20,7 @@ class SmallFixedTextBox extends StatelessWidget {
         width: 88,
         child: Center(
           child: Text(
-            AppTranslationsDelegate.of(context).text("minutes"), 
+            text ?? AppTranslationsDelegate.of(context).text("minutes"), 
             style: AppTypography.bodyMedium
           )
         ),

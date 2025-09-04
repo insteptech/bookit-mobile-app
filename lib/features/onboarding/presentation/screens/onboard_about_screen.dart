@@ -15,6 +15,7 @@ class OnboardAboutScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final localizations = AppTranslationsDelegate.of(context);
 
+
     return OnboardScaffoldLayout(
       heading: localizations.text("onboard_about_title"),
       subheading: localizations.text("onboard_about_description"),
@@ -58,7 +59,9 @@ class OnboardAboutScreen extends ConsumerWidget {
           ),
         ],
       ),
-      onNext: () => controller.handleBusinessInfoSubmission(context),
+      onNext: () {
+        controller.handleBusinessInfoSubmission(context);
+      },
       nextButtonText: localizations.text("onboard_next_button_address_details"),
       nextButtonDisabled: controller.isButtonDisabled || controller.isLoading,
       currentStep: 0,

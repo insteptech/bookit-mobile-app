@@ -1,15 +1,17 @@
+import 'package:bookit_mobile_app/core/utils/validators.dart';
+
 class ValidationService {
   /// Validates email format
   static bool isValidEmail(String email) {
-    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-        .hasMatch(email.trim());
+    // return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    //     .hasMatch(email.trim());
+    return isEmailInCorrectFormat(email);
   }
 
   /// Validates phone number (10-15 digits)
   static bool isValidPhone(String phone) {
     // Remove all non-digit characters for validation
-    String cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
-    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
+    return isMobileNumberInCorrectFormat(phone);
   }
 
   /// Validates name (minimum 2 characters)
@@ -44,7 +46,7 @@ class ValidationService {
       return "Phone number is required";
     }
     if (!isValidPhone(phone)) {
-      return "Please enter a valid phone number (10-15 digits)";
+      return "Please enter a valid phone number (11 digits)";
     }
     return null;
   }

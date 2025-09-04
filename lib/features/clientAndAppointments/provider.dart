@@ -8,6 +8,7 @@ import 'domain/usecases/get_services.dart';
 import 'domain/usecases/book_appointment.dart';
 import 'domain/usecases/get_clients.dart';
 import 'domain/usecases/create_client.dart';
+import 'domain/usecases/create_client_and_book_appointment.dart';
 
 // Data imports
 import 'data/datasources/appointment_remote_datasource.dart';
@@ -64,6 +65,10 @@ final createClientProvider = Provider<CreateClient>(
   (ref) => CreateClient(ref.read(clientRepositoryProvider)),
 );
 
+final createClientAndBookAppointmentProvider = Provider<CreateClientAndBookAppointment>(
+  (ref) => CreateClientAndBookAppointment(ref.read(clientRepositoryProvider)),
+);
+
 // === Controllers ===
 final appointmentControllerProvider = StateNotifierProvider<AppointmentController, AppointmentState>(
   (ref) => AppointmentController(
@@ -77,5 +82,6 @@ final clientControllerProvider = StateNotifierProvider<ClientController, ClientS
   (ref) => ClientController(
     ref.read(getClientsProvider),
     ref.read(createClientProvider),
+    ref.read(createClientAndBookAppointmentProvider),
   ),
 );

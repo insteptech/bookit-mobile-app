@@ -28,7 +28,7 @@ class AppTypography {
   static const appBarHeading = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500, 
-    fontFamily: 'Compton'
+    fontFamily: 'Campton'
   );
 
   static const bodySmall = TextStyle(

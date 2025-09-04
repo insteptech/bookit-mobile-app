@@ -4,9 +4,11 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/controllers/appointments_controller.dart';
 import 'package:bookit_mobile_app/core/controllers/business_controller.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/controllers/staff_controller.dart';
+import 'package:bookit_mobile_app/core/controllers/classes_controller.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/location_selector_widget.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/dashboard_content_widget.dart';
+import 'package:bookit_mobile_app/features/dashboard/models/business_category_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -37,44 +39,90 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Future<void> _refreshDashboard() async {
-    final activeLocation = ref.read(activeLocationProvider);
-    if (activeLocation.isNotEmpty) {
-      // Force refresh appointments for current location
-      final appointmentsController = ref.read(appointmentsControllerProvider.notifier);
-      await appointmentsController.fetchAppointments(activeLocation);
-    }
-    // Also refresh business categories
+    // Parallel fetch business type and staff data
     final businessController = ref.read(businessControllerProvider.notifier);
-    await businessController.fetchBusinessCategories();
+    final staffController = ref.read(staffControllerProvider.notifier);
+    
+    final businessFuture = businessController.fetchBusinessCategories();
+    final staffFuture = staffController.fetchStaffList();
+    
+    // Wait for both business type and staff data
+    await Future.wait([businessFuture, staffFuture]);
+    
+    // After business type and staff are loaded, handle appointments/classes
+    await _handleDataBasedFlow();
   }
 
   Future<void> _initializeDashboard() async {
     final locations = ref.read(locationsProvider);
     
-    // Start fetching business categories immediately
-    final businessController = ref.read(businessControllerProvider.notifier);
-    final categoriesFuture = businessController.fetchBusinessCategories();
-
-    
+    // Set active location if locations are available
     if (locations.isNotEmpty) {
       final activeLocation = ref.read(activeLocationProvider);
-      // Select first location if no active location exists or if it's empty
       final locationId = (activeLocation.isEmpty) ? locations[0]['id'] : activeLocation;
       ref.read(activeLocationProvider.notifier).state = locationId;
-      
-      // Start fetching appointments in parallel with categories
-      final appointmentsController = ref.read(appointmentsControllerProvider.notifier);
-      final appointmentsFuture = appointmentsController.fetchAppointments(locationId);
-      
-      // Wait for both to complete
-      await Future.wait([categoriesFuture, appointmentsFuture]);
-    } else {
-      // Only wait for categories if no locations
-      await categoriesFuture;
     }
+    
+    // Step 1 & 2: Parallel fetch business type and staff data (most important)
+    final businessController = ref.read(businessControllerProvider.notifier);
+    final staffController = ref.read(staffControllerProvider.notifier);
+    
+    final businessFuture = businessController.fetchBusinessCategories();
+    final staffFuture = staffController.fetchStaffList();
+    
+    // Wait for both business type and staff data
+    await Future.wait([businessFuture, staffFuture]);
+    
+    // Step 3: After business type and staff are loaded, handle appointments/classes based on the new flow
+    await _handleDataBasedFlow();
     
     // Fetch fresh locations in background and update provider
     _fetchFreshLocations();
+  }
+
+  Future<void> _handleDataBasedFlow() async {
+    final businessState = ref.read(businessControllerProvider);
+    final staffState = ref.read(staffControllerProvider);
+    final activeLocation = ref.read(activeLocationProvider);
+    
+    if (activeLocation.isEmpty) return;
+    
+    final businessType = businessState.businessType;
+    
+    if (businessType == BusinessType.appointmentOnly) {
+      // Business is appointments only
+      if (staffState.hasAppointmentStaff) {
+        // Staff for appointments exist - fetch appointments
+        final appointmentsController = ref.read(appointmentsControllerProvider.notifier);
+        await appointmentsController.fetchAppointments(activeLocation);
+      }
+      // If no appointment staff, UI will show "add staff" box
+    } else if (businessType == BusinessType.classOnly) {
+      // Business is class only
+      if (staffState.hasClassStaff) {
+        // Staff for classes exist - fetch class schedules
+        final classesController = ref.read(classesControllerProvider.notifier);
+        await classesController.fetchClassesForDate(activeLocation, DateTime.now());
+      }
+      // If no class staff, UI will show "add coach and schedule class" box
+    } else if (businessType == BusinessType.both) {
+      // Business has both types - handle both
+      final futures = <Future>[];
+      
+      if (staffState.hasAppointmentStaff) {
+        final appointmentsController = ref.read(appointmentsControllerProvider.notifier);
+        futures.add(appointmentsController.fetchAppointments(activeLocation));
+      }
+      
+      if (staffState.hasClassStaff) {
+        final classesController = ref.read(classesControllerProvider.notifier);
+        futures.add(classesController.fetchClassesForDate(activeLocation, DateTime.now()));
+      }
+      
+      if (futures.isNotEmpty) {
+        await Future.wait(futures);
+      }
+    }
   }
 
   Future<void> _fetchFreshLocations() async {
@@ -109,9 +157,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Future<void> fetchClasses(String locationId) async {
     try {
-      await APIRepository.getAllClassesDetails();
+      final classesController = ref.read(classesControllerProvider.notifier);
+      await classesController.fetchClassesForDate(locationId, DateTime.now());
     } catch (e) {
-      print("Error fetching classes: $e");
+      debugPrint("Error fetching classes: $e");
     }
   }
 
@@ -122,27 +171,39 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: AppConstants.defaultScaffoldPadding,
-                children: [
-                  SizedBox(height: AppConstants.scaffoldTopSpacing),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
-                      Icon(Icons.notifications_outlined, size: 28),
-                    ],
-                  ),
-                  SizedBox(height: AppConstants.contentSpacing),
-                  Text(
-                    AppTranslationsDelegate.of(context).text("welcome_back"),
-                    style: AppTypography.headingLg,
-                  ),
-                  SizedBox(height: AppConstants.titleToSubtitleSpacing),
-                  const LocationSelectorWidget(),
-                  SizedBox(height: AppConstants.headerToContentSpacing),
+        child: CustomScrollView(
+          // physics: const ClampingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              expandedHeight: 180.0,
+              collapsedHeight: 100.0,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              surfaceTintColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: theme.colorScheme.onSurface,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              flexibleSpace: LayoutBuilder(
+                builder: (context, constraints) {
+                  final expandedHeight = 180.0;
+                  final collapsedHeight = 100.0;
+                  final currentHeight = constraints.maxHeight;
+                  final progress = ((expandedHeight - currentHeight) / 
+                      (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
+                  
+                  return Container(
+                    padding: AppConstants.defaultScaffoldPadding,
+                    child: _buildAnimatedHeader(progress),
+                  );
+                },
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 5),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
                   Text(
                     DateFormat('EEE MMM d').format(DateTime.now()),
                     style: AppTypography.bodyMedium.copyWith(
@@ -152,11 +213,71 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                   SizedBox(height: AppConstants.contentSpacing),
                   const DashboardContentWidget(),
-                ],
+                ]),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+  
+  Widget _buildAnimatedHeader(double progress) {
+    final textSize = 32.0 - (8.0 * progress); // 32 -> 24
+    
+    // Calculate scale for location selector (1.0 -> 0.85)
+    final locationScale = 1.0 - (0.15 * progress);
+    
+    // Calculate base top position that both elements will use for alignment
+    final baseTopPosition = AppConstants.scaffoldTopSpacing * (1 - progress);
+    
+    // Both notification icon and welcome text use the same top position for perfect alignment
+    final alignedTopPosition = baseTopPosition;
+    
+    // Calculate location selector position with extra spacing
+    final locationTopPosition = alignedTopPosition + textSize + AppConstants.titleToSubtitleSpacing + 8.0;
+    
+    return SizedBox(
+      height: double.infinity,
+      child: Stack(
+        children: [
+          // Notification icon - aligned with welcome text
+          Positioned(
+            top: alignedTopPosition,
+            right: 0.0,
+            child: const Icon(Icons.notifications_outlined, size: 28),
+          ),
+          
+          // Welcome text - aligned with notification icon
+          Positioned(
+            top: alignedTopPosition,
+            left: 0.0,
+            right: 40, // Leave space for notification icon
+            child: Text(
+              AppTranslationsDelegate.of(context).text("welcome_back"),
+              style: TextStyle(
+                fontSize: textSize,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Campton',
+              ),
+            ),
+          ),
+          
+          // Location selector - smoothly follows welcome text with scaling
+          Positioned(
+            top: locationTopPosition,
+            left: 0,
+            right: 0,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Transform.scale(
+                scale: locationScale,
+                alignment: Alignment.centerLeft,
+                child: const LocationSelectorWidget(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

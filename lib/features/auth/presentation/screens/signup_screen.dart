@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/features/auth/presentation/widgets/signup_form.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,7 +17,7 @@ class SignupScreen extends StatelessWidget{
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 35, right: 35),
+          padding: AppConstants.defaultScaffoldPadding,
           child: Column(
             children: [
               // Header section
@@ -28,9 +29,9 @@ class SignupScreen extends StatelessWidget{
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Transform.translate(
-                      offset: const Offset(-10, 0),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back, size: 30),
+                      offset: const Offset(0, 0),
+                      child: BackIcon(
+                        size: 30,
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),

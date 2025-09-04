@@ -46,6 +46,10 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
           selectedIds.remove(child.id);
         }
       } else {
+        // If it's a class category, allow only one selection
+        if (widget.isClass) {
+          selectedIds.clear(); // Clear all existing selections
+        }
         selectedIds.add(id);
       }
     });
@@ -65,7 +69,8 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
     if (selectedIds.isEmpty) return;
 
     final businessId = await ActiveBusinessService().getActiveBusiness();
-    print(businessId);
+    // Debug logging - remove in production
+    // print(businessId);
 
     setState(() {
       isButtonDisabled = true;
@@ -94,10 +99,25 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
           )
           .toList();
         if (mounted) {
-         context.push('/add_offering_service_details', extra: {
-           'services': servicesPayload,
-           'categoryName': widget.categoryName,
-         });
+          // Check if any of the selected services are classes
+          final hasClassServices = servicesPayload.any((service) => service['is_class'] == true);
+          
+          if (hasClassServices) {
+            // If there are class services, navigate to the new class and schedule screen
+            // For now, we'll take the first class service as the primary one
+            final classService = servicesPayload.firstWhere((service) => service['is_class'] == true);
+            
+            context.push('/add_edit_class_and_schedule', extra: {
+              'serviceData': classService,
+              'isEditing': false,
+            });
+          } else {
+            // For regular services, use the existing flow
+            context.push('/add_offering_service_details', extra: {
+              'services': servicesPayload,
+              'categoryName': widget.categoryName,
+            });
+          }
         }
     } catch (e) {
       if (mounted) {
@@ -160,7 +180,7 @@ class _SelectServicesScreenState extends ConsumerState<SelectServicesScreen> {
         );
 
         return OfferingsAddServiceScaffold(
-          title: widget.isClass ? widget.categoryName : '${widget.categoryName} service',
+          title: widget.isClass ? widget.categoryName : '${widget.categoryName}service',
           subtitle: widget.isClass ? 'Select category of your new class' : 'Select category of your new service',
           body: ListView.builder(
             shrinkWrap: true,

@@ -82,12 +82,14 @@ class _BusinessHoursScreenState extends State<BusinessHoursScreen> {
     _syncScheduleControllerToBusinessHours();
     
     if (!businessController.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(businessController.errorMessage ?? 'Please check your business hours'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(businessController.errorMessage ?? 'Please check your business hours'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 
@@ -205,10 +207,10 @@ class _BusinessHoursScreenState extends State<BusinessHoursScreen> {
               const SizedBox(height: 8),
               
               // Use your existing ScheduleSelector component
-              ScheduleSelector(
-                index: 0,
-                controller: scheduleController,
-              ),
+              // ScheduleSelector(
+              //   index: 0,
+              //   controller: scheduleController,
+              // ),
               
               const SizedBox(height: 24),
               

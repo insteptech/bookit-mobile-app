@@ -1,25 +1,38 @@
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/models/staff_profile_request_model.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import 'category_selector.dart';
-import 'location_selector.dart';
 import 'profile_photo_picker.dart';
-import 'gender_selector.dart'; // <- Import the GenderSelector
+import 'gender_selector.dart';
 
 class AddMemberForm extends StatefulWidget {
   final VoidCallback? onAdd;
   final VoidCallback? onDelete;
-  final bool? isClass; // Made optional
+  final bool? isClass;
   final Function(StaffProfile)? onDataChanged;
+  // Add initial values to preserve state
+  final String? initialName;
+  final String? initialEmail;
+  final String? initialPhone;
+  final String? initialGender;
+  final List<String>? initialCategoryIds;
+  final String? initialId;
 
   const AddMemberForm({
     super.key,
     this.onAdd,
     this.onDelete,
     this.onDataChanged,
-    this.isClass, // Optional parameter
+    this.isClass,
+    this.initialName,
+    this.initialEmail,
+    this.initialPhone,
+    this.initialGender,
+    this.initialCategoryIds,
+    this.initialId,
   });
 
   @override
@@ -31,53 +44,124 @@ class _AddMemberFormState extends State<AddMemberForm> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
 
-  final _categorySelectorKey = GlobalKey<CategorySelectorState>();
-  final _locationSelectorKey = GlobalKey<LocationSelectorState>();
   final _profilePickerKey = GlobalKey<ProfilePhotoPickerState>();
   final _genderSelectorKey = GlobalKey<GenderSelectorState>();
 
-  /// Checks if the current form has all required fields filled
+  Set<String> selectedCategoryIds = {};
+  String? _currentGender;
+  final BusinessCategoriesProvider _categoriesProvider = BusinessCategoriesProvider.instance;
+
+  // Location selector variables (integrated)
+  List<Map<String, String>> locations = [];
+  Set<String> selectedLocationIds = {};
+
   bool get isFormValid {
-    final categoryIds = _categorySelectorKey.currentState?.selectedCategories ?? {};
-    final locationIds = _locationSelectorKey.currentState?.selectedLocations ?? {};
     final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? '';
 
     return _nameController.text.trim().isNotEmpty &&
-           _emailController.text.trim().isNotEmpty &&
-           _phoneController.text.trim().isNotEmpty &&
-           gender.trim().isNotEmpty &&
-           categoryIds.isNotEmpty &&
-           locationIds.isNotEmpty;
+        _emailController.text.trim().isNotEmpty &&
+        _phoneController.text.trim().isNotEmpty &&
+        gender.trim().isNotEmpty;
   }
+
+
 
   @override
   void initState() {
     super.initState();
+    _setupSelectedCategories();
+    
+    // Initialize controllers with preserved values
+    _updateControllerValues();
+    
     _nameController.addListener(_onDataChanged);
     _emailController.addListener(_onDataChanged);
     _phoneController.addListener(_onDataChanged);
   }
 
-  void _onDataChanged() async {
-    if (widget.onDataChanged != null) {
-      final categoryIds = _categorySelectorKey.currentState?.selectedCategories.toList() ?? [];
-      final locationIds = _locationSelectorKey.currentState?.selectedLocations.toList() ?? [];
-      final profileImage = _profilePickerKey.currentState?.selectedImage;
-      final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? '';
+  @override
+  void didUpdateWidget(AddMemberForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Update controllers if initial values have changed
+    if (oldWidget.initialName != widget.initialName ||
+        oldWidget.initialEmail != widget.initialEmail ||
+        oldWidget.initialPhone != widget.initialPhone ||
+        oldWidget.initialGender != widget.initialGender ||
+        oldWidget.initialCategoryIds != widget.initialCategoryIds ||
+        oldWidget.initialId != widget.initialId) {
+      _updateControllerValues();
+      _setupSelectedCategories(); // Re-setup categories if they changed
+    }
+  }
 
-      // Always send profile data to controller for validation tracking
+  void _updateControllerValues() {
+    _nameController.text = widget.initialName ?? '';
+    _emailController.text = widget.initialEmail ?? '';
+    _phoneController.text = widget.initialPhone ?? '';
+    _currentGender = widget.initialGender;
+    
+    // Trigger onDataChanged to update the parent
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onDataChanged();
+    });
+  }
+
+  void _setupSelectedCategories() {
+    // Clear existing selections
+    selectedCategoryIds.clear();
+    
+    // Use initial category IDs if provided (for prefilled data)
+    if (widget.initialCategoryIds != null && widget.initialCategoryIds!.isNotEmpty) {
+      selectedCategoryIds.addAll(widget.initialCategoryIds!);
+    } 
+    // Otherwise, auto-select categories based on isClass parameter
+    else if (widget.isClass != null) {
+      final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
+      selectedCategoryIds.addAll(targetCategories.map((cat) => cat['id'].toString()));
+    }
+  }
+
+  void _onDataChanged() {
+    if (widget.onDataChanged != null) {
+      final profileImage = _profilePickerKey.currentState?.selectedImage;
+      // Try to get gender from the key first, then fallback to stored current gender
+      final gender = _genderSelectorKey.currentState?.selectedGenderValue ?? _currentGender ?? '';
+      
+      // Update stored gender
+      _currentGender = gender;
+
+      // Ensure categories are auto-selected based on isClass
+      _updateSelectedCategories();
+
       widget.onDataChanged!(
         StaffProfile(
-          userId: '',
+          id: widget.initialId,
           name: _nameController.text,
           email: _emailController.text,
           phoneNumber: _phoneController.text,
           gender: gender,
-          categoryIds: categoryIds,
-          locationIds: locationIds,
+          categoryIds: selectedCategoryIds.toList(),
           profileImage: profileImage,
+          forClass: widget.isClass == true,
         ),
       );
+    }
+  }
+
+  void _updateSelectedCategories() {
+    // If we have initial category IDs (prefilled data), preserve them
+    if (widget.initialCategoryIds != null && widget.initialCategoryIds!.isNotEmpty) {
+      // Keep the prefilled categories, don't override them
+      if (selectedCategoryIds.isEmpty) {
+        selectedCategoryIds.addAll(widget.initialCategoryIds!);
+      }
+    }
+    // Otherwise, ensure the correct categories are selected based on isClass
+    else if (widget.isClass != null) {
+      selectedCategoryIds.clear();
+      final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
+      selectedCategoryIds.addAll(targetCategories.map((cat) => cat['id'].toString()));
     }
   }
 
@@ -86,60 +170,135 @@ class _AddMemberFormState extends State<AddMemberForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        /// Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text("Staff member information", style: AppTypography.headingSm),
             if (widget.onDelete != null)
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: widget.onDelete,
+              GestureDetector(
+                onTap: widget.onDelete,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: SvgPicture.asset(
+                    'assets/icons/actions/trash_medium.svg',
+                    width: 18,
+                    height: 18,
+                    color: const Color(0xFF790077),
+                  ),
+                ),
               ),
           ],
         ),
         const SizedBox(height: 16),
 
-        // Profile Photo
+        /// Profile Photo
         ProfilePhotoPicker(
           key: _profilePickerKey,
           onImageChanged: _onDataChanged,
         ),
         const SizedBox(height: 16),
 
-        // Name field
+        /// Name
         Text("Full name", style: AppTypography.bodyMedium),
         const SizedBox(height: 8),
         InputField(hintText: "Full name", controller: _nameController),
 
         const SizedBox(height: 16),
+
+        /// Email
         Text("Email", style: AppTypography.bodyMedium),
         const SizedBox(height: 8),
         InputField(hintText: "email@yourbusiness.com", controller: _emailController),
 
         const SizedBox(height: 16),
+
+        /// Phone
         Text("Mobile phone", style: AppTypography.bodyMedium),
         const SizedBox(height: 8),
         InputField(hintText: "Mobile phone", controller: _phoneController),
 
         const SizedBox(height: 16),
+
+        /// Gender
         GenderSelector(
           key: _genderSelectorKey,
+          initialValue: widget.initialGender,
           onSelectionChanged: _onDataChanged,
         ),
 
         const SizedBox(height: 16),
-        CategorySelector(
-          key: _categorySelectorKey,
-          onSelectionChanged: _onDataChanged,
-          isClass: widget.isClass, // Pass the optional isClass directly
-        ),
-        const SizedBox(height: 16),
 
-        LocationSelector(
-          key: _locationSelectorKey,
-          onSelectionChanged: _onDataChanged,
+        /// Categories Display
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Category", style: AppTypography.headingSm),
+            const SizedBox(height: 8),
+            _buildCategoryDisplay(),
+          ],
         ),
+
+        const SizedBox(height: 16),
       ],
+    );
+  }
+
+  Widget _buildCategoryDisplay() {
+    // If we have prefilled category IDs, show them
+    if (widget.initialCategoryIds != null && widget.initialCategoryIds!.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: widget.initialCategoryIds!.map((categoryId) {
+          // Try to find the category name from the provider
+          final allCategories = _categoriesProvider.categoriesForUI;
+          Map<String, dynamic>? category;
+          
+          try {
+            category = allCategories.firstWhere(
+              (cat) => cat['id'].toString() == categoryId,
+            );
+          } catch (e) {
+            // Category not found, create a fallback
+            category = <String, dynamic>{'id': categoryId, 'name': 'Category $categoryId'};
+          }
+          
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              "• ${category['name'] ?? 'Unknown Category'}",
+              style: AppTypography.bodyMedium,
+            ),
+          );
+        }).toList(),
+      );
+    }
+    
+    // Fall back to isClass-based selection
+    if (widget.isClass == null) {
+      return Text("No category specified", style: AppTypography.bodyMedium);
+    }
+
+    final targetCategories = _categoriesProvider.getCategoriesByType(isClass: widget.isClass!);
+    
+    if (targetCategories.isEmpty) {
+      return Text(
+        widget.isClass! ? "No class categories available" : "No service categories available",
+        style: AppTypography.bodyMedium,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: targetCategories.map((category) => 
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Text(
+            "• ${category['name']}",
+            style: AppTypography.bodyMedium,
+          ),
+        ),
+      ).toList(),
     );
   }
 

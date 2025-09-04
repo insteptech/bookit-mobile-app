@@ -16,7 +16,7 @@ class BusinessModel {
     required this.userId,
     required this.name,
     required this.email,
-    required this.phone,
+    required this.phone, 
     this.website,
     required this.activeStep,
     required this.isOnboardingComplete,
@@ -29,10 +29,10 @@ class BusinessModel {
     return BusinessModel(
       id: json['id'],
       userId: json['user_id'],
-      name: json['name'],
-      email: json['email'],
-      phone: json['phone'],
-      website: json['website'],
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      website: json['website'] ?? '',
       activeStep: json['active_step'],
       isOnboardingComplete: json['is_onboarding_complete'] ?? false,
       locations: (json['locations'] as List<dynamic>?)

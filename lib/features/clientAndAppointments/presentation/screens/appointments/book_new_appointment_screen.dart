@@ -6,8 +6,10 @@ import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/providers/location_provider.dart';
 import 'package:bookit_mobile_app/core/services/active_business_service.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/utils/time_utils.dart' as time_utils;
 import 'package:bookit_mobile_app/features/clientAndAppointments/presentation/screens/appointments/book_new_appointment_screen_2.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/provider.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/widgets/clients_appointments_scaffold.dart';
 import 'package:bookit_mobile_app/shared/calendar/appointments_calendar_day_wise.dart';
 import 'package:bookit_mobile_app/shared/components/molecules/radio_button_custom.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/drop_down.dart';
@@ -101,11 +103,14 @@ class _BookNewAppointmentScreenState
     final startParts = startTime.split(':');
     final endParts = endTime.split(':');
 
-    final startMinutes =
-        int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
-    final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
-
-    return endMinutes - startMinutes;
+    try {
+      final startMinutes =
+          int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+      final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+      return endMinutes - startMinutes;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Generate time slots based on duration
@@ -116,9 +121,9 @@ class _BookNewAppointmentScreenState
   ) {
     List<Map<String, String>> slots = [];
 
-    // Convert UTC times to local times for slot generation
-    final startTimeLocal = _convertUtcTimeToLocalTimeString(startTime);
-    final endTimeLocal = _convertUtcTimeToLocalTimeString(endTime);
+    // Convert time strings to standard 24-hour format for slot generation
+    final startTimeLocal = _convertTimeToStandardFormat(startTime);
+    final endTimeLocal = _convertTimeToStandardFormat(endTime);
 
     final totalMinutes = getTimeDifferenceInMinutes(startTimeLocal, endTimeLocal);
     final numberOfSlots = totalMinutes ~/ durationMinutes;
@@ -136,21 +141,31 @@ class _BookNewAppointmentScreenState
     return slots;
   }
 
-  // Helper function to convert UTC time string to local time string
-  String _convertUtcTimeToLocalTimeString(String utcTimeString) {
+  // Helper function to convert UTC time string to local time format
+  String _convertTimeToStandardFormat(String utcTimeString) {
     try {
-      final parts = utcTimeString.split(':');
-      final hour = int.parse(parts[0]);
-      final minute = int.parse(parts[1]);
+      TimeOfDay utcTimeOfDay;
       
-      // Create a UTC DateTime with today's date and the given time
+      // Check if the time string contains AM/PM (12-hour format)
+      if (utcTimeString.toLowerCase().contains('am') || utcTimeString.toLowerCase().contains('pm')) {
+        // Use existing parseTime function from time_utils to get UTC TimeOfDay
+        utcTimeOfDay = time_utils.parseTime(utcTimeString.toLowerCase().replaceAll(' ', ''));
+      } else {
+        // Handle 24-hour format
+        final parts = utcTimeString.split(':');
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        utcTimeOfDay = TimeOfDay(hour: hour, minute: minute);
+      }
+      
+      // Convert UTC TimeOfDay to local DateTime and back to time string
       final now = DateTime.now().toUtc();
       final utcDateTime = DateTime.utc(
         now.year,
-        now.month,
+        now.month, 
         now.day,
-        hour,
-        minute,
+        utcTimeOfDay.hour,
+        utcTimeOfDay.minute,
       );
       
       // Convert to local time
@@ -158,7 +173,8 @@ class _BookNewAppointmentScreenState
       
       return '${localDateTime.hour.toString().padLeft(2, '0')}:${localDateTime.minute.toString().padLeft(2, '0')}:00';
     } catch (e) {
-      return utcTimeString; // Fallback to original string
+      // Fallback to original string if parsing fails
+      return utcTimeString;
     }
   }
 
@@ -181,8 +197,10 @@ class _BookNewAppointmentScreenState
 
     final selectedDurationData = (selectedServiceData['durations'] as List)
         .firstWhere(
-          (duration) =>
-              duration['duration_minutes'].toString() == selectedDuration,
+          (duration) {
+            final durationStr = duration['duration_minutes'].toString();
+            return durationStr == selectedDuration;
+          },
           orElse: () => <String, Object>{},
         );
 
@@ -251,11 +269,12 @@ class _BookNewAppointmentScreenState
           "practitioner_id" : practitioner['id'],
           'practitioner_name': practitioner['name'],
           'service_name': selectedServiceData['name'],
-          'business_service_id': selectedServiceData['business_service_id'], // Use original business service ID
+          'business_service_id': selectedServiceData['business_service_id'],
           'slots': allSlots,
         });
       }
     }
+    
     return calendarData;
   }
 
@@ -322,141 +341,98 @@ class _BookNewAppointmentScreenState
     final appointmentState = ref.watch(appointmentControllerProvider);
     final appointmentController = ref.read(appointmentControllerProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 34,
-                  vertical: 24,
-                ),
+    return ClientsAppointmentsScaffold(
+      title: AppTranslationsDelegate.of(context).text("book_a_new_appointment"),
+      titleToContentSpacing: 16.0,
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Location selector - right after title with 16px spacing (handled by scaffold)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                ...locations.map((location) {
+                  return GestureDetector(
+                    onTap: () async {
+                      ref.read(activeLocationProvider.notifier).state =
+                          location['id'];
+                      setState(() {
+                        // Reset all form fields when location changes
+                        selectedPractitioner = "";
+                        selectedService = "";
+                        selectedDuration = "";
+                        durationOptions = [];
+                      });
+                      await appointmentController.fetchPractitioners(location['id']);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color:
+                              activeLocation == location['id']
+                                  ? theme.colorScheme.onSurface
+                                  : AppColors.appLightGrayFont,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(location["title"]),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Error display
+          if (appointmentState.error != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                border: Border.all(color: Colors.red.withOpacity(0.3)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 70),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const Icon(Icons.arrow_back, size: 32),
+                      const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Error loading data: ${appointmentState.error}',
+                          style: const TextStyle(color: Colors.red, fontSize: 14),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 9),
-                  Text(
-                    AppTranslationsDelegate.of(context).text("book_a_new_appointment"),
-                    style: AppTypography.headingLg,
-                  ),
-                  const SizedBox(height: 16),
-                  // Error display
-                  if (appointmentState.error != null)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
-                        border: Border.all(color: Colors.red.withOpacity(0.3)),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.error_outline, color: Colors.red, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Error loading data: ${appointmentState.error}',
-                                  style: const TextStyle(color: Colors.red, fontSize: 14),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await _initializeData();
-                            },
-                            icon: const Icon(Icons.refresh, size: 16),
-                            label: const Text('Retry'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(0, 32),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  // Loading indicator
-                  // if (appointmentState.isLoading)
-                  //   Container(
-                  //     margin: const EdgeInsets.only(bottom: 16),
-                  //     padding: const EdgeInsets.all(12),
-                  //     decoration: BoxDecoration(
-                  //       color: theme.colorScheme.primary.withOpacity(0.1),
-                  //       border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
-                  //       borderRadius: BorderRadius.circular(8),
-                  //     ),
-                  //     child: const Row(
-                  //       children: [
-                  //         SizedBox(
-                  //           width: 16,
-                  //           height: 16,
-                  //           child: CircularProgressIndicator(strokeWidth: 2),
-                  //         ),
-                  //         SizedBox(width: 8),
-                  //         Text('Loading practitioners and services...'),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // Location selector
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        ...locations.map((location) {
-                          return GestureDetector(
-                            onTap: () async {
-                              ref.read(activeLocationProvider.notifier).state =
-                                  location['id'];
-                              setState(() {
-                                // Reset all form fields when location changes
-                                selectedPractitioner = "";
-                                selectedService = "";
-                                selectedDuration = "";
-                                durationOptions = [];
-                              });
-                              await appointmentController.fetchPractitioners(location['id']);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color:
-                                      activeLocation == location['id']
-                                          ? theme.colorScheme.onSurface
-                                          : AppColors.appLightGrayFont,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(location["title"]),
-                            ),
-                          );
-                        }),
-                      ],
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await _initializeData();
+                    },
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(0, 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     ),
                   ),
-                  const SizedBox(height: 48),
+                ],
+              ),
+            ),
+                  // const SizedBox(height: 48),
                   Text(AppTranslationsDelegate.of(context).text("choose_practitioner"), style: AppTypography.headingSm),
                   const SizedBox(height: 8),
                   SingleChildScrollView(
@@ -557,8 +533,9 @@ class _BookNewAppointmentScreenState
 
                           if (selected.isNotEmpty &&
                               selected['durations'] != null) {
+                            final durations = selected['durations'] as List;
                             durationOptions = List<String>.from(
-                              (selected['durations'] as List).map(
+                              durations.map(
                                 (d) => d['duration_minutes'].toString(),
                               ),
                             );
@@ -575,11 +552,11 @@ class _BookNewAppointmentScreenState
                       RadioButtonCustom(
                         key: ValueKey('duration-$selectedService'), 
                         options: durationOptions, 
-                        initialValue: selectedDuration.isNotEmpty ? selectedDuration : null,
+                        initialValue: selectedDuration.isNotEmpty ? selectedDuration.replaceAll(' min', '') : null,
                         textSuffix: " min",
                         onChanged: (value) {
                           setState(() {
-                            selectedDuration = value; 
+                            selectedDuration = value.replaceAll(' min', '');
                           });
                         },
                       ),
@@ -609,11 +586,7 @@ class _BookNewAppointmentScreenState
                         onAppointmentTap: _handleAppointmentTap,
                       ),
                     ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

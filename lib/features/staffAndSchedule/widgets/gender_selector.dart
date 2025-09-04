@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class GenderSelector extends StatefulWidget {
   final VoidCallback? onSelectionChanged;
+  final String? initialValue;
 
-  const GenderSelector({super.key, this.onSelectionChanged});
+  const GenderSelector({super.key, this.onSelectionChanged, this.initialValue});
 
   @override
   State<GenderSelector> createState() => GenderSelectorState();
@@ -15,6 +16,12 @@ class GenderSelectorState extends State<GenderSelector> {
 
   /// Public getter for selected gender
   String? get selectedGenderValue => selectedGender;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedGender = widget.initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {

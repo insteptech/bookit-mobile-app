@@ -8,39 +8,45 @@ class AppConstants {
   // ═══════════════════════════════════════════════════════════════════════════════════
   
   /// Default top spacing from SafeArea in scaffolds
-  static const double scaffoldTopSpacing = 44.0;
+  static const double scaffoldTopSpacing = 15;
   
   /// Reduced top spacing for scaffolds with back button
-  static const double scaffoldTopSpacingWithBackButton = 44.0;
+  static const double scaffoldTopSpacingWithBackButton = 15;
   
   /// Alternative top spacing used in some scaffolds
-  static const double scaffoldTopSpacingAlt = 40.0;
+  static const double scaffoldTopSpacingAlt = 2;
   
   /// Spacing after back button before title
-  static const double backButtonToTitleSpacing = 9.0;
+  static const double backButtonToTitleSpacing = 10;
   
   /// Alternative spacing after back button (onboarding style)
-  static const double backButtonToTitleSpacingAlt = 16.0;
+  static const double backButtonToTitleSpacingAlt = 0;
+
+  //scaffolds bottom button spacing
+  static const double scaffoldPrimaryButtonBottom = 10;
 
   // ═══════════════════════════════════════════════════════════════════════════════════
   // PADDING & MARGINS
   // ═══════════════════════════════════════════════════════════════════════════════════
   
   /// Default horizontal padding for most screens
-  static const double defaultHorizontalPadding = 34.0;
+  static const double defaultHorizontalPadding = 20.0;
   
   /// Alternative horizontal padding used in auth and onboarding
-  static const double authHorizontalPadding = 35.0;
+  static const double authHorizontalPadding = 20.0;
   
   /// Default vertical padding for scaffold content
-  static const double defaultVerticalPadding = 24.0;
+  static const double defaultVerticalPadding = 10;
   
   /// Default scaffold content padding
-  static const EdgeInsets defaultScaffoldPadding = EdgeInsets.symmetric(
-    horizontal: defaultHorizontalPadding,
-    vertical: defaultVerticalPadding,
+  // static const EdgeInsets defaultScaffoldPadding = EdgeInsets.symmetric(
+  //   horizontal: defaultHorizontalPadding,
+  //   vertical: defaultVerticalPadding,
+  // );
+   static const EdgeInsets defaultScaffoldPadding = EdgeInsets.fromLTRB(
+    defaultHorizontalPadding, defaultVerticalPadding, defaultHorizontalPadding, 5
   );
-  
+
   /// Auth flow scaffold padding
   static const EdgeInsets authScaffoldPadding = EdgeInsets.symmetric(
     horizontal: authHorizontalPadding,
@@ -121,7 +127,7 @@ class AppConstants {
   static const double listItemSpacing = 12.0;
   
   /// Vertical gap between menu items
-  static const double menuItemSpacing = 12.0;
+  static const double menuItemSpacing = 16.0;
   
   /// Section spacing in lists
   static const double listSectionSpacing = 32.0;

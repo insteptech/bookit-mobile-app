@@ -87,17 +87,14 @@ class OnboardAboutController extends ChangeNotifier {
 
   Future<void> handleBusinessInfoSubmission(BuildContext context) async {
     if (!_isFormOpen) return;
-    
     _isLoading = true;
     _isButtonDisabled = true;
     _errorMessage = null;
     notifyListeners();
-
     try {
       // Fetch user's business IDs
       final userData = await _userService.fetchUserDetails();
       _businessId = userData.businessIds.isNotEmpty ? userData.businessIds[0] : "";
-
       // Submit business info using repository
       final business = await _repository.submitBusinessInfo(
         name: nameController.text.trim(),
@@ -106,7 +103,9 @@ class OnboardAboutController extends ChangeNotifier {
         website: websiteController.text.trim(),
         businessId: _businessId,
       );
-
+      if (business == null) {
+        throw Exception("Failed to create or update business");
+      }
       _businessId = business.id;
       await _activeBusinessService.saveActiveBusiness(_businessId);
 

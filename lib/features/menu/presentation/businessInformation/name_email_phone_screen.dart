@@ -36,7 +36,7 @@ class _NameEmailPhoneScreenState extends State<NameEmailPhoneScreen> {
       }
     } catch (error) {
       // Handle error if needed
-      debugPrint('Error fetching business details: $error');
+      // debugPrint('Error fetching business details: $error');
     } finally {
       setState(() {
         _isLoading = false; // Set loading to false when done

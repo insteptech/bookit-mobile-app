@@ -14,6 +14,11 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
     try {
       final response = await APIRepository.getPractitioners(locationId);
       
+      // Debug logging - remove in production
+      // print('\n=== COMPLETE PRACTITIONER BACKEND DATA ===');
+      // print('API Response: $response');
+      // print('=== END PRACTITIONER DATA ===\n');
+      
       // The API returns data under 'profiles' key, not 'data'
       final List<dynamic> practitionersData = response['profiles'] ?? response['data'] ?? [];
       

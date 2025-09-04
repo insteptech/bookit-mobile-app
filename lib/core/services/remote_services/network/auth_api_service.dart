@@ -1,6 +1,8 @@
 import 'package:bookit_mobile_app/core/models/business_model.dart';
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/cache_service.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint.dart';
 import 'package:dio/dio.dart';
 import '../../token_service.dart';
@@ -117,7 +119,15 @@ class AuthService {
 
   /// Logout
   Future<void> logout() async {
+    // Clear token
     await _tokenService.clearToken();
+    
+    // Clear all cache data
+    final cacheService = CacheService();
+    await cacheService.clearAllCache();
+    
+    // Clear business categories provider
+    BusinessCategoriesProvider.instance.clear();
   }
 
   //...........................initiate password reset............................
@@ -195,9 +205,11 @@ class UserService {
   Future<BusinessModel> fetchBusinessDetails({
     required String businessId,
   }) async {
+    // Debug logging - remove in production
+    // print("🌐 UserService: Fetching business details from API for ID: $businessId");
     final token = await TokenService().getToken();
     if (token == null) throw Exception('No token found');
-
+    
     try {
       final response = await _dio.get(
         businessDetailsEndpoint(businessId),
@@ -206,6 +218,15 @@ class UserService {
 
       if (response.statusCode == 200) {
         final data = response.data['data'];
+        
+        // Cache the business data
+        // Debug logging - remove in production
+        // print("💾 UserService: Saving business data to cache");
+        final cacheService = CacheService();
+        await cacheService.cacheBusinessData(businessId, data);
+        // Debug logging - remove in production
+        // print("✅ UserService: Business data cached successfully");
+        
         return BusinessModel.fromJson(data);
       } else {
         throw Exception('Failed to fetch business details');
@@ -242,6 +263,8 @@ class UserService {
 // }
 
 Future<UserModel> fetchUserDetails() async {
+    // Debug logging - remove in production
+    // print("🌐 UserService: Fetching user details from API");
     final token = await TokenService().getToken();
     if (token == null) throw Exception('User not logged in');
 
@@ -253,7 +276,18 @@ Future<UserModel> fetchUserDetails() async {
 
       if (response.statusCode == 200) {
         final user = UserModel.fromJson(response.data);
+        
+        // Save to both AuthStorageService and CacheService
         await AuthStorageService().saveUserDetails(user);
+        
+        // Cache user data
+        // Debug logging - remove in production
+        // print("💾 UserService: Saving user data to cache");
+        final cacheService = CacheService();
+        await cacheService.cacheUserData(response.data);
+        // Debug logging - remove in production
+        // print("✅ UserService: User data cached successfully");
+        
         return user;
       } else {
         throw Exception(

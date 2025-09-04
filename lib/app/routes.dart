@@ -25,6 +25,7 @@ class AppRoutes {
   static const String addStaff = '/add_staff';
   static const String staffList = '/staff_list';
   static const String addClassSchedule = '/add_class_schedule';
+  static const String addEditClassAndSchedule = '/add_edit_class_and_schedule';
   static const String setSchedule = '/set_schedule';
   static const String viewAllAppointments = '/view_all_appointments';
   static const String bookNewAppointment = '/book_new_appointment';
@@ -42,7 +43,7 @@ class AppRoutes {
   static const List<String> _allRoutes = [
     splash, login, signup, signupOtp, forgotPassword, otpScreen, newPassword, signin,
     onboardingWelcome, onboardingAbout, locations, offerings, addServices, servicesDetails, onboardFinish,
-    homeScreen, addStaff, staffList, addClassSchedule, setSchedule, viewAllAppointments, bookNewAppointment, 
+    homeScreen, addStaff, staffList, addClassSchedule, addEditClassAndSchedule, setSchedule, viewAllAppointments, bookNewAppointment, 
     bookNewAppointmentAddClient, addNewClient, addServiceCategories, addService, appLanguage,
   ];
 

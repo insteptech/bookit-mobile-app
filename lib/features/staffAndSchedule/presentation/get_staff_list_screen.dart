@@ -3,6 +3,7 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
 import 'package:bookit_mobile_app/features/staffAndSchedule/widgets/staff_member_row.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/back_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -65,9 +66,9 @@ class _GetStaffListScreen extends State<GetStaffListScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 70),
-                        GestureDetector(
-                          onTap: () => context.go('/home_screen'),
-                          child: const Icon(Icons.arrow_back, size: 32),
+                        BackIcon(
+                          size: 32,
+                          onPressed: () => context.go('/home_screen'),
                         ),
                         const SizedBox(height: 9),
                         Text(

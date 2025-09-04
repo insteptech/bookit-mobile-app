@@ -18,12 +18,13 @@ class AddStaffAndAvailabilityBox extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        if (isClass) {
-          context.push("/add_staff?isClass=true");
-        } else {
-          context.push("/add_staff");
-        }
-      },
+  if (isClass) {
+    context.push("/add_staff?isClass=true");
+  } else {
+    context.push("/add_staff?isClass=false");
+  }
+},
+
       child: Container(
         height: 160,
         color: AppColors.lightGrayBoxColor,
@@ -32,7 +33,7 @@ class AddStaffAndAvailabilityBox extends StatelessWidget {
         child: Text(
           AppTranslationsDelegate.of(context).text(
             isClass 
-              ? "click_to_add_staff_and_class_schedules"
+              ? "click_to_add_coaches_and_class_schedules"
               : "click_to_add_staff_and_their_availability"
           ),
           textAlign: TextAlign.center,

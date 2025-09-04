@@ -3,6 +3,7 @@ import 'package:bookit_mobile_app/core/services/remote_services/network/api_prov
 import 'package:bookit_mobile_app/features/menu/models/staff_category_model.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/menu_screens_scaffold.dart';
 import 'package:bookit_mobile_app/features/menu/widgets/staff_category_section.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +19,8 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
   StaffCategoryData? staffData;
   String? errorMessage;
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+  final LayerLink _searchLayerLink = LayerLink();
   List<StaffCategory> filteredCategories = [];
 
   @override
@@ -30,6 +33,7 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -99,21 +103,81 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
 
   void _onStaffMemberTap(StaffMember staffMember) {
     // Navigate to staff member details or schedule
-    context.push("/set_schedule", extra: {
-      'staffId': staffMember.id,
-      'staffName': staffMember.name,
-    });
+    // context.push("/set_schedule", extra: {
+    //   'staffId': staffMember.id,
+    //   'staffName': staffMember.name,
+    // });
+    // context.push("/add_staff", extra: {
+    //   'staffId': staffMember.id,
+    //   'staffName': staffMember.name,
+    // });
+    context.push("/add_staff/?isClass=${staffMember.forClass}&staffId=${staffMember.id}&staffName=${Uri.encodeComponent(staffMember.name)}");
+
   }
 
   void _onCategoryTap(StaffCategory category) {
-    // Could navigate to category-specific view
-    // For now, we'll just show a snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${category.categoryName} category tapped'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    // Navigate to category-specific staff view
+    context.push("/staff_category", extra: { 
+      'categoryId': category.categoryId,
+      'categoryName': category.categoryName,
+      'staffMembers': category.staffMembers,
+    });
+  }
+
+  Future<void> _handleAddMember() async {
+    try {
+      // Fetch business categories instead of using staff categories
+      final response = await APIRepository.getBusinessLevel0Categories();
+      
+      if (!mounted) return;
+      
+      if (response.data != null && response.data['success'] == true) {
+        final responseData = response.data;
+        final categoriesData = responseData['data']['level0_categories'] as List<dynamic>;
+        
+        if (categoriesData.isEmpty) {
+          // No categories available, show error
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No categories available. Please add a category first.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+        
+        if (categoriesData.length == 1) {
+          // Single category - navigate directly to add staff
+          final category = categoriesData.first;
+          final String categoryId = category['id'] as String;
+          final bool isClass = category['is_class'] as bool;
+          
+          context.push(
+            "/add_staff/?buttonMode=saveOnly&categoryId=$categoryId&isClass=$isClass"
+          );
+        } else {
+          // Multiple categories - navigate to category selection screen
+          context.push("/staff_category_selection");
+        }
+      } else {
+        // Failed to fetch categories
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load categories. Please try again.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Error fetching categories
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error loading categories: ${e.toString()}'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Widget _buildContent() {
@@ -182,55 +246,19 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
       );
     }
 
-    return Column(
-      children: [
-        // Search bar
-        Container(
-          height: 44,
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x14212529),
-                offset: Offset(0, 2),
-                blurRadius: 4,
-              ),
-            ],
-          ),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: "Search here",
-              hintStyle: AppTypography.bodyMedium.copyWith(
-                color: Colors.grey,
-              ),
-              prefixIcon: const Icon(Icons.search, color: Colors.grey),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        
-        // Staff categories and members
-        Expanded(
-          child: ListView.builder(
-            itemCount: filteredCategories.length,
-            itemBuilder: (context, index) {
-              final category = filteredCategories[index];
-              return StaffCategorySection(
-                category: category,
-                onCategoryTap: () => _onCategoryTap(category),
-                onStaffMemberTap: _onStaffMemberTap,
-              );
-            },
-          ),
-        ),
-      ],
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filteredCategories.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 24),
+      itemBuilder: (context, index) {
+        final category = filteredCategories[index];
+        return StaffCategorySection(
+          category: category,
+          onCategoryTap: () => _onCategoryTap(category),
+          onStaffMemberTap: _onStaffMemberTap,
+        );
+      },
     );
   }
 
@@ -238,11 +266,18 @@ class _StaffMembersScreenState extends State<StaffMembersScreen> {
   Widget build(BuildContext context) {
     return MenuScreenScaffold(
       title: "Staff members",
+      showTitle: true,
+      headerWidget: SearchableClientField(
+        layerLink: _searchLayerLink,
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        hintText: "Search here",
+        showSearchIcon: true,
+      ),
+      placeHeaderWidgetAfterSubtitle: false,
       content: _buildContent(),
       buttonText: "Add member",
-      onButtonPressed: () {
-        context.push("/add_staff/?buttonMode=saveOnly");
-      },
+      onButtonPressed: _handleAddMember,
     );
   }
 }

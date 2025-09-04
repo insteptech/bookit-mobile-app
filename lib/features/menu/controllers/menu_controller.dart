@@ -34,7 +34,6 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to beauty offerings
   void navigateToBeauty() {
-    // TODO: Implement beauty screen and add route
     debugPrint('Navigate to Beauty - Screen not implemented yet');
   }
 
@@ -61,8 +60,7 @@ class MenuController extends ChangeNotifier {
 
   /// Navigate to password & security
   void navigateToPasswordSecurity() {
-    // TODO: Implement password & security screen and add route
-    debugPrint('Navigate to Password & Security - Screen not implemented yet');
+    NavigationService.push('/auth/change-password');
   }
 
   /// Navigate to app language

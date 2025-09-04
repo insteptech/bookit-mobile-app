@@ -1,6 +1,7 @@
-import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dart';
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
+import 'package:bookit_mobile_app/features/staffAndSchedule/presentation/class_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,7 +34,30 @@ class NoClassesBox extends StatelessWidget {
         const SizedBox(height: 8),
         GestureDetector(
           onTap: (){
-            context.push("/add_class_schedule", extra: {'className': '', 'classId': ''});
+            // Get the first class category from the cached business categories
+            final businessCategoriesProvider = BusinessCategoriesProvider.instance;
+            final classCategories = businessCategoriesProvider.classCategories;
+         
+            // if (classCategories.isNotEmpty) {
+              // Navigate to class selection screen with the first class category ID
+              // final firstClassCategoryId = classCategories.first['id'] as String;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ClassSelectionScreen(),
+                ),
+              );
+            // } else {
+            //   // Show error message if no class categories are available
+            //   if (context.mounted) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text('No class categories available. Please set up your business categories first.'),
+            //         backgroundColor: Colors.orange,
+            //       ),
+            //     );
+            //   }
+            // }
           },
           child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -47,7 +71,8 @@ class NoClassesBox extends StatelessWidget {
             ),
           ],
         ),
-        )
+        ),
+        SizedBox(height: 10,)
       ],
     );
   }

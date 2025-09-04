@@ -2,6 +2,7 @@ import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
 import 'package:bookit_mobile_app/app/theme/app_constants.dart';
 import 'package:bookit_mobile_app/shared/components/atoms/primary_button.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/features/offerings/controllers/offerings_controller.dart';
 import 'package:bookit_mobile_app/features/offerings/presentation/category_selection_screen.dart';
 import 'package:bookit_mobile_app/features/offerings/models/business_offerings_model.dart';
@@ -26,6 +27,18 @@ class _OfferingsScreenState extends State<OfferingsScreen>
   final ScrollController _scrollController = ScrollController();
   final Map<String, GlobalKey> _categoryKeys = {};
 
+  // Search bar UI state (visual only; no business logic wired)
+  final LayerLink _searchFieldLink = LayerLink();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  void _initOrUpdateTabController(int length) {
+    if (_tabController == null || _tabController!.length != length) {
+      _tabController?.dispose();
+      _tabController = TabController(length: length, vsync: this);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -38,11 +51,40 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     _controller.dispose();
     _tabController?.dispose();
     _scrollController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
   Future<void> _fetchOfferings() async {
     await _controller.fetchOfferings();
+  }
+
+  void _addCategoryToHierarchy(
+    Map<String, Map<String, dynamic>> categoryHierarchy,
+    CategoryDetails category,
+    OfferingItem? offering,
+  ) {
+    final categoryKey = '${category.id}|${category.name}|${category.level}';
+
+    if (!categoryHierarchy.containsKey(categoryKey)) {
+      categoryHierarchy[categoryKey] = {
+        'id': category.id,
+        'name': category.name,
+        'level': category.level,
+        'parent': category.parent,
+        'offerings': <OfferingItem>[],
+        'children': <String>[],
+      };
+    }
+
+    // Add offering if provided
+    if (offering != null) {
+      final offeringsList = categoryHierarchy[categoryKey]!['offerings'] as List<OfferingItem>;
+      if (!offeringsList.contains(offering)) {
+        offeringsList.add(offering);
+      }
+    }
   }
 
   Widget _buildOfferingsContent() {
@@ -96,67 +138,24 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         }
 
         return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Tab bar for category navigation - only show when there are multiple root categories
-            if (rootCategoryNames.length > 1) ...[
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide.none, // Remove any bottom border
-                  ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  indicatorColor: Theme.of(context).primaryColor,
-                  labelColor: Theme.of(context).primaryColor,
-                  // unselectedLabelColor: Colors.grey[600],
-                  indicatorWeight: 2,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  labelPadding: EdgeInsets.fromLTRB(0, 0, AppConstants.headerToContentSpacingMedium, 0),
-                  dividerColor: Colors.transparent,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  splashFactory: NoSplash.splashFactory,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 16,
-                  ),
-                  onTap: (index) {
-                    _scrollToCategoryAtIndex(index, groupedOfferings);
-                  },
-                  tabs:
-                      rootCategoryNames.map((name) => Tab(text: name)).toList(),
-                ),
-              ),
-              SizedBox(height: AppConstants.sectionSpacing),
-            ],
             // Category sections
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Column(
-                  children:
-                      groupedOfferings.map<Widget>((group) {
-                        final rootKey =
-                            '${group.rootParentId}|${group.rootParentName}';
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: groupedOfferings.map<Widget>((group) {
+                final rootKey =
+                    '${group.rootParentId}|${group.rootParentName}';
 
-                        return Container(
-                          key: _categoryKeys[rootKey],
-                          child: _buildRootCategorySection(
-                            rootParentId: group.rootParentId,
-                            rootParentName: group.rootParentName,
-                            offerings: group.offerings,
-                          ),
-                        );
-                      }).toList(),
-                ),
-              ),
+                return Container(
+                  key: _categoryKeys[rootKey],
+                  child: _buildRootCategorySection(
+                    rootParentId: group.rootParentId,
+                    rootParentName: group.rootParentName,
+                    offerings: group.offerings,
+                  ),
+                );
+              }).toList(),
             ),
           ],
         );
@@ -196,30 +195,19 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     // Create a hierarchical structure to properly handle nesting
     final Map<String, Map<String, dynamic>> categoryHierarchy = {};
 
-    // First, organize all categories in the hierarchy
+    // First, organize all categories in the hierarchy, including parent categories
     for (final offering in offerings) {
       final category = offering.category;
-      final categoryId = category.id;
-      final categoryName = category.name;
-      final categoryLevel = category.level;
-      final parentCategory = category.parent;
-
-      final categoryKey = '$categoryId|$categoryName|$categoryLevel';
-
-      if (!categoryHierarchy.containsKey(categoryKey)) {
-        categoryHierarchy[categoryKey] = {
-          'id': categoryId,
-          'name': categoryName,
-          'level': categoryLevel,
-          'parent': parentCategory,
-          'offerings': <OfferingItem>[],
-          'children': <String>[],
-        };
+      
+      // Add the current category
+      _addCategoryToHierarchy(categoryHierarchy, category, offering);
+      
+      // Add all parent categories in the chain
+      CategoryDetails? currentParent = category.parent;
+      while (currentParent != null) {
+        _addCategoryToHierarchy(categoryHierarchy, currentParent, null);
+        currentParent = currentParent.parent;
       }
-
-      (categoryHierarchy[categoryKey]!['offerings'] as List<OfferingItem>).add(
-        offering,
-      );
     }
 
     // Build parent-child relationships
@@ -231,9 +219,10 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         final parentKey =
             '${parentCategory.id}|${parentCategory.name}|${parentCategory.level}';
         if (categoryHierarchy.containsKey(parentKey)) {
-          (categoryHierarchy[parentKey]!['children'] as List<String>).add(
-            entry.key,
-          );
+          final childrenList = categoryHierarchy[parentKey]!['children'] as List<String>;
+          if (!childrenList.contains(entry.key)) {
+            childrenList.add(entry.key);
+          }
         }
       }
     }
@@ -247,6 +236,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             Text(
               rootParentName,
               style: AppTypography.headingMd.copyWith(
+                fontSize: 24,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -278,7 +268,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: AppConstants.titleToSubtitleSpacing),
         // Render hierarchical categories starting from level 1 (direct children of root)
         ..._buildCategoryHierarchy(categoryHierarchy, 1, context),
 
@@ -384,7 +374,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     } else if (hasChildren) {
       // This is a parent category with only subcategories - show as header without arrow
       return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.only(bottom: AppConstants.titleToSubtitleSpacing),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -394,8 +384,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                 fontWeight:
                     categoryLevel == 1 ? FontWeight.w600 : FontWeight.w500,
                 // Make text secondary font color only if it has children (multiple nestings)
-                color:
-                    hasChildren ? AppColors.secondaryFontColor : Colors.black,
+                color: Colors.black,
               ),
             ),
             // No arrow icon for parent categories with children
@@ -463,25 +452,21 @@ class _OfferingsScreenState extends State<OfferingsScreen>
     // If no service details, show just the category name (non-expandable)
     if (serviceDetails.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
+        padding: EdgeInsets.only(bottom: AppConstants.titleToSubtitleSpacing),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              isParentWithChildren ? categoryName.toUpperCase() : categoryName,
+              categoryName,
               style: AppTypography.headingSm.copyWith(
-                // Make parent categories blue only if they're level 1 AND have no services (indicating they have subcategories)
-                color:
-                    isParentWithChildren
-                        ? AppColors.secondaryFontColor
-                        : Colors.black,
+                color: Colors.black,
                 fontWeight:
                     isParentWithChildren ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
             // Show icon for all categories except parent categories with children
             if (!isParentWithChildren)
-              Icon(Icons.keyboard_arrow_right, color: Colors.grey[600]),
+              Icon(Icons.keyboard_arrow_right, color: Color(0xFF202733)),
           ],
         ),
       );
@@ -506,16 +491,14 @@ class _OfferingsScreenState extends State<OfferingsScreen>
             children: [
               Text(
                 categoryName,
-                style: AppTypography.headingSm.copyWith(
-                  color: Colors.black,
-                ),
+                style: AppTypography.headingSm.copyWith(color: Colors.black),
               ),
               // Show expand/collapse icon for all categories with services
               Icon(
                 isExpanded
                     ? Icons.keyboard_arrow_down
                     : Icons.keyboard_arrow_right,
-                color: Colors.grey[600],
+                color: Color(0xFF202733),
               ),
             ],
           ),
@@ -523,16 +506,17 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         if (isExpanded) ...[
           const SizedBox(height: 12),
           ...serviceDetails.map<Widget>(
-            (service) => _buildServiceCard(service, isClass, categoryName),
+            (service) => _buildServiceCard(service, offering, isClass, categoryName),
           ),
         ],
-        const SizedBox(height: 16),
+        SizedBox(height: AppConstants.titleToSubtitleSpacing),
       ],
     );
   }
 
   Widget _buildServiceCard(
     ServiceDetail service,
+    OfferingItem offering,
     bool isClass,
     String categoryName,
   ) {
@@ -556,16 +540,31 @@ class _OfferingsScreenState extends State<OfferingsScreen>
       // Class card design - with image placeholder and expandable content
       return GestureDetector(
         onTap: () {
-          // Navigate to edit screen with service detail ID
-          final serviceDetailId = service.id;
-          context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          // Navigate to edit screen - use offering ID for classes, service detail ID for services
+          if (isClass) {
+            // For classes, use the service detail ID
+            final classId = service.id;
+            final className = service.name;
+            context.push(
+              '/add_edit_class_and_schedule',
+              extra: {
+                'classId': classId, 
+                'className': className, 
+                'isEditing': true
+              },
+            );
+          } else {
+            // For services, use service detail ID (existing behavior)
+            final serviceDetailId = service.id;
+            context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          }
         },
         child: Container(
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: 24),
           child: Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
             margin: EdgeInsets.all(0),
             color: Color(0xFFF8F9FA),
@@ -583,7 +582,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(4),
                           image: DecorationImage(
                             image: NetworkImage(
                               "https://dims.apnews.com/dims4/default/e40c94b/2147483647/strip/true/crop/7773x5182+0+0/resize/599x399!/quality/90/?url=https%3A%2F%2Fassets.apnews.com%2F16%2Fc9%2F0eecec78d44f016ffae1915e26c3%2F304c692a6f0b431aa8f954a4fdb5d7b5",
@@ -612,7 +611,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                               serviceName,
                               style: AppTypography.bodyMedium.copyWith(
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color: Color(0xFF343A40),
                               ),
                             ),
                           ],
@@ -651,9 +650,25 @@ class _OfferingsScreenState extends State<OfferingsScreen>
       // Service card design - rounded border, simple layout
       return GestureDetector(
         onTap: () {
-          // Navigate to edit screen with service detail ID
-          final serviceDetailId = service.id;
-          context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          // Navigate to edit screen - use offering ID for classes, service detail ID for services
+          if (isClass) {
+            // For classes, use the service detail ID
+            final classId = service.id;
+            final className = service.name;
+  
+            context.push(
+              '/add_edit_class_and_schedule',
+              extra: {
+                'classId': classId, 
+                'className': className, 
+                'isEditing': true
+              },
+            );
+          } else {
+            // For services, use service detail ID (existing behavior)
+            final serviceDetailId = service.id;
+            context.push('/edit_offerings?serviceDetailId=$serviceDetailId');
+          }
         },
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -706,10 +721,7 @@ class _OfferingsScreenState extends State<OfferingsScreen>
                     ],
                     if (durationText.isNotEmpty) ...[
                       const SizedBox(height: 24),
-                      Text(
-                        durationText,
-                        style: AppTypography.bodyMedium 
-                      ),
+                      Text(durationText, style: AppTypography.bodyMedium),
                     ],
                   ],
                 ),
@@ -762,47 +774,63 @@ class _OfferingsScreenState extends State<OfferingsScreen>
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: SafeArea(
-          child: Column(
-            children: [
-              // Fixed header content
-              Padding(
-                padding: AppConstants.defaultScaffoldPadding,
-                child: Column(
-                  children: [
-                    const SizedBox(height: AppConstants.scaffoldTopSpacing),
-                    Row(
-                      children: [
-                        Text("Offerings", style: AppTypography.headingLg),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Search bar
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
+          child: CustomScrollView(
+            // physics: const ClampingScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                floating: false,
+                expandedHeight: 140.0,
+                collapsedHeight: 120.0,
+                backgroundColor: theme.scaffoldBackgroundColor,
+                surfaceTintColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: theme.colorScheme.onSurface,
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                flexibleSpace: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final expandedHeight = 140.0;
+                    final collapsedHeight = 120.0;
+                    final currentHeight = constraints.maxHeight;
+                    final progress = ((expandedHeight - currentHeight) / 
+                        (expandedHeight - collapsedHeight)).clamp(0.0, 1.0);
+                    
+                    return Container(
+                      padding: AppConstants.defaultScaffoldPadding.copyWith(
+                        top: AppConstants.scaffoldTopSpacing,
+                        bottom: 16.0,
                       ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search here',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // const SizedBox(height: 24),
-                  ],
+                      child: _buildAnimatedOfferingsHeader(progress),
+                    );
+                  },
                 ),
               ),
-              // Scrollable content with tabs and offerings
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 34),
+              // Tabs section - only show when multiple categories
+              Consumer<OfferingsController>(
+                builder: (context, controller, _) {
+                  final rootCategoryNames = controller.rootCategoryNames;
+                  if (rootCategoryNames.length > 1) {
+                    _initOrUpdateTabController(rootCategoryNames.length);
+                    return SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _TabBarDelegate(
+                        tabController: _tabController!,
+                        rootCategoryNames: rootCategoryNames,
+                        onTap: (index) => _scrollToCategoryAtIndex(
+                          index,
+                          controller.groupedOfferings,
+                        ),
+                      ),
+                    );
+                  }
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                },
+              ),
+              // Scrollable content
+              SliverPadding(
+                padding: AppConstants.defaultScaffoldPadding,
+                sliver: SliverToBoxAdapter(
                   child: _buildOfferingsContent(),
                 ),
               ),
@@ -810,32 +838,26 @@ class _OfferingsScreenState extends State<OfferingsScreen>
               Consumer<OfferingsController>(
                 builder: (context, controller, child) {
                   if (controller.rootCategoryNames.length == 1) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 34,
-                        vertical: 24,
+                    return SliverPadding(
+                      padding: AppConstants.defaultScaffoldPadding.copyWith(
+                        top: 24,
+                        bottom: 24,
                       ),
-                      child: Consumer<OfferingsController>(
-                        builder: (context, controller, child) {
-                          // Get button text from controller
-                          final buttonText =
-                              controller.getAddServiceButtonText();
-
-                          return PrimaryButton(
-                            onPressed:
-                                controller.isLoading ? null : _handleAddService,
-                            isDisabled: controller.isLoading,
-                            text:
-                                controller.isLoading
-                                    ? "Loading..."
-                                    : buttonText,
-                            isHollow: true,
-                          );
-                        },
+                      sliver: SliverToBoxAdapter(
+                        child: Consumer<OfferingsController>(
+                          builder: (context, controller, child) {
+                            final buttonText = controller.getAddServiceButtonText();
+                            return PrimaryButton(
+                              onPressed: controller.isLoading ? null : _handleAddService,
+                              isDisabled: controller.isLoading,
+                              text: controller.isLoading ? "Loading..." : buttonText,
+                            );
+                          },
+                        ),
                       ),
                     );
                   }
-                  return const SizedBox.shrink();
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
                 },
               ),
             ],
@@ -843,5 +865,108 @@ class _OfferingsScreenState extends State<OfferingsScreen>
         ),
       ),
     );
+  }
+  
+  Widget _buildAnimatedOfferingsHeader(double progress) {
+    final textSize = 32.0 - (6.0 * progress); // 32 -> 26
+    
+    // Calculate smooth positions for title
+    final titleTopPosition = 0.0; // Title stays at top
+    final titleLeftPosition = 0.0; // Title stays on left
+    
+    // Search bar always stays below title with smooth spacing
+    final searchTopPosition = textSize + (AppConstants.contentSpacing * (1 - progress * 0.3)); // Adjusts spacing as title shrinks
+    final searchLeftPosition = 0.0; // Always left-aligned
+    
+    return SizedBox(
+      height: double.infinity,
+      child: Stack(
+        children: [
+          // Offerings title - smoothly animated size
+          Positioned(
+            top: titleTopPosition,
+            left: titleLeftPosition,
+            right: 0,
+            child: Text(
+              "Offerings",
+              style: TextStyle(
+                fontSize: textSize,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Campton',
+              ),
+            ),
+          ),
+          
+          // Search bar - always below title, smooth spacing adjustment
+          Positioned(
+            top: searchTopPosition,
+            left: searchLeftPosition,
+            right: 0,
+            child: SearchableClientField(
+              layerLink: _searchFieldLink,
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              hintText: 'Search here',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabController tabController;
+  final List<String> rootCategoryNames;
+  final Function(int) onTap;
+
+  _TabBarDelegate({
+    required this.tabController,
+    required this.rootCategoryNames,
+    required this.onTap,
+  });
+
+  @override
+  double get minExtent => 50.0;
+
+  @override
+  double get maxExtent => 50.0;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      height: 50.0,
+      color: Theme.of(context).scaffoldBackgroundColor,
+      padding: AppConstants.defaultScaffoldPadding,
+      child: TabBar(
+        controller: tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        indicatorColor: AppColors.primary,
+        labelColor: AppColors.primary,
+        unselectedLabelColor: Colors.black,
+        indicatorWeight: 1.5,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelPadding: const EdgeInsets.only(right: 32),
+        dividerColor: Colors.transparent,
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+        splashFactory: NoSplash.splashFactory,
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+        ),
+        onTap: onTap,
+        tabs: rootCategoryNames.map((name) => Tab(text: name)).toList(),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }

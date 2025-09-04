@@ -1,8 +1,11 @@
 import 'package:bookit_mobile_app/core/models/business_model.dart';
 import 'package:bookit_mobile_app/core/models/user_model.dart';
 import 'package:bookit_mobile_app/core/services/auth_service.dart';
+import 'package:bookit_mobile_app/core/services/cache_service.dart';
+import 'package:bookit_mobile_app/core/providers/business_categories_provider.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/endpoint.dart';
 import 'package:bookit_mobile_app/core/services/token_service.dart';
+import 'package:bookit_mobile_app/core/services/social_auth/social_auth_service.dart';
 import 'package:dio/dio.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/dio_client.dart';
 
@@ -115,9 +118,44 @@ class AuthService {
     }
   }
 
+  //...........................social login.................................
+  Future<Map<String, dynamic>?> socialLogin(SocialUser socialUser) async {
+    try {
+      final response = await _dio.post(
+        socialLoginEndpoint,
+        data: {
+          'provider': socialUser.provider.name,
+          'access_token': socialUser.accessToken,
+          'user_info': {
+            'id': socialUser.id,
+            'email': socialUser.email,
+            'name': socialUser.name,
+            'picture': socialUser.avatarUrl,
+          }
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.data['data'];
+      } else {
+        throw Exception(response.data['message'] ?? 'Social login failed.');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Social login failed.');
+    }
+  }
+
   /// Logout
   Future<void> logout() async {
+    // Clear token
     await _tokenService.clearToken();
+    
+    // Clear all cache data
+    final cacheService = CacheService();
+    await cacheService.clearAllCache();
+    
+    // Clear business categories provider
+    BusinessCategoriesProvider.instance.clear();
   }
 
   //...........................initiate password reset............................
@@ -176,6 +214,34 @@ class AuthService {
       }
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Password reset failed.');
+    }
+  }
+
+  //...........................change password............................
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final token = await _tokenService.getToken();
+    if (token == null) throw Exception('User not logged in');
+
+    try {
+      final response = await _dio.post(
+        changePasswordEndpoint,
+        data: {
+          'old_password': oldPassword,
+          'new_password': newPassword,
+          'confirm_password': confirmPassword,
+        },
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception(response.data['message'] ?? 'Password change failed.');
+      }
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Password change failed.');
     }
   }
 }

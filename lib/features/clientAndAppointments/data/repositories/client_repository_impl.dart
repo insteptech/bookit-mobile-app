@@ -36,6 +36,41 @@ class ClientRepositoryImpl implements ClientRepository {
   }
 
   @override
+  Future<Map<String, dynamic>> createClientAccountAndBookAppointment({
+    required String fullName,
+    required String email,
+    required String phone,
+    required Map<String, dynamic> appointmentData,
+    String? gender,
+    DateTime? dateOfBirth,
+    String? preferredLanguage,
+    String? statusReason,
+    String? classId,
+    String? rescheduledFrom,
+    bool? isCancelled,
+    String? preferredContactMethod,
+    bool? marketingConsent,
+    String? clientNotes,
+  }) async {
+    return await remoteDataSource.createClientAccountAndBookAppointment(
+      fullName: fullName,
+      email: email,
+      phone: phone,
+      appointmentData: appointmentData,
+      gender: gender,
+      dateOfBirth: dateOfBirth,
+      preferredLanguage: preferredLanguage,
+      statusReason: statusReason,
+      classId: classId,
+      rescheduledFrom: rescheduledFrom,
+      isCancelled: isCancelled,
+      preferredContactMethod: preferredContactMethod,
+      marketingConsent: marketingConsent,
+      clientNotes: clientNotes,
+    );
+  }
+
+  @override
   Future<Client> updateClient(Client client) {
     // TODO: Implement when API is available
     throw UnimplementedError();

@@ -33,7 +33,7 @@ class _OnboardBusinessInfoFormState extends State<OnboardBusinessInfoForm> {
         Text(AppTranslationsDelegate.of(context).text("name"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
         InputField(
-          hintText: AppTranslationsDelegate.of(context).text("name"), 
+          hintText: "Business name", 
           controller: widget.nameController,
           isDisabled: widget.isDisabled,
         ),
@@ -41,7 +41,7 @@ class _OnboardBusinessInfoFormState extends State<OnboardBusinessInfoForm> {
         Text(AppTranslationsDelegate.of(context).text("email"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
         InputField(
-          hintText: AppTranslationsDelegate.of(context).text("email"), 
+          hintText: "youremail@business.com", 
           controller: widget.emailController,
           isDisabled: widget.isDisabled,
         ),
@@ -49,7 +49,7 @@ class _OnboardBusinessInfoFormState extends State<OnboardBusinessInfoForm> {
         Text(AppTranslationsDelegate.of(context).text("mobile_phone"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
         InputField(
-          hintText: AppTranslationsDelegate.of(context).text("mobile"), 
+          hintText: "Your business number", 
           controller: widget.mobileController,
           isDisabled: widget.isDisabled,
         ),
@@ -57,7 +57,7 @@ class _OnboardBusinessInfoFormState extends State<OnboardBusinessInfoForm> {
         Text(AppTranslationsDelegate.of(context).text("website_optional"), style: AppTypography.bodyMedium,),
         SizedBox(height: 8,),
         InputField(
-          hintText: AppTranslationsDelegate.of(context).text("website"), 
+          hintText: "URL website", 
           controller: widget.websiteController,
           isDisabled: widget.isDisabled,
         ),

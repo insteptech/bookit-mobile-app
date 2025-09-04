@@ -1,13 +1,16 @@
 import 'package:bookit_mobile_app/app/theme/app_colors.dart';
 import 'package:bookit_mobile_app/app/theme/app_typography.dart';
-import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/controllers/classes_controller.dart';
 import 'package:bookit_mobile_app/core/utils/time_utils.dart';
 import 'package:bookit_mobile_app/features/dashboard/widgets/no_classes_box.dart';
+import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/warning_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class ClassScheduleCalendar extends StatefulWidget {
+class ClassScheduleCalendar extends ConsumerStatefulWidget {
   final bool? showCalendarHeader;
   final String? locationId;
   final int? numberOfClasses;
@@ -20,122 +23,24 @@ class ClassScheduleCalendar extends StatefulWidget {
   });
 
   @override
-  State<ClassScheduleCalendar> createState() => _ClassScheduleCalendarState();
+  ConsumerState<ClassScheduleCalendar> createState() => _ClassScheduleCalendarState();
 }
-
-class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
-  List<dynamic> selectedDayClasses = [];
-  bool isLoading = true;
+ 
+class _ClassScheduleCalendarState extends ConsumerState<ClassScheduleCalendar> {
   DateTime currentDate = DateTime.now();
   DateTime selectedDate = DateTime.now();
   
   @override
   void initState() {
     super.initState();
-    _fetchClassesForDate(selectedDate);
+    // Fetch classes for the initial selected date
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchClassesForDate(selectedDate);
+    });
   }
 
-  Future<void> _fetchClassesForDate(DateTime date) async {
-    try {
-      setState(() => isLoading = true);
-      
-      String dayName = DateFormat('EEEE').format(date);
-      
-      // Use pagination if numberOfClasses is provided
-      if (widget.numberOfClasses != null) {
-        await _fetchClassesForPagination(date);
-      } else {
-        // Fetch all classes
-        if (widget.locationId != null && widget.locationId!.isNotEmpty) {
-          final response = await APIRepository.getClassSchedulesByLocationAndDay(
-            widget.locationId!, 
-            dayName
-          );
-          _processClassesForDate(response, dayName);
-        } else {
-          // Fetch all classes regardless of location when locationId is not provided
-          await _fetchAllClassesOfTheDay(date);
-        }
-      }
-    } catch (e) {
-      print("Error fetching classes: $e");
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> _fetchClassesForPagination(DateTime date) async {
-    try {
-      setState(() => isLoading = true);
-
-      String dayName = DateFormat('EEEE').format(date);
-      int page = 1;
-      int limit = widget.numberOfClasses ?? 10;
-
-      if (widget.locationId != null && widget.locationId!.isNotEmpty) {
-        final response = await APIRepository.getClassScheduleByPaginationAndLocationAndDay(
-          page,
-          limit,
-          widget.locationId!,
-          dayName,
-        );
-        _processClassesForDate(response, dayName);
-      } else {
-        // When no location ID is provided, fetch all classes for the day
-        await _fetchAllClassesOfTheDay(date);
-      }
-    } catch (e) {
-      print("Error fetching classes with pagination: $e");
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  //fetch all classes despite locaion
-  Future<void> _fetchAllClassesOfTheDay(DateTime date) async {
-    try {
-      setState(() => isLoading = true);
-      String dayName = DateFormat('EEEE').format(date);
-      final response = await APIRepository.getClassesByBusinessAndDay(
-        dayName
-      );
-      _processClassesForDate(response, dayName);
-    } catch (e) {
-      print("Error fetching all classes: $e");
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  void _processClassesForDate(dynamic response, String dayName) {
-    if (response != null && response['data'] != null) {
-      List<dynamic> allClasses = [];
-      
-      for (var classData in response['data']['data']) {
-        if (classData['full_data'] != null && classData['full_data']['schedules'] != null) {
-          for (var schedule in classData['full_data']['schedules']) {
-            if (schedule['day_of_week'] == dayName) {
-              allClasses.add({
-                'service_name': classData['service_name'],
-                'category_id': schedule['class_id'],
-                'schedule': schedule,
-                'full_data': classData['full_data'],
-              });
-            }
-          }
-        }
-      }
-      
-      // Sort by start time
-      allClasses.sort((a, b) => a['schedule']['start_time'].compareTo(b['schedule']['start_time']));
-      
-      setState(() {
-        // If numberOfClasses is provided, limit the results, otherwise show all
-        selectedDayClasses = widget.numberOfClasses != null 
-          ? allClasses.take(widget.numberOfClasses!).toList()
-          : allClasses;
-      });
-    }
+  void _fetchClassesForDate(DateTime date) {
+    ref.read(classesControllerProvider.notifier).fetchClassesForDate(widget.locationId, date);
   }
 
   void _onDaySelected(DateTime date) {
@@ -143,6 +48,23 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
       selectedDate = date;
     });
     _fetchClassesForDate(date);
+  }
+
+  List<dynamic> _getSelectedDayClasses() {
+    final allClasses = ref.watch(classesForDateProvider({
+      'locationId': widget.locationId,
+      'date': selectedDate,
+    }));
+    
+    // If numberOfClasses is provided, limit the results, otherwise show all
+    if (widget.numberOfClasses != null && allClasses.isNotEmpty) {
+      final limitedClasses = allClasses.take(widget.numberOfClasses!).toList();
+      // Debug logging - remove in production
+      // print('Limited to ${widget.numberOfClasses} classes: $limitedClasses');
+      return limitedClasses;
+    }
+    
+    return allClasses;
   }
 
   String _formatTime(String timeString) {
@@ -195,8 +117,8 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
     }
   }
 
-  Widget _buildWeekCalendar() {
-    if (widget.showCalendarHeader != true) return SizedBox.shrink();
+  Widget _buildWeekCalendar({bool isRefreshing = false}) {
+    if (widget.showCalendarHeader != true) return const SizedBox.shrink();
     
     List<Widget> dayWidgets = [];
     DateTime startOfWeek = currentDate.subtract(Duration(days: currentDate.weekday % 7));
@@ -260,16 +182,29 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
     return Column(
       children: [
-        Text(
-          _getHeaderText(),
-          style: AppTypography.bodySmall.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              _getHeaderText(),
+              style: AppTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            if (isRefreshing) ...[
+              const SizedBox(width: 8),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ],
+          ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Row(children: dayWidgets),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -286,7 +221,92 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
     }
   }
 
+  Future<void> _cancelClass(String classId, String className) async {
+    try {
+      // Show confirmation dialog
+      final bool? shouldCancel = await showDialog<bool>(
+        context: context,
+        barrierColor: Colors.black.withValues(alpha: 0.5),
+        builder: (BuildContext context) {
+          return WarningDialog.cancelClass(
+            className: className,
+            classDate: selectedDate,
+            onConfirm: () {}, // Dialog handles the navigation
+          );
+        },
+      );
+
+      if (shouldCancel == true) {
+        // Show loading state
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Text('Cancelling class...'),
+                ],
+              ),
+              backgroundColor: const Color(0xFFEA52E7),
+            ),
+          );
+        }
+
+        // Call the cancel API
+        final response = await APIRepository.cancelClass(classId);
+
+        
+        if (mounted) {
+          // Hide loading snackbar
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          
+          if (response['success'] == true) {
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Class cancelled successfully!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            
+            // Refresh the classes list
+            _fetchClassesForDate(selectedDate);
+          } else {
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to cancel class. Please try again.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error cancelling class: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+
   Widget _buildClassCard(dynamic classData) {
+
+    
     final schedule = classData['schedule'];
     final serviceName = classData['service_name'] ?? '';
     final serviceId = schedule['class_id'] ?? '';
@@ -294,6 +314,7 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
     final instructor = schedule['instructors']?.isNotEmpty == true 
       ? schedule['instructors'][0]['instructor']['name'] 
       : 'Instructor';
+    
     
     final startTime = _formatTime(schedule['start_time']);
     final duration = _calculateDuration(schedule['start_time'], schedule['end_time']);
@@ -303,100 +324,121 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
     Color? statusColor;
     if (schedule['package_person'] != null && schedule['package_person'] <= 10) {
       status = 'Full';
-      statusColor = Colors.blue;
+      statusColor = AppColors.primary;
     }
     // Add more status logic as needed
 
-    return GestureDetector(
-      onTap: () {
-        if(serviceId == null || serviceName.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Service details are not available.'))
-          );
-          return;
-        }
-        context.push("/add_class_schedule", extra: {'className': serviceName, 'classId': serviceId});
-      },
-      child: Container(
-        margin: EdgeInsets.only(bottom: 16),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.lightGrayBoxColor,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Time and Duration Column
-            Column(
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      child: _SwipeToRevealCard(
+        key: Key('class_${serviceId}_${DateTime.now().millisecondsSinceEpoch}'),
+        onCancel: () => _cancelClass(serviceId, serviceName),
+        child: GestureDetector(
+          onTap: () {
+            if(serviceId == null || serviceName.isEmpty) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Service details are not available.'))
+                );
+              }
+              return;
+            }
+            // context.push(
+            //   '/add_edit_class_and_schedule',
+            //   extra: {
+            //     'classId': serviceId, 
+            //     'className': serviceName, 
+            //     'isEditing': true
+            //   },
+            // );
+          },
+          child: Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color(0xFFF8F9FA), // Light gray background from Figma
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  startTime,
-                  style: AppTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.secondaryFontColor,
+                // Time and Duration Column
+                SizedBox(
+                  width: 54,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        startTime,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF3A0039), // Dark color from Figma
+                          fontFamily: 'Campton',
+                        ),
+                      ),
+                      Text(
+                        '${duration}min',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF790077), // Purple color from Figma
+                          fontFamily: 'Campton',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  '${duration}min',
-                  style: AppTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.secondaryFontColor,
+                SizedBox(width: 4),
+                
+                // Class Details Column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        serviceName.length > 20 
+                          ? '${serviceName.substring(0, 17)}...' 
+                          : serviceName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF3A0039), // Dark color from Figma
+                          fontFamily: 'Campton',
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        instructor,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF6C757D), // Gray color from Figma
+                          fontFamily: 'Campton',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                
+                // Status Badge
+                if (status != null)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      status,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
               ],
             ),
-            SizedBox(width: 24),
-            
-            // Class Details Column
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    serviceName.length > 20 
-                      ? '${serviceName.substring(0, 17)}...' 
-                      : serviceName,
-                    style: AppTypography.appBarHeading.copyWith(
-                      color: AppColors.secondaryFontColor,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    location,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: AppColors.secondaryFontColor,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    instructor,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Status Badge
-            if (status != null)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  status,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
@@ -432,21 +474,32 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(classesLoadingProvider);
+    final isRefreshing = ref.watch(classesRefreshingProvider);
+    final selectedDayClasses = _getSelectedDayClasses();
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildWeekCalendar(),
+        _buildWeekCalendar(isRefreshing: isRefreshing),
         
-        if (isLoading)
-          Center(
+        if (isLoading && selectedDayClasses.isEmpty)
+         Container(
+        height: 160,
+        color: AppColors.lightGrayBoxColor,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: const Center(
             child: CircularProgressIndicator(),
           )
-        else if (selectedDayClasses.isEmpty)
+      )
+          
+        else if (selectedDayClasses.isEmpty) 
           NoClassesBox(message: _getHeaderText().toLowerCase())
         else ...[
           ListView.builder(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: selectedDayClasses.length,
             itemBuilder: (context, index) {
               return _buildClassCard(selectedDayClasses[index]);
@@ -455,6 +508,141 @@ class _ClassScheduleCalendarState extends State<ClassScheduleCalendar> {
           if (widget.numberOfClasses != null) _buildViewAllButton(),
         ],
       ],
+    );
+  }
+}
+
+class _SwipeToRevealCard extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onCancel;
+
+  const _SwipeToRevealCard({
+    Key? key,
+    required this.child,
+    required this.onCancel,
+  }) : super(key: key);
+
+  @override
+  _SwipeToRevealCardState createState() => _SwipeToRevealCardState();
+}
+
+class _SwipeToRevealCardState extends State<_SwipeToRevealCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _offsetAnimation;
+  
+  double _dragOffset = 0.0;
+  bool _isRevealed = false;
+  static const double _revealThreshold = 80.0; // Minimum swipe distance to reveal
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    
+    _offsetAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(-0.25, 0), // Slide left by 25% to reveal cancel button
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handlePanUpdate(DragUpdateDetails details) {
+    setState(() {
+      _dragOffset += details.delta.dx;
+      _dragOffset = _dragOffset.clamp(-120.0, 0.0); // Limit drag distance
+    });
+  }
+
+  void _handlePanEnd(DragEndDetails details) {
+    if (_dragOffset < -_revealThreshold) {
+      // Reveal cancel button
+      _revealCancel();
+    } else {
+      // Snap back to original position
+      _hideCancel();
+    }
+  }
+
+  void _revealCancel() {
+    setState(() {
+      _isRevealed = true;
+      _dragOffset = -80.0; // Set to revealed position
+    });
+    _controller.forward();
+  }
+
+  void _hideCancel() {
+    setState(() {
+      _isRevealed = false;
+      _dragOffset = 0.0;
+    });
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Stack(
+        children: [
+          // Cancel button background (always present but hidden)
+          Positioned.fill(
+            child: Container(
+              alignment: Alignment.centerRight,
+              color: const Color(0xFFEA52E7), // Pink cancel button color
+              child: Container(
+                width: 80,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: GestureDetector(
+                  onTap: widget.onCancel,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Campton',
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Main card content
+          Transform.translate(
+            offset: Offset(_dragOffset, 0),
+            child: GestureDetector(
+              onPanUpdate: _handlePanUpdate,
+              onPanEnd: _handlePanEnd,
+              onTap: () {
+                if (_isRevealed) {
+                  _hideCancel(); // Hide cancel if revealed and tapped
+                }
+              },
+              child: widget.child,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -8,29 +8,29 @@ class StaffProfile {
   final String phoneNumber;
   final String gender;
   final List<String> categoryIds;
-  final List<String> locationIds;
+  final List<String>? locationIds;
   final File? profileImage;
-  final bool isAvailable;
-  final String userId; 
+  final bool? isAvailable;
+  final bool? forClass;
   String? profilePhotoUrl;
 
   StaffProfile({
     this.id,
-    required this.userId,
     required this.name,
     required this.email,
     required this.phoneNumber,
     required this.gender,
     required this.categoryIds,
-    required this.locationIds,
+    this.locationIds,
     this.profileImage,
-    this.isAvailable = true,
+    this.isAvailable,
+    this.forClass,
     this.profilePhotoUrl,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'user_id': userId,
+      'id': id,
       'name': name,
       'email': email,
       'phone_number': phoneNumber,
@@ -38,6 +38,7 @@ class StaffProfile {
       'category_id': categoryIds,
       'location_id': locationIds,
       'is_available': isAvailable,
+      'for_class': forClass,
     };
   }
 }

@@ -4,22 +4,26 @@ import 'package:mockito/mockito.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/domain/entities/client.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/domain/usecases/get_clients.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/domain/usecases/create_client.dart';
+import 'package:bookit_mobile_app/features/clientAndAppointments/domain/usecases/create_client_and_book_appointment.dart';
 import 'package:bookit_mobile_app/features/clientAndAppointments/application/controllers/client_controller.dart';
 
 class MockGetClients extends Mock implements GetClients {}
 class MockCreateClient extends Mock implements CreateClient {}
+class MockCreateClientAndBookAppointment extends Mock implements CreateClientAndBookAppointment {}
 
 void main() {
   group('ClientController Tests', () {
     late ClientController controller;
     late MockGetClients mockGetClients;
     late MockCreateClient mockCreateClient;
+    late MockCreateClientAndBookAppointment mockCreateClientAndBookAppointment;
     late ProviderContainer container;
 
     setUp(() {
       mockGetClients = MockGetClients();
       mockCreateClient = MockCreateClient();
-      controller = ClientController(mockGetClients, mockCreateClient);
+      mockCreateClientAndBookAppointment = MockCreateClientAndBookAppointment();
+      controller = ClientController(mockGetClients, mockCreateClient, mockCreateClientAndBookAppointment);
       container = ProviderContainer();
     });
 

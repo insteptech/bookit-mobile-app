@@ -1,18 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bookit_mobile_app/core/services/remote_services/network/api_provider.dart';
+import 'package:bookit_mobile_app/core/utils/data_comparison_utils.dart';
+import 'package:bookit_mobile_app/core/services/cache_service.dart';
 
 // State class for appointments
 class AppointmentsState {
   final List<Map<String, dynamic>> allStaffAppointments;
   final List<Map<String, dynamic>> todaysStaffAppointments;
   final bool isLoading;
+  final bool isRefreshing;
   final String? error;
 
   const AppointmentsState({
     this.allStaffAppointments = const [],
     this.todaysStaffAppointments = const [],
     this.isLoading = false,
+    this.isRefreshing = false,
     this.error,
   });
 
@@ -20,12 +24,14 @@ class AppointmentsState {
     List<Map<String, dynamic>>? allStaffAppointments,
     List<Map<String, dynamic>>? todaysStaffAppointments,
     bool? isLoading,
+    bool? isRefreshing,
     String? error,
   }) {
     return AppointmentsState(
       allStaffAppointments: allStaffAppointments ?? this.allStaffAppointments,
       todaysStaffAppointments: todaysStaffAppointments ?? this.todaysStaffAppointments,
       isLoading: isLoading ?? this.isLoading,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
       error: error ?? this.error,
     );
   }
@@ -33,19 +39,81 @@ class AppointmentsState {
 
 // Appointments Controller
 class AppointmentsController extends StateNotifier<AppointmentsState> {
+  final CacheService _cacheService = CacheService();
+  
   AppointmentsController() : super(const AppointmentsState());
 
 
   Future<void> fetchAppointments(String locationId) async {
-    await APIRepository.getStaffList();
-    state = state.copyWith(isLoading: true, error: null);
+    // First, try to load from cache
+    final cachedAppointments = await _cacheService.getCachedAppointments(locationId);
+    
+    // If cache exists, show it immediately (no loading state)
+    if (cachedAppointments != null) {
+      state = state.copyWith(
+        allStaffAppointments: cachedAppointments,
+        isLoading: false,
+      );
+      _filterTodaysAppointments();
+      
+      // ALWAYS fetch fresh data in parallel (background refresh)
+      _fetchAppointmentsFromAPI(locationId, showBackgroundRefresh: true);
+    } else {
+      // No cache exists, show loading and fetch immediately
+      state = state.copyWith(isLoading: true, error: null);
+      await _fetchAppointmentsFromAPI(locationId, showBackgroundRefresh: false);
+    }
+  }
 
-    await APIRepository.getAllClassesDetails();
+  Future<void> _fetchAppointmentsFromAPI(String locationId, {bool showBackgroundRefresh = false}) async {
+    if (showBackgroundRefresh) {
+      state = state.copyWith(isRefreshing: true);
+    }
+
     try {
       final data = await APIRepository.getAppointments(locationId);
       final List<Map<String, dynamic>> appointmentsList =
           List<Map<String, dynamic>>.from(data['data']);
     
+      // Cache the fresh data
+      await _cacheService.cacheAppointments(locationId, appointmentsList);
+      
+      // Only update UI if data has changed
+      if (DataComparisonUtils.hasDataChanged(state.allStaffAppointments, appointmentsList)) {
+        state = state.copyWith(
+          allStaffAppointments: appointmentsList,
+          isLoading: false,
+          isRefreshing: false,
+        );
+        _filterTodaysAppointments();
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          isRefreshing: false,
+        );
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        isRefreshing: false,
+        error: e.toString(),
+      );
+      // debugPrint("Error fetching appointments: $e");
+    }
+  }
+
+  // Keep the old method for backward compatibility/forced refresh
+  Future<void> fetchAppointmentsForced(String locationId) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final data = await APIRepository.getAppointments(locationId);
+      final List<Map<String, dynamic>> appointmentsList =
+          List<Map<String, dynamic>>.from(data['data']);
+    
+      // Cache the data
+      await _cacheService.cacheAppointments(locationId, appointmentsList);
+      
       state = state.copyWith(
         allStaffAppointments: appointmentsList,
         isLoading: false,
@@ -57,7 +125,7 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
         isLoading: false,
         error: e.toString(),
       );
-      debugPrint("Error fetching appointments: $e");
+      // debugPrint("Error fetching appointments: $e");
     }
   }
 
@@ -79,7 +147,7 @@ class AppointmentsController extends StateNotifier<AppointmentsState> {
           
           return isToday;
         } catch (e) {
-          debugPrint("Error parsing appointment start_time: ${appointment['start_time']}, Error: $e");
+          // debugPrint("Error parsing appointment start_time: ${appointment['start_time']}, Error: $e");
           return false; // Skip invalid appointment times
         }
       }).toList();

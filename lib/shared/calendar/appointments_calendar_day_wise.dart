@@ -127,9 +127,13 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
   // Helper function to parse "HH:mm:ss" string into TimeOfDay
   TimeOfDay _parseTime(String timeString) {
     final parts = timeString.split(':');
-    final hour = int.parse(parts[0]);
-    final minute = int.parse(parts[1]);
-    return TimeOfDay(hour: hour, minute: minute);
+    try {
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+      return TimeOfDay(hour: hour, minute: minute);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
@@ -289,7 +293,7 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
                         final period = hour < 12 ? 'AM' : 'PM';
                         return Container(
                           height: hourHeight,
-                          alignment: Alignment.center, // Center the time text
+                          alignment: Alignment.topCenter, // Align time text to top
                           child: Text(
                             '$time $period',
                             // Using standard TextTheme instead of AppTypography

@@ -4,8 +4,9 @@ import 'package:bookit_mobile_app/app/localization/app_translations_delegate.dar
 import 'package:bookit_mobile_app/shared/components/atoms/input_field.dart';
 import 'package:bookit_mobile_app/shared/components/organisms/map_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:bookit_mobile_app/shared/components/atoms/delete_action.dart';
 
-class OnboardingLocationInfoForm extends StatelessWidget {
+class OnboardingLocationInfoForm extends StatefulWidget {
   final void Function(Map<String, dynamic>) onLocationUpdated;
   final TextEditingController locationController;
   final TextEditingController addressController;
@@ -19,6 +20,7 @@ class OnboardingLocationInfoForm extends StatelessWidget {
   final bool showDeleteButton;
   final Function onClick;
   final int? addressNumber;
+  final VoidCallback? onDelete;
 
   const OnboardingLocationInfoForm({
     super.key,
@@ -35,15 +37,21 @@ class OnboardingLocationInfoForm extends StatelessWidget {
     this.lat,
     this.lng,
     this.addressNumber,
+    this.onDelete,
   });
 
+  @override
+  State<OnboardingLocationInfoForm> createState() => _OnboardingLocationInfoFormState();
+}
+
+class _OnboardingLocationInfoFormState extends State<OnboardingLocationInfoForm> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     // Use provided lat/lng or default to egypt
-    final double latitude = lat ?? 30;
-    final double longitude = lng ?? 31;
+    final double latitude = widget.lat ?? 30;
+    final double longitude = widget.lng ?? 31;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,21 +60,14 @@ class OnboardingLocationInfoForm extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              addressNumber != null && addressNumber! > 0 
-                ? "${AppTranslationsDelegate.of(context).text("address")} $addressNumber"
+              widget.addressNumber != null && widget.addressNumber! > 0 
+                ? "${AppTranslationsDelegate.of(context).text("address")} ${widget.addressNumber}"
                 : AppTranslationsDelegate.of(context).text("address"), 
               style: AppTypography.bodyMedium
             ),
-            if (showDeleteButton)
-              GestureDetector(
-                onTap: () {
-                  onClick();
-                },
-                child: Icon(
-                  Icons.delete_outline,
-                  color: theme.colorScheme.primary,
-                  size: 22,
-                ),
+            if (widget.showDeleteButton)
+              DeleteAction(
+                onConfirm: widget.onClick as VoidCallback,
               ),
           ],
         ),
@@ -78,10 +79,10 @@ class OnboardingLocationInfoForm extends StatelessWidget {
               MaterialPageRoute(
                 builder:
                     (_) => MapSelector(
-                      initialLat: lat,
-                      initialLng: lng,
+                      initialLat: widget.lat,
+                      initialLng: widget.lng,
                       onLocationSelected: (locationData) {
-                        onLocationUpdated(
+                        widget.onLocationUpdated(
                           locationData,
                         ); // ✅ use your callback directly
                         Navigator.pop(context); // ✅ close the map screen
@@ -139,33 +140,33 @@ class OnboardingLocationInfoForm extends StatelessWidget {
 
         SizedBox(height: 16),
         Text(AppTranslationsDelegate.of(context).text("location_name"), style: AppTypography.bodyMedium),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("location_name"), controller: locationController),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("location_name"), controller: widget.locationController),
 
         SizedBox(height: 8),
         Text(AppTranslationsDelegate.of(context).text("address"), style: AppTypography.bodyMedium),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("street"), controller: addressController),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("street"), controller: widget.addressController),
 
         SizedBox(height: 8),
         Text(AppTranslationsDelegate.of(context).text("floor_apt"), style: AppTypography.bodyMedium),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("floor_apt_number"), controller: floorController),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("floor_apt_number"), controller: widget.floorController),
 
         SizedBox(height: 8),
         Text(AppTranslationsDelegate.of(context).text("city"), style: AppTypography.bodyMedium),
-        InputField(hintText: AppTranslationsDelegate.of(context).text("city"), controller: cityController),
+        InputField(hintText: AppTranslationsDelegate.of(context).text("city"), controller: widget.cityController),
 
         SizedBox(height: 8),
         Text(AppTranslationsDelegate.of(context).text("state"), style: AppTypography.bodyMedium),
-        InputField(hintText: "State", controller: stateController),
+        InputField(hintText: "State", controller: widget.stateController),
 
         SizedBox(height: 8),
         Text(AppTranslationsDelegate.of(context).text("country"), style: AppTypography.bodyMedium),
-        InputField(hintText: "Country", controller: countryController),
+        InputField(hintText: "Country", controller: widget.countryController),
 
         SizedBox(height: 8),
         Text(AppTranslationsDelegate.of(context).text("additional_instructions"), style: AppTypography.bodyMedium),
         InputField(
           hintText: "Directions and instructions",
-          controller: instructionController,
+          controller: widget.instructionController,
         ),
       ],
     );

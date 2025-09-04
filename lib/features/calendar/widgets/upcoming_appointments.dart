@@ -5,6 +5,7 @@ import 'package:bookit_mobile_app/features/dashboard/widgets/no_upcoming_appoint
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum AppointmentStatus { upcoming, past, cancelled }
 
@@ -281,6 +282,36 @@ class AppointmentCard extends StatelessWidget {
     }
   }
 
+  Future<void> _launchEmail(String email) async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: email,
+    );
+    
+    try {
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      // Email launch failed silently
+    }
+  }
+
+  Future<void> _launchPhone(String phoneNumber) async {
+    final Uri phoneUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    
+    try {
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      // Phone launch failed silently
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -293,6 +324,8 @@ class AppointmentCard extends StatelessWidget {
     final clientName = appointment['client_name'] ?? 'Unknown Client';
     final staffName = appointment['staff_name'] ?? 'Unknown Staff';
     final status = appointment['status']?.toString().toLowerCase() ?? '';
+    final clientEmail = appointment['client_email'] ?? '';
+    final clientPhone = appointment['client_phone'] ?? '';
     
     final timeSlot = _formatTimeSlot(startTimeStr, durationMinutes);
     final treatmentInfo = '$serviceName ($durationMinutes min)';
@@ -451,9 +484,9 @@ class AppointmentCard extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {
-                            // Handle email action
-                          },
+                          onTap: clientEmail.isNotEmpty ? () {
+                            _launchEmail(clientEmail);
+                          } : null,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 7),
                             child: Center(
@@ -478,9 +511,9 @@ class AppointmentCard extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {
-                            // Handle call action
-                          },
+                          onTap: clientPhone.isNotEmpty ? () {
+                            _launchPhone(clientPhone);
+                          } : null,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 7),
                             child: Center(

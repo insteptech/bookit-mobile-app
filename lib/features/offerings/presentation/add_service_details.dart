@@ -44,7 +44,7 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching all staff members: $e');
+      // debugPrint('Error fetching all staff members: $e');
     }
   }
   
@@ -58,7 +58,7 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching all locations: $e');
+      // debugPrint('Error fetching all locations: $e');
     }
   }
 
@@ -104,7 +104,7 @@ class _AddServiceDetailsScreenState extends State<AddServiceDetailsScreen> {
         }
       }
     } catch (e) {
-      debugPrint('Error submitting service details: $e');
+      // debugPrint('Error submitting service details: $e');
       
       // Show error message to user
       if (mounted) {
