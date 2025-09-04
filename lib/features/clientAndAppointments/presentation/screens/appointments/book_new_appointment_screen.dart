@@ -100,19 +100,15 @@ class _BookNewAppointmentScreenState
 
   // Helper function to calculate time difference in minutes
   int getTimeDifferenceInMinutes(String startTime, String endTime) {
-    print('DEBUG TIME 1: getTimeDifferenceInMinutes called with startTime: "$startTime", endTime: "$endTime"');
     final startParts = startTime.split(':');
     final endParts = endTime.split(':');
-    print('DEBUG TIME 2: startParts: $startParts, endParts: $endParts');
 
     try {
       final startMinutes =
           int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
       final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
-      print('DEBUG TIME 3: startMinutes: $startMinutes, endMinutes: $endMinutes');
       return endMinutes - startMinutes;
     } catch (e) {
-      print('DEBUG TIME 4: ERROR in getTimeDifferenceInMinutes - $e');
       rethrow;
     }
   }
@@ -123,17 +119,14 @@ class _BookNewAppointmentScreenState
     String endTime,
     int durationMinutes,
   ) {
-    print('DEBUG SLOTS 1: generateTimeSlots called with startTime: "$startTime", endTime: "$endTime", durationMinutes: $durationMinutes');
     List<Map<String, String>> slots = [];
 
     // Convert time strings to standard 24-hour format for slot generation
     final startTimeLocal = _convertTimeToStandardFormat(startTime);
     final endTimeLocal = _convertTimeToStandardFormat(endTime);
-    print('DEBUG SLOTS 2: After UTC conversion - startTimeLocal: "$startTimeLocal", endTimeLocal: "$endTimeLocal"');
 
     final totalMinutes = getTimeDifferenceInMinutes(startTimeLocal, endTimeLocal);
     final numberOfSlots = totalMinutes ~/ durationMinutes;
-    print('DEBUG SLOTS 3: totalMinutes: $totalMinutes, numberOfSlots: $numberOfSlots');
 
     String currentStartTime = startTimeLocal;
 
@@ -202,19 +195,14 @@ class _BookNewAppointmentScreenState
 
     if (selectedServiceData.isEmpty) return [];
 
-    print('DEBUG 9: Looking for duration match. selectedDuration: "$selectedDuration"');
-    print('DEBUG 10: Available durations in selectedServiceData: ${selectedServiceData['durations']}');
-    
     final selectedDurationData = (selectedServiceData['durations'] as List)
         .firstWhere(
           (duration) {
             final durationStr = duration['duration_minutes'].toString();
-            print('DEBUG 11: Comparing "$durationStr" == "$selectedDuration"');
             return durationStr == selectedDuration;
           },
           orElse: () => <String, Object>{},
         );
-    print('DEBUG 12: selectedDurationData result: $selectedDurationData');
 
     if (selectedDurationData.isEmpty) return [];
 
@@ -281,11 +269,12 @@ class _BookNewAppointmentScreenState
           "practitioner_id" : practitioner['id'],
           'practitioner_name': practitioner['name'],
           'service_name': selectedServiceData['name'],
-          'business_service_id': selectedServiceData['business_service_id'], // Use original business service ID
+          'business_service_id': selectedServiceData['business_service_id'],
           'slots': allSlots,
         });
       }
     }
+    
     return calendarData;
   }
 

@@ -78,9 +78,7 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
     final color = AppColors.secondary2;
 
     for (final practitioner in widget.calenderData) {
-      print('DEBUG CALENDAR 5: Processing practitioner: ${practitioner['practitioner_name']}');
       for (final slot in practitioner['slots']) {
-        print('DEBUG CALENDAR 6: Processing slot: $slot');
         final String dayName = slot['day'];
         final int? targetWeekday = _dayNameToWeekday[dayName];
 
@@ -128,16 +126,12 @@ class _MyCalenderWidgetDayWiseState extends State<MyCalenderWidgetDayWise> {
 
   // Helper function to parse "HH:mm:ss" string into TimeOfDay
   TimeOfDay _parseTime(String timeString) {
-    print('DEBUG CALENDAR 1: Parsing timeString: "$timeString"');
     final parts = timeString.split(':');
-    print('DEBUG CALENDAR 2: Split parts: $parts');
     try {
       final hour = int.parse(parts[0]);
       final minute = int.parse(parts[1]);
-      print('DEBUG CALENDAR 3: Parsed hour: $hour, minute: $minute');
       return TimeOfDay(hour: hour, minute: minute);
     } catch (e) {
-      print('DEBUG CALENDAR 4: ERROR parsing time - $e');
       rethrow;
     }
   }
