@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:io';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/theme_data.dart';
 import '../../../../shared/components/atoms/input_field.dart';
@@ -123,8 +124,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _socialIcon('assets/icons/apple.svg', SocialProvider.apple, ref),
-              const SizedBox(width: 16),
+              if (Platform.isIOS) ...[
+                _socialIcon('assets/icons/apple.svg', SocialProvider.apple, ref),
+                const SizedBox(width: 16),
+              ],
               _socialIcon('assets/icons/google.svg', SocialProvider.google, ref),
               const SizedBox(width: 16),
               _socialIcon('assets/icons/facebook.svg', SocialProvider.facebook, ref),
